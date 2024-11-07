@@ -14,7 +14,7 @@ interface UserInfoData {
 const EditProfile: React.FC = () => {
   const [userInfo, setUserInfo] = useState<UserInfoData | null>(null);
 
-  // Function to fetch user data from the backend
+  // Function to fetch the latest user data from the backend
   const fetchUserData = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -23,7 +23,6 @@ const EditProfile: React.FC = () => {
         return;
       }
 
-      // Fetch user data from the backend
       const response = await axios.get<UserInfoData>(
         `${process.env.REACT_APP_BACKEND_URL}/auth/user-profile`,
         {
@@ -33,32 +32,47 @@ const EditProfile: React.FC = () => {
         }
       );
 
-      // Set the user data in state and update localStorage
+      // Set the user data in state
       const { username, email, firstName, lastName } = response.data;
-      const userData = { username, email, firstName, lastName };
-      setUserInfo(userData);
-      localStorage.setItem("userInfo", JSON.stringify(userData));
+      setUserInfo({ username, email, firstName, lastName });
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
   };
 
-  // Effect to load user data when the component mounts
+  // Fetch user data when the component mounts
   useEffect(() => {
-    // Load from localStorage first
-    const cachedUserInfo = localStorage.getItem("userInfo");
-    if (cachedUserInfo) {
-      setUserInfo(JSON.parse(cachedUserInfo));
-    } else {
-      fetchUserData(); // Fetch from backend if not cached
-    }
+    fetchUserData();
   }, []);
 
-  const handleUpdate = (email: string, firstName: string, lastName: string) => {
-    if (userInfo) {
-      const updatedUserInfo = { ...userInfo, email, firstName, lastName };
-      setUserInfo(updatedUserInfo);
-      localStorage.setItem("userInfo", JSON.stringify(updatedUserInfo));
+  // Handle update and refetch data
+  const handleUpdate = async (
+    email: string,
+    firstName: string,
+    lastName: string
+  ) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No token found. User is not authenticated.");
+        return;
+      }
+
+      // Make the update request
+      await axios.put(
+        `${process.env.REACT_APP_BACKEND_URL}/auth/update-profile`,
+        { email, firstName, lastName },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Refetch the updated user data from the backend
+      fetchUserData();
+    } catch (error) {
+      console.error("Error updating profile:", error);
     }
   };
 
