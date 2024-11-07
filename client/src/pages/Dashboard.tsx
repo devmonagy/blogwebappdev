@@ -1,14 +1,44 @@
-// client/src/pages/Dashboard.tsx
-import React from "react";
+// src/pages/Dashboard.tsx
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import defaultUserImage from "../assets/userImg.png"; // Import the default image
+import axios from "axios";
+import defaultUserImage from "../assets/userImg.png";
 
 interface DashboardProps {
-  user: string | null;
   onLogout: () => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
+interface UserProfileResponse {
+  firstName: string;
+}
+
+const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
+  const [firstName, setFirstName] = useState<string | null>(null);
+
+  // Fetch user data from the backend
+  const fetchUserData = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const response = await axios.get<UserProfileResponse>(
+        `${process.env.REACT_APP_BACKEND_URL}/auth/user-profile`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      setFirstName(response.data.firstName);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
+
+  // Fetch user data when the component mounts
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
   return (
     <div className="flex flex-col items-center justify-center min-h-full py-10 bg-background text-white">
       {/* Profile Picture */}
@@ -21,7 +51,9 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
       </div>
 
       {/* Welcome Message */}
-      <h2 className="text-2xl font-bold mb-2">Welcome, {user}!</h2>
+      <h2 className="text-2xl font-bold mb-2">
+        Welcome, {firstName || "User"}!
+      </h2>
 
       {/* Edit Profile Link */}
       <Link to="/edit-profile" className="text-blue-400 hover:underline mb-4">

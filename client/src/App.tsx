@@ -1,3 +1,4 @@
+// src/App.tsx
 import React, { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
@@ -14,49 +15,63 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import EditProfile from "./pages/EditProfile";
 
+interface User {
+  username: string;
+  email: string;
+  firstName: string;
+}
+
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
     return !!localStorage.getItem("token");
   });
-  const [user, setUser] = useState<string | null>(() => {
-    return localStorage.getItem("username");
-  });
-  const [email, setEmail] = useState<string | null>(() => {
-    return localStorage.getItem("email"); // Retrieve email from localStorage
+  const [user, setUser] = useState<User | null>(() => {
+    const username = localStorage.getItem("username");
+    const email = localStorage.getItem("email");
+    const firstName = localStorage.getItem("firstName");
+    return username && email && firstName
+      ? { username, email, firstName }
+      : null;
   });
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     const username = localStorage.getItem("username");
-    const userEmail = localStorage.getItem("email");
+    const email = localStorage.getItem("email");
+    const firstName = localStorage.getItem("firstName");
 
-    if (token && username && userEmail) {
+    if (token && username && email && firstName) {
       setIsAuthenticated(true);
-      setUser(username);
-      setEmail(userEmail);
+      setUser({ username, email, firstName });
     } else {
       setIsAuthenticated(false);
       setUser(null);
-      setEmail(null);
     }
   }, []);
 
-  const handleLogin = (username: string, email: string, token: string) => {
+  const handleLogin = (
+    username: string,
+    email: string,
+    firstName: string,
+    token: string
+  ) => {
     localStorage.setItem("username", username);
-    localStorage.setItem("email", email); // Store the email in localStorage
+    localStorage.setItem("email", email);
+    localStorage.setItem("firstName", firstName);
     localStorage.setItem("token", token);
+
     setIsAuthenticated(true);
-    setUser(username);
-    setEmail(email);
+    setUser({ username, email, firstName });
   };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("username");
-    localStorage.removeItem("email"); // Remove email from localStorage
+    localStorage.removeItem("email");
+    localStorage.removeItem("firstName");
+
     setIsAuthenticated(false);
     setUser(null);
-    setEmail(null);
   };
 
   return (
@@ -82,7 +97,7 @@ const App: React.FC = () => {
               path="/dashboard"
               element={
                 isAuthenticated ? (
-                  <Dashboard user={user} onLogout={handleLogout} />
+                  <Dashboard onLogout={handleLogout} />
                 ) : (
                   <Navigate to="/login" />
                 )

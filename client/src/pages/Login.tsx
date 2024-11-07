@@ -4,13 +4,19 @@ import { useNavigate, Link } from "react-router-dom";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 
 interface LoginProps {
-  onLogin: (username: string, email: string, token: string) => void;
+  onLogin: (
+    username: string,
+    email: string,
+    firstName: string,
+    token: string
+  ) => void;
 }
 
 interface LoginResponse {
   user: {
     username: string;
     email: string;
+    firstName: string; // Added firstName here
   };
   token: string;
 }
@@ -48,10 +54,10 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         formData
       );
 
-      const { username, email } = response.data.user;
+      const { username, email, firstName } = response.data.user; // Extract firstName from the response
       const { token } = response.data;
 
-      onLogin(username, email, token);
+      onLogin(username, email, firstName, token); // Pass firstName as well
       navigate("/dashboard");
     } catch (err: any) {
       setError(err.response?.data?.error || "Login failed");
