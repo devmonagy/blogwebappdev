@@ -1,0 +1,43 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Merriweather:wght@700&display=swap");
+
+/* Global styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Inter", Arial, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Merriweather", serif;
+}
+
+.home {
+  padding: 100px 0;
+}
+.home h2 {
+  text-align: center;
+}
+
+.about {
+  padding: 100px 0;
+}
+.about h2 {
+  text-align: center;
+}
+
+.login {
+  padding: 100px 0;
+}
+.login h2 {
+  text-align: center;
+}
+.eyecomp {
+  background: #e5e7eb;
+}
