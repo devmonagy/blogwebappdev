@@ -1,4 +1,3 @@
-// client/src/App.tsx
 import React, { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
@@ -13,39 +12,51 @@ import About from "./pages/About";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
+import EditProfile from "./pages/EditProfile";
 
 const App: React.FC = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [user, setUser] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    return !!localStorage.getItem("token");
+  });
+  const [user, setUser] = useState<string | null>(() => {
+    return localStorage.getItem("username");
+  });
+  const [email, setEmail] = useState<string | null>(() => {
+    return localStorage.getItem("email"); // Retrieve email from localStorage
+  });
 
-  // Check if the user is authenticated when the app loads
   useEffect(() => {
     const token = localStorage.getItem("token");
     const username = localStorage.getItem("username");
+    const userEmail = localStorage.getItem("email");
 
-    if (token && username) {
+    if (token && username && userEmail) {
       setIsAuthenticated(true);
       setUser(username);
+      setEmail(userEmail);
     } else {
       setIsAuthenticated(false);
       setUser(null);
+      setEmail(null);
     }
   }, []);
 
-  // Function to handle user login
-  const handleLogin = (username: string, token: string) => {
+  const handleLogin = (username: string, email: string, token: string) => {
     localStorage.setItem("username", username);
+    localStorage.setItem("email", email); // Store the email in localStorage
     localStorage.setItem("token", token);
     setIsAuthenticated(true);
     setUser(username);
+    setEmail(email);
   };
 
-  // Function to handle user logout
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("username");
+    localStorage.removeItem("email"); // Remove email from localStorage
     setIsAuthenticated(false);
     setUser(null);
+    setEmail(null);
   };
 
   return (
@@ -54,7 +65,6 @@ const App: React.FC = () => {
         <Header isAuthenticated={isAuthenticated} />
         <main className="flex-grow">
           <Routes>
-            {/* Ensure Home does not require the onLogin prop */}
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route
@@ -76,6 +86,12 @@ const App: React.FC = () => {
                 ) : (
                   <Navigate to="/login" />
                 )
+              }
+            />
+            <Route
+              path="/edit-profile"
+              element={
+                isAuthenticated ? <EditProfile /> : <Navigate to="/login" />
               }
             />
           </Routes>

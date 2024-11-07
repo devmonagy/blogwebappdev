@@ -1,4 +1,3 @@
-// server/controllers/authController.ts
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -67,7 +66,14 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
       expiresIn: "1h",
     });
 
-    res.status(200).json({ token, user: { username: user.username } });
+    // Return the token and user details including email
+    res.status(200).json({
+      token,
+      user: {
+        username: user.username,
+        email: user.email, // Include the email in the response
+      },
+    });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }

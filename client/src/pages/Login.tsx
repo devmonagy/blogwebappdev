@@ -1,16 +1,16 @@
-// client/src/pages/Login.tsx
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
-import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai"; // Import eye icons
+import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 
 interface LoginProps {
-  onLogin: (username: string, token: string) => void;
+  onLogin: (username: string, email: string, token: string) => void;
 }
 
 interface LoginResponse {
   user: {
     username: string;
+    email: string;
   };
   token: string;
 }
@@ -26,7 +26,6 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    // Convert "usernameOrEmail" input to lowercase and remove spaces
     if (name === "usernameOrEmail") {
       const formattedValue = value.toLowerCase().replace(/\s/g, "");
       setFormData({ ...formData, [name]: formattedValue });
@@ -49,10 +48,10 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         formData
       );
 
-      const { username } = response.data.user;
+      const { username, email } = response.data.user;
       const { token } = response.data;
 
-      onLogin(username, token);
+      onLogin(username, email, token);
       navigate("/dashboard");
     } catch (err: any) {
       setError(err.response?.data?.error || "Login failed");
