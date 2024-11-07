@@ -2,9 +2,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
-import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
+import { useNavigate } from "react-router-dom";
 
-// Define the structure of the expected response data
 interface RegisterResponse {
   message: string;
 }
@@ -12,6 +11,8 @@ interface RegisterResponse {
 const Register: React.FC = () => {
   const [formData, setFormData] = useState({
     username: "",
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
   });
@@ -22,15 +23,13 @@ const Register: React.FC = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const navigate = useNavigate();
 
-  // Redirect if the user is already logged in
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      navigate("/dashboard"); // Redirect to /dashboard if the user is logged in
+      navigate("/dashboard");
     }
   }, [navigate]);
 
-  // Handle form input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (name === "username") {
@@ -44,7 +43,6 @@ const Register: React.FC = () => {
     }
   };
 
-  // Function to check password strength
   const checkPasswordStrength = (password: string) => {
     let strength = 0;
     if (password.length >= 8) strength++;
@@ -52,9 +50,7 @@ const Register: React.FC = () => {
     if (/[a-z]/.test(password)) strength++;
     if (/[0-9]/.test(password)) strength++;
     if (/[^A-Za-z0-9]/.test(password)) strength++;
-
     setPasswordStrength(strength);
-
     if (strength <= 1) {
       setPasswordStatus("Strength: Weak");
     } else if (strength === 2) {
@@ -68,7 +64,6 @@ const Register: React.FC = () => {
     }
   };
 
-  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSuccess(null);
@@ -85,7 +80,13 @@ const Register: React.FC = () => {
         formData
       );
       setSuccess(response.data.message);
-      setFormData({ username: "", email: "", password: "" });
+      setFormData({
+        username: "",
+        firstName: "",
+        lastName: "",
+        email: "",
+        password: "",
+      });
       setPasswordStrength(0);
       setPasswordStatus("");
     } catch (err: any) {
@@ -93,12 +94,10 @@ const Register: React.FC = () => {
     }
   };
 
-  // Toggle password visibility
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
-  // Function to get color based on password strength
   const getStrengthColor = () => {
     switch (passwordStrength) {
       case 1:
@@ -138,6 +137,36 @@ const Register: React.FC = () => {
               className="w-full px-3 py-2 border rounded-md text-gray-700"
               required
             />
+          </div>
+          <div className="flex space-x-4">
+            <div className="w-1/2">
+              <label className="block mb-1 text-gray-300" htmlFor="firstName">
+                First Name
+              </label>
+              <input
+                type="text"
+                id="firstName"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border rounded-md text-gray-700"
+                required
+              />
+            </div>
+            <div className="w-1/2">
+              <label className="block mb-1 text-gray-300" htmlFor="lastName">
+                Last Name
+              </label>
+              <input
+                type="text"
+                id="lastName"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border rounded-md text-gray-700"
+                required
+              />
+            </div>
           </div>
           <div>
             <label className="block mb-1 text-gray-300" htmlFor="email">

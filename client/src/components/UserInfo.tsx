@@ -1,3 +1,4 @@
+// src/components/UserInfo.tsx
 import React from "react";
 
 interface UserInfoProps {
@@ -27,7 +28,6 @@ const UserInfo: React.FC<UserInfoProps> = ({
         <label className="block mb-1 text-gray-300">Last Name:</label>
         <p className="text-gray-100">{lastName || "N/A"}</p>
       </div>
-
       <div>
         <label className="block mb-1 text-gray-300">Email:</label>
         <p className="text-gray-100">{email || "N/A"}</p>

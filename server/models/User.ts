@@ -1,8 +1,11 @@
+// server/models/User.ts
 import mongoose, { Schema, Document } from "mongoose";
 
 // Interface defining the User document structure
 interface IUser extends Document {
   username: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
 }
@@ -12,15 +15,23 @@ const UserSchema: Schema = new Schema({
   username: {
     type: String,
     required: [true, "Username is required"],
-    unique: true, // Ensure the username is unique
-    trim: true, // Remove whitespace from the beginning and end
-    lowercase: true, // Convert the username to lowercase
+    unique: true,
+    trim: true,
+    lowercase: true,
+  },
+  firstName: {
+    type: String,
+    required: [true, "First name is required"],
+  },
+  lastName: {
+    type: String,
+    required: [true, "Last name is required"],
   },
   email: {
     type: String,
     required: [true, "Email is required"],
-    unique: true, // Ensure the email is unique
-    trim: true, // Remove whitespace from the beginning and end
+    unique: true,
+    trim: true,
   },
   password: {
     type: String,
@@ -28,5 +39,4 @@ const UserSchema: Schema = new Schema({
   },
 });
 
-// Export the User model
 export default mongoose.model<IUser>("User", UserSchema);

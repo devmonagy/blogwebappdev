@@ -1,18 +1,16 @@
+// server/controllers/authController.ts
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/User";
+import { AuthenticatedRequest } from "../middleware/authenticate"; // Import the custom interface
 
-// Extend the Request interface to include userId
-interface AuthenticatedRequest extends Request {
-  userId?: string;
-}
-
+// Register User
 export const registerUser = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const { username, email, password } = req.body;
+  const { username, firstName, lastName, email, password } = req.body;
 
   try {
     // Check if the username already exists
@@ -29,15 +27,18 @@ export const registerUser = async (
       return;
     }
 
-    // Hash the password before saving
+    // Hash the password before saving to the database
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create a new user and save to the database
+    // Create a new user instance and save to the database
     const newUser = new User({
       username,
+      firstName,
+      lastName,
       email,
       password: hashedPassword,
     });
+
     await newUser.save();
 
     res.status(201).json({ message: "User registered successfully" });
@@ -47,27 +48,29 @@ export const registerUser = async (
   }
 };
 
+// Login User
 export const loginUser = async (req: Request, res: Response): Promise<void> => {
   const { usernameOrEmail, password } = req.body;
 
   try {
-    // Find the user by either username or email
+    // Find user by either username or email
     const user = await User.findOne({
       $or: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
     });
+
     if (!user) {
       res.status(401).json({ error: "Invalid credentials" });
       return;
     }
 
-    // Compare the provided password with the hashed password in the database
+    // Compare the provided password with the stored hashed password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       res.status(401).json({ error: "Invalid credentials" });
       return;
     }
 
-    // Generate a JWT token for the authenticated user
+    // Generate a JWT token
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET!, {
       expiresIn: "1h",
     });
@@ -85,12 +88,13 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+// Update User Profile
 export const updateProfile = async (
   req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const { firstName, lastName, email } = req.body;
-  const userId = req.userId;
+  const userId = req.userId; // Use the userId from the AuthenticatedRequest
 
   if (!userId) {
     res.status(401).json({ error: "User not authenticated" });
@@ -102,7 +106,7 @@ export const updateProfile = async (
     const user = await User.findByIdAndUpdate(
       userId,
       { firstName, lastName, email },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true } // Return the updated user and run validators
     );
 
     if (!user) {
