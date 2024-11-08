@@ -1,9 +1,8 @@
-// server/controllers/authController.ts
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/User";
-import { AuthenticatedRequest } from "../middleware/authenticate"; // Import the custom interface
+import { AuthenticatedRequest } from "../middleware/authenticate";
 
 // Register User
 export const registerUser = async (
@@ -40,7 +39,6 @@ export const registerUser = async (
     });
 
     await newUser.save();
-
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
     console.error("Error during user registration:", error);
@@ -80,6 +78,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
       user: {
         username: user.username,
         email: user.email,
+        firstName: user.firstName,
       },
     });
   } catch (error) {
@@ -93,8 +92,8 @@ export const updateProfile = async (
   req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
-  const { firstName, lastName, email } = req.body;
-  const userId = req.userId; // Use the userId from the AuthenticatedRequest
+  const { firstName, lastName, email, newPassword } = req.body;
+  const userId = req.userId;
 
   if (!userId) {
     res.status(401).json({ error: "User not authenticated" });
@@ -102,21 +101,60 @@ export const updateProfile = async (
   }
 
   try {
-    // Find the user by ID and update their profile information
-    const user = await User.findByIdAndUpdate(
-      userId,
-      { firstName, lastName, email },
-      { new: true, runValidators: true } // Return the updated user and run validators
-    );
-
+    // Find the user by ID
+    const user = await User.findById(userId);
     if (!user) {
       res.status(404).json({ error: "User not found" });
       return;
     }
 
+    // Update profile fields if provided
+    if (firstName) user.firstName = firstName;
+    if (lastName) user.lastName = lastName;
+    if (email) user.email = email;
+
+    // Hash and update the new password if provided
+    if (newPassword) {
+      const isSamePassword = await bcrypt.compare(newPassword, user.password);
+      if (isSamePassword) {
+        res.status(400).json({ error: "Password can't be your current one!" });
+        return;
+      }
+      user.password = await bcrypt.hash(newPassword, 10);
+    }
+
+    await user.save();
     res.status(200).json({ message: "Profile updated successfully" });
   } catch (error) {
     console.error("Error during profile update:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// Check Password
+export const checkPassword = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
+  const { password } = req.body;
+  const userId = req.userId;
+
+  if (!userId) {
+    res.status(401).json({ error: "User not authenticated" });
+    return;
+  }
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    const isSame = await bcrypt.compare(password, user.password);
+    res.status(200).json({ isSame });
+  } catch (error) {
+    console.error("Error checking password:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
