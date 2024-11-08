@@ -1,12 +1,13 @@
+// src/components/UserInfo.tsx
 import React, { useState, useEffect, useRef } from "react";
-import { AiOutlineInfoCircle } from "react-icons/ai"; // Import the info icon
+import { AiOutlineInfoCircle } from "react-icons/ai";
 
 interface UserInfoProps {
   username: string | null;
   email: string | null;
   firstName: string | null;
   lastName: string | null;
-  memberSince: string | null; // Add memberSince prop
+  memberSince: string | null;
 }
 
 const UserInfo: React.FC<UserInfoProps> = ({
@@ -40,7 +41,6 @@ const UserInfo: React.FC<UserInfoProps> = ({
       document.removeEventListener("mousedown", handleClickOutside);
     }
 
-    // Cleanup event listener on component unmount or when tooltip is hidden
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -50,7 +50,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
     <div className="space-y-4">
       <h3 className="text-sm font-bold text-gray-200">Review Your Details</h3>
       <div className="relative">
-        <label className="block mb-1 text-gray-300 flex items-center font-bold text-cyan-600	">
+        <label className="block mb-1 text-gray-300 flex items-center font-bold text-cyan-700">
           Username:
           <AiOutlineInfoCircle
             className="ml-2 text-gray-400 cursor-pointer"
@@ -68,25 +68,25 @@ const UserInfo: React.FC<UserInfoProps> = ({
         <p className="text-gray-100">{username || "N/A"}</p>
       </div>
       <div>
-        <label className="block mb-1 text-gray-300 font-bold text-cyan-600">
+        <label className="block mb-1 text-gray-300 font-bold text-cyan-700">
           First Name:
         </label>
         <p className="text-gray-100">{firstName || "N/A"}</p>
       </div>
       <div>
-        <label className="block mb-1 text-gray-300 font-bold text-cyan-600">
+        <label className="block mb-1 text-gray-300 font-bold text-cyan-700">
           Last Name:
         </label>
         <p className="text-gray-100">{lastName || "N/A"}</p>
       </div>
       <div>
-        <label className="block mb-1 text-gray-300 font-bold text-cyan-600">
+        <label className="block mb-1 text-gray-300 font-bold text-cyan-700">
           Email:
         </label>
         <p className="text-gray-100">{email || "N/A"}</p>
       </div>
       <div>
-        <label className="block mb-1 text-gray-300 font-bold text-cyan-600">
+        <label className="block mb-1 text-gray-300 font-bold text-cyan-700">
           Member Since:
         </label>
         <p className="text-gray-100">{memberSince || "N/A"}</p>

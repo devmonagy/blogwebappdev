@@ -1,3 +1,4 @@
+// server/controllers/authController.ts
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -79,6 +80,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
         username: user.username,
         email: user.email,
         firstName: user.firstName,
+        profilePicture: user.profilePicture, // Include profile picture in the response
       },
     });
   } catch (error) {
@@ -93,6 +95,7 @@ export const updateProfile = async (
   res: Response
 ): Promise<void> => {
   const { firstName, lastName, email, newPassword } = req.body;
+  const profilePicture = req.file?.path; // Retrieve the profile picture path from the uploaded file
   const userId = req.userId;
 
   if (!userId) {
@@ -108,10 +111,11 @@ export const updateProfile = async (
       return;
     }
 
-    // Update profile fields if provided
+    // Update user fields if provided
     if (firstName) user.firstName = firstName;
     if (lastName) user.lastName = lastName;
     if (email) user.email = email;
+    if (profilePicture) user.profilePicture = profilePicture; // Update profile picture if provided
 
     // Hash and update the new password if provided
     if (newPassword) {

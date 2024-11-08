@@ -9,7 +9,8 @@ interface UserInfoData {
   email: string;
   firstName: string;
   lastName: string;
-  memberSince: string; // This will be a formatted date string
+  profilePicture: string;
+  memberSince: string;
 }
 
 const EditProfile: React.FC = () => {
@@ -29,6 +30,7 @@ const EditProfile: React.FC = () => {
         email: string;
         firstName: string;
         lastName: string;
+        profilePicture: string;
         createdAt: string;
       }>(`${process.env.REACT_APP_BACKEND_URL}/auth/user-profile`, {
         headers: {
@@ -36,57 +38,96 @@ const EditProfile: React.FC = () => {
         },
       });
 
-      const { username, email, firstName, lastName, createdAt } = response.data;
+      const {
+        username,
+        email,
+        firstName,
+        lastName,
+        profilePicture,
+        createdAt,
+      } = response.data;
 
-      // Ensure the date is correctly parsed and formatted
+      // Correctly handle the profile picture URL, matching the logic from Dashboard.tsx
+      const profilePicPath = profilePicture
+        ? profilePicture.replace(/^\/+|uploads\/+/g, "") // Remove leading slashes and ensure "uploads/" is not repeated
+        : "default-user.png"; // Fallback to a default image if none is provided
+
+      const fullProfilePictureUrl = profilePicture.startsWith("http")
+        ? profilePicture
+        : `${process.env.REACT_APP_BACKEND_URL}/uploads/${profilePicPath}`;
+
+      // Format the memberSince date
       const parsedDate = new Date(createdAt);
       const memberSince =
         parsedDate instanceof Date && !isNaN(parsedDate.getTime())
-          ? parsedDate.toLocaleDateString() // Format the date for display
+          ? parsedDate.toLocaleDateString()
           : "N/A";
 
+      // Update the state with fetched user data
       setUserInfo({
         username,
         email,
         firstName,
         lastName,
-        memberSince, // Pass the formatted date
+        profilePicture: fullProfilePictureUrl,
+        memberSince,
       });
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
   };
 
+  // Fetch user data when the component mounts
   useEffect(() => {
     fetchUserData();
   }, []);
 
-  const handleUpdate = async (
+  const handleUpdate = (
     email: string,
     firstName: string,
-    lastName: string
+    lastName: string,
+    profilePicture: string
   ) => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        console.error("No token found. User is not authenticated.");
-        return;
+    // Update the state with the new data
+    setUserInfo((prev) => {
+      if (prev) {
+        return {
+          ...prev,
+          email,
+          firstName,
+          lastName,
+          profilePicture,
+        };
       }
+      return null;
+    });
 
-      await axios.put(
-        `${process.env.REACT_APP_BACKEND_URL}/auth/update-profile`,
-        { email, firstName, lastName },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+    // Function to send the updated data to the backend
+    const updateProfile = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("No token found. User is not authenticated.");
+          return;
         }
-      );
 
-      fetchUserData();
-    } catch (error) {
-      console.error("Error updating profile:", error);
-    }
+        await axios.put(
+          `${process.env.REACT_APP_BACKEND_URL}/auth/update-profile`,
+          { email, firstName, lastName, profilePicture },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        fetchUserData(); // Re-fetch user data to ensure it's up-to-date
+      } catch (error) {
+        console.error("Error updating profile:", error);
+      }
+    };
+
+    updateProfile();
   };
 
   return (
@@ -107,6 +148,7 @@ const EditProfile: React.FC = () => {
             initialEmail={userInfo?.email || ""}
             initialFirstName={userInfo?.firstName || ""}
             initialLastName={userInfo?.lastName || ""}
+            initialProfilePicture={userInfo?.profilePicture || ""}
             onUpdate={handleUpdate}
           />
         </div>

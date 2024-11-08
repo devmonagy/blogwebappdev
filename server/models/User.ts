@@ -1,15 +1,19 @@
 // server/models/User.ts
 import mongoose, { Schema, Document } from "mongoose";
 
+// Interface defining the User document structure
 interface IUser extends Document {
   username: string;
   firstName: string;
   lastName: string;
   email: string;
   password: string;
-  createdAt: Date; // Include createdAt in the interface
+  profilePicture: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
+// User schema definition
 const UserSchema: Schema = new Schema(
   {
     username: {
@@ -37,8 +41,12 @@ const UserSchema: Schema = new Schema(
       type: String,
       required: [true, "Password is required"],
     },
+    profilePicture: {
+      type: String,
+      default: "http://localhost:5000/uploads/userImg.png", // Use a relative path
+    },
   },
-  { timestamps: true } // This adds createdAt and updatedAt fields automatically
+  { timestamps: true } // Include timestamps for createdAt and updatedAt
 );
 
 export default mongoose.model<IUser>("User", UserSchema);

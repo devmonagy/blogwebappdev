@@ -1,3 +1,4 @@
+import path from "path"; // Import path module
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -14,11 +15,11 @@ connectDB();
 
 // Define the allowed origins for CORS
 const allowedOrigins = [
-  "http://localhost:3000",
-  "http://192.168.1.204:3000", // Replace with your actual local network IP
+  "http://localhost:3000", // Your local frontend address
+  "http://192.168.1.204:3000", // Your local network IP, replace with actual IP if different
 ];
 
-// Use cors middleware to enable requests from the allowed origins
+// Use CORS middleware to enable requests from the allowed origins
 app.use(
   cors({
     origin: allowedOrigins,
@@ -26,7 +27,10 @@ app.use(
   })
 );
 
-app.use(express.json()); // Middleware to parse JSON
+app.use(express.json()); // Middleware to parse JSON requests
+
+// Serve static files from the 'uploads' directory
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // Example route to test the server
 app.get("/", (req, res) => {

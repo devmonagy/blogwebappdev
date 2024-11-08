@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import defaultUserImage from "../assets/userImg.png";
 
 interface DashboardProps {
   onLogout: () => void;
@@ -10,10 +9,12 @@ interface DashboardProps {
 
 interface UserProfileResponse {
   firstName: string;
+  profilePicture: string; // This should be just the filename or relative path
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
   const [firstName, setFirstName] = useState<string | null>(null);
+  const [profilePicture, setProfilePicture] = useState<string | null>(null);
 
   // Fetch user data from the backend
   const fetchUserData = async () => {
@@ -29,6 +30,22 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
       );
 
       setFirstName(response.data.firstName);
+
+      // Correctly handle the profile picture URL
+      if (response.data.profilePicture) {
+        const profilePicPath = response.data.profilePicture.replace(
+          /^\/+|uploads\/+/g,
+          ""
+        ); // Remove leading slashes and ensure "uploads/" is not repeated
+
+        const profilePicUrl = response.data.profilePicture.startsWith("http")
+          ? response.data.profilePicture
+          : `${process.env.REACT_APP_BACKEND_URL}/uploads/${profilePicPath}`;
+
+        setProfilePicture(profilePicUrl);
+      } else {
+        setProfilePicture(null); // Handle case where no profile picture is provided
+      }
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
@@ -43,11 +60,17 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
     <div className="flex flex-col items-center justify-center min-h-full py-10 bg-background text-white">
       {/* Profile Picture */}
       <div className="w-24 h-24 rounded-full mb-4 overflow-hidden">
-        <img
-          src={defaultUserImage}
-          alt="Default User"
-          className="w-full h-full object-cover"
-        />
+        {profilePicture ? (
+          <img
+            src={profilePicture}
+            alt="User Profile"
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-gray-300 flex items-center justify-center">
+            No Image
+          </div>
+        )}
       </div>
 
       {/* Welcome Message */}

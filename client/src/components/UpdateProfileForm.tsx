@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 
@@ -6,10 +6,19 @@ interface UpdateProfileFormProps {
   initialEmail: string;
   initialFirstName: string;
   initialLastName: string;
-  onUpdate: (email: string, firstName: string, lastName: string) => void;
+  initialProfilePicture: string;
+  onUpdate: (
+    email: string,
+    firstName: string,
+    lastName: string,
+    profilePicture: string
+  ) => void;
 }
 
-// Define the shape of the response from the password check endpoint
+interface ProfilePictureResponse {
+  profilePicture: string;
+}
+
 interface PasswordCheckResponse {
   isSame: boolean;
 }
@@ -18,16 +27,23 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
   initialEmail,
   initialFirstName,
   initialLastName,
+  initialProfilePicture,
   onUpdate,
 }) => {
   const [newEmail, setNewEmail] = useState(initialEmail);
   const [firstName, setFirstName] = useState(initialFirstName);
   const [lastName, setLastName] = useState(initialLastName);
   const [newPassword, setNewPassword] = useState("");
+  const [profilePicture, setProfilePicture] = useState(initialProfilePicture);
   const [showPassword, setShowPassword] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
   const [passwordStatus, setPasswordStatus] = useState("");
   const [message, setMessage] = useState<string | null>(null);
+
+  // Debugging step to log the profile picture URL
+  useEffect(() => {
+    console.log("Profile picture URL:", profilePicture);
+  }, [profilePicture]);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -53,6 +69,51 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
       setPasswordStatus("Strength: Strong");
     } else {
       setPasswordStatus("Strength: Very Strong");
+    }
+  };
+
+  const handleProfilePictureChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const formData = new FormData();
+      formData.append("profilePicture", file);
+
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          setMessage("User is not authenticated.");
+          return;
+        }
+
+        const response = await axios.post<ProfilePictureResponse>(
+          `${process.env.REACT_APP_BACKEND_URL}/auth/upload-profile-picture`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        if (response.data && response.data.profilePicture) {
+          // Ensure there is no double slash in the URL
+          const updatedProfilePicture = `${process.env.REACT_APP_BACKEND_URL}${
+            response.data.profilePicture.startsWith("/") ? "" : "/"
+          }${response.data.profilePicture}?timestamp=${new Date().getTime()}`;
+          setProfilePicture(updatedProfilePicture); // Update the profile picture state
+          onUpdate(newEmail, firstName, lastName, updatedProfilePicture); // Update parent component
+          setMessage("Profile picture updated successfully!");
+        } else {
+          setMessage("Failed to update profile picture.");
+        }
+      } catch (error: any) {
+        setMessage(
+          error.response?.data?.error || "Failed to upload profile picture."
+        );
+      }
     }
   };
 
@@ -88,7 +149,7 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
       // Update profile information, including the new password if provided
       await axios.put(
         `${process.env.REACT_APP_BACKEND_URL}/auth/update-profile`,
-        { firstName, lastName, email: newEmail, newPassword },
+        { firstName, lastName, email: newEmail, newPassword, profilePicture },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -96,7 +157,7 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
         }
       );
 
-      onUpdate(newEmail, firstName, lastName);
+      onUpdate(newEmail, firstName, lastName, profilePicture);
       setMessage("Profile updated successfully!");
     } catch (error: any) {
       setMessage(error.response?.data?.error || "Failed to update profile.");
@@ -105,6 +166,22 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
 
   return (
     <div className="w-full p-6 bg-background border border-gray-400 rounded-md shadow-md">
+      <div className="flex flex-col items-center mb-4">
+        <img
+          src={profilePicture}
+          alt="Profile"
+          className="w-24 h-24 rounded-full mb-2 object-cover"
+        />
+        <label className="text-blue-400 cursor-pointer hover:underline">
+          Update Avatar
+          <input
+            type="file"
+            className="hidden"
+            accept="image/*"
+            onChange={handleProfilePictureChange}
+          />
+        </label>
+      </div>
       <form onSubmit={handleFormSubmit} className="space-y-4">
         <div>
           <label className="block mb-1 text-gray-300" htmlFor="firstName">
