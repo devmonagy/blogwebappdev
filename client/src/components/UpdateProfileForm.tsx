@@ -43,7 +43,6 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    // Ensure the initial profile picture is set correctly
     setProfilePicture(initialProfilePicture);
   }, [initialProfilePicture]);
 
@@ -60,17 +59,21 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
     if (/[^A-Za-z0-9]/.test(password)) strength++;
 
     setPasswordStrength(strength);
-
-    if (strength <= 1) {
-      setPasswordStatus("Strength: Weak");
-    } else if (strength === 2) {
-      setPasswordStatus("Strength: Fair");
-    } else if (strength === 3) {
-      setPasswordStatus("Strength: Good");
-    } else if (strength === 4) {
-      setPasswordStatus("Strength: Strong");
-    } else {
-      setPasswordStatus("Strength: Very Strong");
+    switch (strength) {
+      case 1:
+        setPasswordStatus("Strength: Weak");
+        break;
+      case 2:
+        setPasswordStatus("Strength: Fair");
+        break;
+      case 3:
+        setPasswordStatus("Strength: Good");
+        break;
+      case 4:
+        setPasswordStatus("Strength: Strong");
+        break;
+      default:
+        setPasswordStatus("Strength: Very Strong");
     }
   };
 
@@ -102,8 +105,8 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
 
         if (response.data && response.data.profilePicture) {
           const updatedProfilePicture = `${process.env.REACT_APP_BACKEND_URL}/uploads/${response.data.profilePicture}`;
-          setProfilePicture(updatedProfilePicture); // Update the profile picture state
-          onUpdate(newEmail, firstName, lastName, updatedProfilePicture); // Notify parent of update
+          setProfilePicture(updatedProfilePicture);
+          onUpdate(newEmail, firstName, lastName, updatedProfilePicture);
           setMessage("Profile picture updated successfully!");
         } else {
           setMessage("Failed to update profile picture.");
@@ -120,13 +123,11 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
     e.preventDefault();
     setMessage(null);
 
-    // Trim the input values to ensure we are not counting spaces as input
     const trimmedEmail = newEmail.trim();
     const trimmedFirstName = firstName.trim();
     const trimmedLastName = lastName.trim();
     const trimmedNewPassword = newPassword.trim();
 
-    // Check if the specific fields are empty
     if (
       trimmedEmail === "" &&
       trimmedFirstName === "" &&
@@ -137,20 +138,18 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
       return;
     }
 
-    // Continue with existing check for unchanged data
     if (
       trimmedEmail === initialEmail &&
       trimmedFirstName === initialFirstName &&
       trimmedLastName === initialLastName &&
       trimmedNewPassword === "" &&
-      !newPassword && // Check newPassword only if it was attempted to be set
+      !newPassword &&
       profilePicture === initialProfilePicture
     ) {
       setMessage("No changes were made.");
       return;
     }
 
-    // Existing code for submission
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -175,31 +174,44 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
         }
       }
 
-      await axios.put(
-        `${process.env.REACT_APP_BACKEND_URL}/auth/update-profile`,
-        {
-          email: trimmedEmail,
-          firstName: trimmedFirstName,
-          lastName: trimmedLastName,
-          newPassword: trimmedNewPassword,
-          profilePicture,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
+      await axios
+        .put(
+          `${process.env.REACT_APP_BACKEND_URL}/auth/update-profile`,
+          {
+            email: trimmedEmail,
+            firstName: trimmedFirstName,
+            lastName: trimmedLastName,
+            newPassword: trimmedNewPassword,
+            profilePicture,
           },
-        }
-      );
-
-      onUpdate(
-        trimmedEmail,
-        trimmedFirstName,
-        trimmedLastName,
-        profilePicture || ""
-      );
-      setMessage("Profile updated successfully!");
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then(() => {
+          onUpdate(
+            trimmedEmail,
+            trimmedFirstName,
+            trimmedLastName,
+            profilePicture || ""
+          );
+          setMessage("Profile updated successfully!");
+        })
+        .catch((error) => {
+          if (
+            error.response &&
+            error.response.status === 400 &&
+            error.response.data.error
+          ) {
+            setMessage(error.response.data.error);
+          } else {
+            setMessage("Failed to update profile.");
+          }
+        });
     } catch (error: any) {
-      setMessage(error.response?.data?.error || "Failed to update profile.");
+      setMessage("An unexpected error occurred.");
     }
   };
 
@@ -207,9 +219,7 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
     <div className="w-full p-6 bg-background border border-gray-400 rounded-md shadow-md">
       <div className="flex flex-col items-center mb-4">
         <img
-          src={
-            profilePicture || "/path/to/default/avatar.jpg" // Fallback to default image if none
-          }
+          src={profilePicture || "/path/to/default/avatar.jpg"}
           alt="Profile"
           className="w-24 h-24 rounded-full mb-2 object-cover"
         />
@@ -225,7 +235,7 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
       </div>
       <form onSubmit={handleFormSubmit} className="space-y-4">
         <div>
-          <label className="block mb-1 text-gray-300" htmlFor="firstName">
+          <label htmlFor="firstName" className="block mb-1 text-gray-300">
             First Name:
           </label>
           <input
@@ -237,7 +247,7 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
           />
         </div>
         <div>
-          <label className="block mb-1 text-gray-300" htmlFor="lastName">
+          <label htmlFor="lastName" className="block mb-1 text-gray-300">
             Last Name:
           </label>
           <input
@@ -249,7 +259,7 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
           />
         </div>
         <div>
-          <label className="block mb-1 text-gray-300" htmlFor="newEmail">
+          <label htmlFor="newEmail" className="block mb-1 text-gray-300">
             New Email Address:
           </label>
           <input
@@ -261,7 +271,7 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
           />
         </div>
         <div>
-          <label className="block mb-1 text-gray-300" htmlFor="newPassword">
+          <label htmlFor="newPassword" className="block mb-1 text-gray-300">
             New Password:
           </label>
           <div className="eyecomp flex items-center border rounded-md overflow-hidden">
@@ -276,7 +286,7 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
               className="w-full px-3 py-2 border-none text-gray-700 focus:outline-none"
             />
             <div
-              className="h-full px-3 flex items-center cursor-pointer bg-gray-200"
+              className="px-3 flex items-center cursor-pointer bg-gray-200"
               onClick={togglePasswordVisibility}
             >
               {showPassword ? (

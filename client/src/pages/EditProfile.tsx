@@ -105,7 +105,7 @@ const EditProfile: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-full py-10 bg-background text-white">
-      <h1 className="text-3xl font-bold mb-6">Edit Your Profile</h1>
+      <h1 className="text-3xl font-bold mb-6 mb-1 py-1">Edit Your Profile</h1>
       <div className="flex flex-wrap justify-around w-full max-w-4xl">
         <div className="w-full md:w-1/2 p-4">
           <UserInfo
