@@ -6,7 +6,7 @@ interface UpdateProfileFormProps {
   initialEmail: string;
   initialFirstName: string;
   initialLastName: string;
-  initialProfilePicture: string;
+  initialProfilePicture: string | null; // Allow null for cases where there is no picture
   onUpdate: (
     email: string,
     firstName: string,
@@ -34,16 +34,18 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
   const [firstName, setFirstName] = useState(initialFirstName);
   const [lastName, setLastName] = useState(initialLastName);
   const [newPassword, setNewPassword] = useState("");
-  const [profilePicture, setProfilePicture] = useState(initialProfilePicture);
+  const [profilePicture, setProfilePicture] = useState<string | null>(
+    initialProfilePicture
+  );
   const [showPassword, setShowPassword] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
   const [passwordStatus, setPasswordStatus] = useState("");
   const [message, setMessage] = useState<string | null>(null);
 
-  // Debugging step to log the profile picture URL
   useEffect(() => {
-    console.log("Profile picture URL:", profilePicture);
-  }, [profilePicture]);
+    // Ensure the initial profile picture is set correctly
+    setProfilePicture(initialProfilePicture);
+  }, [initialProfilePicture]);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -99,12 +101,9 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
         );
 
         if (response.data && response.data.profilePicture) {
-          // Ensure there is no double slash in the URL
-          const updatedProfilePicture = `${process.env.REACT_APP_BACKEND_URL}${
-            response.data.profilePicture.startsWith("/") ? "" : "/"
-          }${response.data.profilePicture}?timestamp=${new Date().getTime()}`;
+          const updatedProfilePicture = `${process.env.REACT_APP_BACKEND_URL}/uploads/${response.data.profilePicture}`;
           setProfilePicture(updatedProfilePicture); // Update the profile picture state
-          onUpdate(newEmail, firstName, lastName, updatedProfilePicture); // Update parent component
+          onUpdate(newEmail, firstName, lastName, updatedProfilePicture); // Notify parent of update
           setMessage("Profile picture updated successfully!");
         } else {
           setMessage("Failed to update profile picture.");
@@ -128,7 +127,6 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
         return;
       }
 
-      // Check if the new password is the same as the current one
       if (newPassword) {
         const passwordResponse = await axios.post<PasswordCheckResponse>(
           `${process.env.REACT_APP_BACKEND_URL}/auth/check-password`,
@@ -146,7 +144,6 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
         }
       }
 
-      // Update profile information, including the new password if provided
       await axios.put(
         `${process.env.REACT_APP_BACKEND_URL}/auth/update-profile`,
         { firstName, lastName, email: newEmail, newPassword, profilePicture },
@@ -157,7 +154,7 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
         }
       );
 
-      onUpdate(newEmail, firstName, lastName, profilePicture);
+      onUpdate(newEmail, firstName, lastName, profilePicture || "");
       setMessage("Profile updated successfully!");
     } catch (error: any) {
       setMessage(error.response?.data?.error || "Failed to update profile.");
@@ -168,7 +165,9 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
     <div className="w-full p-6 bg-background border border-gray-400 rounded-md shadow-md">
       <div className="flex flex-col items-center mb-4">
         <img
-          src={profilePicture}
+          src={
+            profilePicture || "/path/to/default/avatar.jpg" // Fallback to default image if none
+          }
           alt="Profile"
           className="w-24 h-24 rounded-full mb-2 object-cover"
         />

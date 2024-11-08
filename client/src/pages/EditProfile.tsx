@@ -1,4 +1,3 @@
-// src/pages/EditProfile.tsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import UserInfo from "../components/UserInfo";
@@ -9,14 +8,13 @@ interface UserInfoData {
   email: string;
   firstName: string;
   lastName: string;
-  profilePicture: string;
+  profilePicture: string | null;
   memberSince: string;
 }
 
 const EditProfile: React.FC = () => {
   const [userInfo, setUserInfo] = useState<UserInfoData | null>(null);
 
-  // Function to fetch the latest user data from the backend
   const fetchUserData = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -47,23 +45,21 @@ const EditProfile: React.FC = () => {
         createdAt,
       } = response.data;
 
-      // Correctly handle the profile picture URL, matching the logic from Dashboard.tsx
-      const profilePicPath = profilePicture
-        ? profilePicture.replace(/^\/+|uploads\/+/g, "") // Remove leading slashes and ensure "uploads/" is not repeated
-        : "default-user.png"; // Fallback to a default image if none is provided
+      // Handle the profile picture URL similarly to Dashboard
+      let fullProfilePictureUrl: string | null = null;
+      if (profilePicture) {
+        const profilePicPath = profilePicture.replace(/^\/+|uploads\/+/g, "");
+        fullProfilePictureUrl = profilePicture.startsWith("http")
+          ? profilePicture
+          : `${process.env.REACT_APP_BACKEND_URL}/uploads/${profilePicPath}`;
+      }
 
-      const fullProfilePictureUrl = profilePicture.startsWith("http")
-        ? profilePicture
-        : `${process.env.REACT_APP_BACKEND_URL}/uploads/${profilePicPath}`;
-
-      // Format the memberSince date
       const parsedDate = new Date(createdAt);
       const memberSince =
         parsedDate instanceof Date && !isNaN(parsedDate.getTime())
           ? parsedDate.toLocaleDateString()
           : "N/A";
 
-      // Update the state with fetched user data
       setUserInfo({
         username,
         email,
@@ -77,7 +73,6 @@ const EditProfile: React.FC = () => {
     }
   };
 
-  // Fetch user data when the component mounts
   useEffect(() => {
     fetchUserData();
   }, []);
@@ -88,46 +83,24 @@ const EditProfile: React.FC = () => {
     lastName: string,
     profilePicture: string
   ) => {
-    // Update the state with the new data
-    setUserInfo((prev) => {
-      if (prev) {
-        return {
-          ...prev,
-          email,
-          firstName,
-          lastName,
-          profilePicture,
-        };
-      }
-      return null;
-    });
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("No token found. User is not authenticated.");
+      return;
+    }
 
-    // Function to send the updated data to the backend
-    const updateProfile = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          console.error("No token found. User is not authenticated.");
-          return;
-        }
-
-        await axios.put(
-          `${process.env.REACT_APP_BACKEND_URL}/auth/update-profile`,
-          { email, firstName, lastName, profilePicture },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
+    axios
+      .put(
+        `${process.env.REACT_APP_BACKEND_URL}/auth/update-profile`,
+        { email, firstName, lastName, profilePicture },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      .then(() => {
         fetchUserData(); // Re-fetch user data to ensure it's up-to-date
-      } catch (error) {
+      })
+      .catch((error) => {
         console.error("Error updating profile:", error);
-      }
-    };
-
-    updateProfile();
+      });
   };
 
   return (
