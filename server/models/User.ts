@@ -13,6 +13,13 @@ interface IUser extends Document {
   updatedAt: Date;
 }
 
+// Helper function to get the default profile picture URL
+const getDefaultProfilePictureUrl = (): string => {
+  return `${
+    process.env.BACKEND_URL || "http://localhost:5000"
+  }/uploads/userImg.png`;
+};
+
 // User schema definition
 const UserSchema: Schema = new Schema(
   {
@@ -43,7 +50,7 @@ const UserSchema: Schema = new Schema(
     },
     profilePicture: {
       type: String,
-      default: "http://localhost:5000/uploads/userImg.png", // Use a relative path
+      default: getDefaultProfilePictureUrl, // Use the helper function
     },
   },
   { timestamps: true } // Include timestamps for createdAt and updatedAt
