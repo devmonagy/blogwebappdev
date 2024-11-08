@@ -9,6 +9,7 @@ interface UserInfoData {
   email: string;
   firstName: string;
   lastName: string;
+  memberSince: string; // This will be a formatted date string
 }
 
 const EditProfile: React.FC = () => {
@@ -23,29 +24,43 @@ const EditProfile: React.FC = () => {
         return;
       }
 
-      const response = await axios.get<UserInfoData>(
-        `${process.env.REACT_APP_BACKEND_URL}/auth/user-profile`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.get<{
+        username: string;
+        email: string;
+        firstName: string;
+        lastName: string;
+        createdAt: string;
+      }>(`${process.env.REACT_APP_BACKEND_URL}/auth/user-profile`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      // Set the user data in state
-      const { username, email, firstName, lastName } = response.data;
-      setUserInfo({ username, email, firstName, lastName });
+      const { username, email, firstName, lastName, createdAt } = response.data;
+
+      // Ensure the date is correctly parsed and formatted
+      const parsedDate = new Date(createdAt);
+      const memberSince =
+        parsedDate instanceof Date && !isNaN(parsedDate.getTime())
+          ? parsedDate.toLocaleDateString() // Format the date for display
+          : "N/A";
+
+      setUserInfo({
+        username,
+        email,
+        firstName,
+        lastName,
+        memberSince, // Pass the formatted date
+      });
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
   };
 
-  // Fetch user data when the component mounts
   useEffect(() => {
     fetchUserData();
   }, []);
 
-  // Handle update and refetch data
   const handleUpdate = async (
     email: string,
     firstName: string,
@@ -58,7 +73,6 @@ const EditProfile: React.FC = () => {
         return;
       }
 
-      // Make the update request
       await axios.put(
         `${process.env.REACT_APP_BACKEND_URL}/auth/update-profile`,
         { email, firstName, lastName },
@@ -69,7 +83,6 @@ const EditProfile: React.FC = () => {
         }
       );
 
-      // Refetch the updated user data from the backend
       fetchUserData();
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -80,16 +93,15 @@ const EditProfile: React.FC = () => {
     <div className="flex flex-col items-center justify-center min-h-full py-10 bg-background text-white">
       <h1 className="text-3xl font-bold mb-6">Edit Your Profile</h1>
       <div className="flex flex-wrap justify-around w-full max-w-4xl">
-        {/* User Info Component */}
         <div className="w-full md:w-1/2 p-4">
           <UserInfo
             username={userInfo?.username || "N/A"}
             email={userInfo?.email || "N/A"}
             firstName={userInfo?.firstName || "N/A"}
             lastName={userInfo?.lastName || "N/A"}
+            memberSince={userInfo?.memberSince || "N/A"}
           />
         </div>
-        {/* Update Profile Form Component */}
         <div className="w-full md:w-1/2 p-4">
           <UpdateProfileForm
             initialEmail={userInfo?.email || ""}

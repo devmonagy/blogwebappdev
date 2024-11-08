@@ -8,19 +8,19 @@ export const getUserProfile = async (
   res: Response
 ): Promise<void> => {
   try {
-    // Ensure the userId is correctly attached by the middleware
     const user = await User.findById(req.userId);
     if (!user) {
       res.status(404).json({ error: "User not found" });
-      return; // Explicitly return to ensure the function ends
+      return;
     }
 
-    // Return the user data
+    // Ensure `createdAt` is sent in the response
     res.status(200).json({
       username: user.username,
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
+      createdAt: user.createdAt, // Correctly include the `createdAt` field
     });
   } catch (error) {
     console.error("Error fetching user profile:", error);
