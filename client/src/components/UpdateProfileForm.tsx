@@ -120,6 +120,37 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
     e.preventDefault();
     setMessage(null);
 
+    // Trim the input values to ensure we are not counting spaces as input
+    const trimmedEmail = newEmail.trim();
+    const trimmedFirstName = firstName.trim();
+    const trimmedLastName = lastName.trim();
+    const trimmedNewPassword = newPassword.trim();
+
+    // Check if the specific fields are empty
+    if (
+      trimmedEmail === "" &&
+      trimmedFirstName === "" &&
+      trimmedLastName === "" &&
+      trimmedNewPassword === ""
+    ) {
+      setMessage("No changes were made.");
+      return;
+    }
+
+    // Continue with existing check for unchanged data
+    if (
+      trimmedEmail === initialEmail &&
+      trimmedFirstName === initialFirstName &&
+      trimmedLastName === initialLastName &&
+      trimmedNewPassword === "" &&
+      !newPassword && // Check newPassword only if it was attempted to be set
+      profilePicture === initialProfilePicture
+    ) {
+      setMessage("No changes were made.");
+      return;
+    }
+
+    // Existing code for submission
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -127,10 +158,10 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
         return;
       }
 
-      if (newPassword) {
+      if (trimmedNewPassword) {
         const passwordResponse = await axios.post<PasswordCheckResponse>(
           `${process.env.REACT_APP_BACKEND_URL}/auth/check-password`,
-          { password: newPassword },
+          { password: trimmedNewPassword },
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -146,7 +177,13 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
 
       await axios.put(
         `${process.env.REACT_APP_BACKEND_URL}/auth/update-profile`,
-        { firstName, lastName, email: newEmail, newPassword, profilePicture },
+        {
+          email: trimmedEmail,
+          firstName: trimmedFirstName,
+          lastName: trimmedLastName,
+          newPassword: trimmedNewPassword,
+          profilePicture,
+        },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -154,7 +191,12 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
         }
       );
 
-      onUpdate(newEmail, firstName, lastName, profilePicture || "");
+      onUpdate(
+        trimmedEmail,
+        trimmedFirstName,
+        trimmedLastName,
+        profilePicture || ""
+      );
       setMessage("Profile updated successfully!");
     } catch (error: any) {
       setMessage(error.response?.data?.error || "Failed to update profile.");
@@ -216,7 +258,6 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
             value={newEmail}
             onChange={(e) => setNewEmail(e.target.value)}
             className="w-full px-3 py-2 border rounded-md text-gray-700"
-            required
           />
         </div>
         <div>
