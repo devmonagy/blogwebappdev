@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import axios from "axios";
 
 interface DashboardProps {
@@ -27,6 +27,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
     content: "",
     image: null,
   });
+
+  const navigate = useNavigate(); // Initialize the useNavigate hook
 
   // Fetch user data from the backend
   const fetchUserData = async () => {
@@ -133,9 +135,20 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
       <h2 className="text-2xl font-bold mb-2">
         Welcome, {firstName || "User"}!
       </h2>
-      <Link to="/edit-profile" className="text-blue-400 hover:underline mb-4">
-        Edit Profile
-      </Link>
+      <div className="flex space-x-2 mb-4">
+        <button
+          onClick={() => navigate("/edit-profile")} // Navigate to edit profile page
+          className="bg-blue-500 hover:bg-blue-700 text-white text-sm font-bold py-1 px-3 rounded"
+        >
+          Edit Profile
+        </button>
+        <button
+          onClick={onLogout}
+          className="bg-red-500 hover:bg-red-600 text-white text-sm font-bold py-1 px-3 rounded"
+        >
+          Logout
+        </button>
+      </div>
       <h3 className="text-lg font-semibold mb-2 mt-4 text-left w-full max-w-lg px-4 sm:px-0">
         Start a new post:
       </h3>
@@ -181,12 +194,6 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
           Submit Post
         </button>
       </form>
-      <button
-        onClick={onLogout}
-        className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 mt-4"
-      >
-        Logout
-      </button>
     </div>
   );
 };
