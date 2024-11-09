@@ -5,6 +5,9 @@ import jwt from "jsonwebtoken";
 import User from "../models/User";
 import { AuthenticatedRequest } from "../middleware/authenticate";
 
+// Token expiration set to a longer duration, e.g., 7 days
+const TOKEN_EXPIRY = "7d"; // Adjust as needed
+
 // Register User
 export const registerUser = async (
   req: Request,
@@ -69,9 +72,9 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Generate a JWT token
+    // Generate a JWT token with extended expiration
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET!, {
-      expiresIn: "1h",
+      expiresIn: TOKEN_EXPIRY,
     });
 
     res.status(200).json({

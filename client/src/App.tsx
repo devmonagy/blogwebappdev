@@ -14,11 +14,22 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import EditProfile from "./pages/EditProfile";
+import axios from "axios"; // Import only axios
 
 interface User {
   username: string;
   email: string;
   firstName: string;
+}
+
+interface TokenValidationResponse {
+  valid: boolean;
+  user: User;
+}
+
+// Custom type guard to check if error is an Axios error
+function isAxiosError(error: any): error is { response: { status: number } } {
+  return error && error.response && typeof error.response.status === "number";
 }
 
 const App: React.FC = () => {
@@ -36,16 +47,38 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const username = localStorage.getItem("username");
-    const email = localStorage.getItem("email");
-    const firstName = localStorage.getItem("firstName");
 
-    if (token && username && email && firstName) {
-      setIsAuthenticated(true);
-      setUser({ username, email, firstName });
-    } else {
-      setIsAuthenticated(false);
-      setUser(null);
+    if (token) {
+      const validateToken = async () => {
+        try {
+          // Attempt to validate the token with the backend
+          const response = await axios.post<TokenValidationResponse>(
+            `${process.env.REACT_APP_BACKEND_URL}/auth/validate-token`,
+            {},
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+
+          if (response.data.valid) {
+            // If valid, update the authentication status and user information
+            setIsAuthenticated(true);
+            const { username, email, firstName } = response.data.user;
+            setUser({ username, email, firstName });
+          } else {
+            // If the token is invalid, log out the user
+            handleLogout();
+          }
+        } catch (error) {
+          console.error("Token validation failed:", error);
+          // Use the custom type guard to check if the error is an Axios error
+          if (isAxiosError(error) && error.response.status === 401) {
+            handleLogout();
+          }
+        }
+      };
+
+      validateToken();
     }
   }, []);
 
