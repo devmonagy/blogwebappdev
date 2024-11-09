@@ -1,3 +1,5 @@
+// server/server.ts
+
 // Import necessary Node.js modules and middleware
 import path from "path";
 import express from "express";
@@ -7,7 +9,7 @@ import cors from "cors";
 // Import custom database connection function and route handlers
 import connectDB from "./config/db";
 import authRoutes from "./routes/authRoutes";
-import postRoutes from "./routes/postRoutes";
+import postRoutes from "./routes/postRoutes"; // Use default import for postRoutes
 
 // Load environment variables from .env file
 dotenv.config();
@@ -49,7 +51,7 @@ app.get("/", (req, res) => {
 app.use("/auth", authRoutes);
 
 // Use blog post routes as specified in the postRoutes module
-app.use("/posts", postRoutes);
+app.use("/posts", postRoutes); // Use default import
 
 // Start the server on the specified port and log a message to the console
 app.listen(PORT, () => {

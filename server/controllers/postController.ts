@@ -1,8 +1,13 @@
-import { Request, Response } from "express";
+// server/controllers/postController.ts
+import { Request, Response, NextFunction } from "express";
 import Post from "../models/Post";
-import { AuthenticatedRequest } from "../middleware/authenticate"; // Import your custom AuthenticatedRequest type
 
-export const createPost = async (req: AuthenticatedRequest, res: Response) => {
+// Create a new post
+export const createPost = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { title, category, content } = req.body;
   let imagePath = "";
 
@@ -11,26 +16,57 @@ export const createPost = async (req: AuthenticatedRequest, res: Response) => {
   }
 
   try {
+    const userId = (req as any).userId; // Assuming userId is attached to the req object by your middleware
+    if (!userId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
     const newPost = new Post({
       title,
       category,
       content,
       imagePath,
-      author: req.userId, // Assuming userId is attached to the req object by your middleware
+      author: userId,
     });
 
     await newPost.save();
     res.status(201).json(newPost);
   } catch (error) {
-    res.status(500).json({ message: "Error creating post", error });
+    next(error); // Pass the error to the error-handling middleware
   }
 };
 
-export const getPosts = async (req: Request, res: Response) => {
+// Get all posts
+export const getPosts = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const posts = await Post.find().populate("author");
     res.status(200).json(posts);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching posts", error });
+    next(error); // Pass the error to the error-handling middleware
+  }
+};
+
+// Get a single post by ID
+export const getPostById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { id } = req.params;
+
+  try {
+    const post = await Post.findById(id).populate("author");
+    if (!post) {
+      res.status(404).json({ message: "Post not found" });
+      return;
+    }
+    res.status(200).json(post);
+  } catch (error) {
+    next(error); // Pass the error to the error-handling middleware
   }
 };

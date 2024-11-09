@@ -1,10 +1,11 @@
 // client/src/pages/Home.tsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 interface Author {
   _id: string;
-  firstName: string; // Customize this based on your data structure
+  firstName: string;
 }
 
 interface Post {
@@ -13,14 +14,13 @@ interface Post {
   category: string;
   content: string;
   imagePath: string;
-  author: Author; // Add the author field
+  author: Author;
 }
 
 const Home: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch posts from the backend
   const fetchPosts = async () => {
     try {
       const response = await axios.get<Post[]>(
@@ -56,7 +56,15 @@ const Home: React.FC = () => {
                   className="w-full h-48 object-cover mb-2 rounded"
                 />
               )}
-              <p className="text-base">{post.content}</p>
+              <p className="text-base">
+                {post.content.slice(0, 300)} [...] {/* Display excerpt */}
+              </p>
+              <Link
+                to={`/post/${post._id}`}
+                className="text-blue-500 hover:underline mt-2 block"
+              >
+                Read More
+              </Link>
             </div>
           ))}
         </div>
