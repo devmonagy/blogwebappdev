@@ -1,4 +1,3 @@
-// src/components/UserInfo.tsx
 import React, { useState, useEffect, useRef } from "react";
 import { AiOutlineInfoCircle } from "react-icons/ai";
 
@@ -48,48 +47,61 @@ const UserInfo: React.FC<UserInfoProps> = ({
 
   return (
     <div className="space-y-4">
-      <h3 className="text-sm font-bold text-gray-200">Review Your Details</h3>
-      <div className="relative">
-        <label className="block mb-1 text-gray-300 flex items-center font-bold text-cyan-700">
-          Username:
-          <AiOutlineInfoCircle
-            className="ml-2 text-gray-400 cursor-pointer"
-            onClick={toggleTooltip}
-          />
-        </label>
-        {showTooltip && (
-          <div
-            ref={tooltipRef}
-            className="absolute mt-1 p-2 bg-gray-800 text-white text-xs rounded shadow-lg"
-          >
-            Username can't be changed
-          </div>
-        )}
-        <p className="text-gray-100">{username || "N/A"}</p>
-      </div>
-      <div>
-        <label className="block mb-1 text-gray-300 font-bold text-cyan-700">
-          First Name:
-        </label>
-        <p className="text-gray-100">{firstName || "N/A"}</p>
-      </div>
-      <div>
-        <label className="block mb-1 text-gray-300 font-bold text-cyan-700">
-          Last Name:
-        </label>
-        <p className="text-gray-100">{lastName || "N/A"}</p>
-      </div>
-      <div>
-        <label className="block mb-1 text-gray-300 font-bold text-cyan-700">
-          Email:
-        </label>
-        <p className="text-gray-100">{email || "N/A"}</p>
-      </div>
-      <div>
-        <label className="block mb-1 text-gray-300 font-bold text-cyan-700">
-          Member Since:
-        </label>
-        <p className="text-gray-100">{memberSince || "N/A"}</p>
+      <h3 className="text-sm font-bold text-gray-200 mb-4">
+        Review Your Details
+      </h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Username */}
+        <div className="relative">
+          <label className="block mb-1 text-gray-300 flex items-center font-bold text-cyan-600">
+            Username:
+            <AiOutlineInfoCircle
+              className="ml-2 text-gray-400 cursor-pointer"
+              onClick={toggleTooltip}
+            />
+          </label>
+          {showTooltip && (
+            <div
+              ref={tooltipRef}
+              className="absolute mt-1 p-2 bg-gray-800 text-white text-xs rounded shadow-lg"
+            >
+              Username can't be changed
+            </div>
+          )}
+          <p className="text-gray-100">{username || "N/A"}</p>
+        </div>
+
+        {/* Email */}
+        <div>
+          <label className="block mb-1 text-gray-300 font-bold text-cyan-600">
+            Email:
+          </label>
+          <p className="text-gray-100">{email || "N/A"}</p>
+        </div>
+
+        {/* First Name */}
+        <div>
+          <label className="block mb-1 text-gray-300 font-bold text-cyan-600">
+            First Name:
+          </label>
+          <p className="text-gray-100">{firstName || "N/A"}</p>
+        </div>
+
+        {/* Last Name */}
+        <div>
+          <label className="block mb-1 text-gray-300 font-bold text-cyan-600">
+            Last Name:
+          </label>
+          <p className="text-gray-100">{lastName || "N/A"}</p>
+        </div>
+
+        {/* Member Since */}
+        <div className="sm:col-span-2">
+          <label className="block mb-1 text-gray-300 font-bold text-cyan-600">
+            Member Since:
+          </label>
+          <p className="text-gray-100">{memberSince || "N/A"}</p>
+        </div>
       </div>
     </div>
   );
