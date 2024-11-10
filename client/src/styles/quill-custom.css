@@ -1,0 +1,60 @@
+.ql-editor {
+  /* Ensure text-align is respected */
+  text-align: left !important;
+}
+
+.ql-editor h1,
+.ql-editor h2,
+.ql-editor h3,
+.ql-editor h4,
+.ql-editor h5,
+.ql-editor h6 {
+  font-weight: bold !important;
+}
+
+.ql-editor a {
+  color: blue !important;
+  text-decoration: underline !important;
+}
+
+.ql-editor .ql-align-left {
+  text-align: left !important;
+}
+
+.ql-editor .ql-align-center {
+  text-align: center !important;
+}
+
+.ql-editor .ql-align-right {
+  text-align: right !important;
+}
+
+.ql-editor .ql-align-justify {
+  text-align: justify !important; /* Updated to ensure justify alignment */
+}
+
+.ql-editor .ql-bold {
+  font-weight: bold !important;
+}
+
+.ql-editor .ql-italic {
+  font-style: italic !important;
+}
+
+.ql-editor .ql-underline {
+  text-decoration: underline !important;
+}
+
+.ql-editor .ql-color {
+  color: inherit !important; /* Ensure color is applied */
+}
+
+.ql-editor .ql-background {
+  background-color: inherit !important; /* Ensure background color is applied */
+}
+
+.ql-editor .ql-code-block {
+  background-color: #f5f5f5 !important;
+  padding: 10px !important;
+  border-radius: 4px !important;
+}

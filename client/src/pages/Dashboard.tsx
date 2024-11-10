@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom"; // Import useLocation
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
+import PostForm from "../components/PostForm"; // Import the PostForm component
+import "react-quill/dist/quill.snow.css"; // Import Quill styles
 
 interface DashboardProps {
   onLogout: () => void;
@@ -11,29 +13,13 @@ interface UserProfileResponse {
   profilePicture: string;
 }
 
-interface PostData {
-  _id?: string; // Include _id for editing
-  title: string;
-  category: string;
-  content: string;
-  image: File | null;
-}
-
 const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
   const [firstName, setFirstName] = useState<string | null>(null);
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
-  const [postData, setPostData] = useState<PostData>({
-    title: "",
-    category: "",
-    content: "",
-    image: null,
-  });
-
   const navigate = useNavigate();
   const location = useLocation();
-  const editingPost = location.state?.post; // Access the post data if passed for editing
+  const editingPost = location.state?.post;
 
-  // Fetch user data from the backend
   const fetchUserData = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -67,31 +53,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
     }
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setPostData((prevData) => ({ ...prevData, [name]: value }));
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      setPostData((prevData) => ({ ...prevData, image: files[0] }));
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const formData = new FormData();
-    formData.append("title", postData.title);
-    formData.append("category", postData.category);
-    formData.append("content", postData.content);
-    if (postData.image) {
-      formData.append("image", postData.image);
-    }
-
+  const handlePostSubmit = async (formData: FormData) => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -99,10 +61,9 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
         return;
       }
 
-      if (postData._id) {
-        // If _id exists, update the post
+      if (editingPost?._id) {
         await axios.put(
-          `${process.env.REACT_APP_BACKEND_URL}/posts/${postData._id}`,
+          `${process.env.REACT_APP_BACKEND_URL}/posts/${editingPost._id}`,
           formData,
           {
             headers: {
@@ -113,7 +74,6 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
         );
         alert("Post updated successfully");
       } else {
-        // Otherwise, create a new post
         await axios.post(
           `${process.env.REACT_APP_BACKEND_URL}/posts/create`,
           formData,
@@ -127,8 +87,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
         alert("Post created successfully");
       }
 
-      setPostData({ title: "", category: "", content: "", image: null });
-      navigate("/"); // Redirect to home after creation or update
+      navigate("/");
     } catch (error: any) {
       console.error("Error submitting post:", error?.response?.data || error);
       alert("Failed to create or update post");
@@ -137,16 +96,6 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
 
   useEffect(() => {
     fetchUserData();
-    if (editingPost) {
-      // If editing a post, pre-fill the form with the post data
-      setPostData({
-        _id: editingPost._id,
-        title: editingPost.title,
-        category: editingPost.category,
-        content: editingPost.content,
-        image: null, // Image needs to be re-uploaded if changed
-      });
-    }
   }, [editingPost]);
 
   return (
@@ -182,50 +131,17 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
         </button>
       </div>
       <h3 className="text-lg font-semibold mb-2 mt-4 text-left w-full max-w-lg px-4 sm:px-0">
-        {postData._id ? "Edit Post" : "Start a new post:"}
+        {editingPost ? "Edit Post" : "Start a new post:"}
       </h3>
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-lg space-y-4 px-4 sm:px-0"
-      >
-        <input
-          type="text"
-          name="title"
-          placeholder="Post Title"
-          onChange={handleChange}
-          value={postData.title}
-          required
-          className="w-full px-3 py-2 border rounded text-black"
-        />
-        <input
-          type="text"
-          name="category"
-          placeholder="Category"
-          onChange={handleChange}
-          value={postData.category}
-          required
-          className="w-full px-3 py-2 border rounded text-black"
-        />
-        <textarea
-          name="content"
-          placeholder="Post Content"
-          onChange={handleChange}
-          value={postData.content}
-          required
-          className="w-full px-3 py-2 border rounded text-black"
-        />
-        <input
-          type="file"
-          onChange={handleFileChange}
-          className="block text-white"
-        />
-        <button
-          type="submit"
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          {postData._id ? "Update Post" : "Submit Post"}
-        </button>
-      </form>
+      <PostForm
+        initialData={{
+          title: editingPost?.title || "",
+          category: editingPost?.category || "",
+          content: editingPost?.content || "",
+          image: null,
+        }}
+        onSubmit={handlePostSubmit}
+      />
     </div>
   );
 };

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import DOMPurify from "dompurify"; // Import DOMPurify to sanitize HTML
+import "../styles/quill-custom.css"; // Import your custom Quill CSS
 
 interface Author {
   _id: string;
@@ -113,7 +115,13 @@ const SinglePost: React.FC = () => {
           className="w-full h-64 object-cover mb-4 rounded"
         />
       )}
-      <p className="text-base">{post.content}</p>
+      {/* Render content as HTML using dangerouslySetInnerHTML */}
+      <div
+        className="text-base"
+        dangerouslySetInnerHTML={{
+          __html: DOMPurify.sanitize(post.content), // Sanitize the HTML to prevent XSS
+        }}
+      ></div>
       {userId === post.author._id && (
         <div className="mt-4">
           <button
