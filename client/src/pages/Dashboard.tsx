@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate, useLocation } from "react-router-dom"; // Import useLocation
 import axios from "axios";
 
 interface DashboardProps {
@@ -12,6 +12,7 @@ interface UserProfileResponse {
 }
 
 interface PostData {
+  _id?: string; // Include _id for editing
   title: string;
   category: string;
   content: string;
@@ -28,7 +29,9 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
     image: null,
   });
 
-  const navigate = useNavigate(); // Initialize the useNavigate hook
+  const navigate = useNavigate();
+  const location = useLocation();
+  const editingPost = location.state?.post; // Access the post data if passed for editing
 
   // Fetch user data from the backend
   const fetchUserData = async () => {
@@ -72,13 +75,15 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setPostData((prevData) => ({ ...prevData, image: e.target.files![0] }));
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      setPostData((prevData) => ({ ...prevData, image: files[0] }));
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     const formData = new FormData();
     formData.append("title", postData.title);
     formData.append("category", postData.category);
@@ -94,28 +99,55 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
         return;
       }
 
-      await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/posts/create`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      if (postData._id) {
+        // If _id exists, update the post
+        await axios.put(
+          `${process.env.REACT_APP_BACKEND_URL}/posts/${postData._id}`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        alert("Post updated successfully");
+      } else {
+        // Otherwise, create a new post
+        await axios.post(
+          `${process.env.REACT_APP_BACKEND_URL}/posts/create`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        alert("Post created successfully");
+      }
 
-      alert("Post created successfully");
       setPostData({ title: "", category: "", content: "", image: null });
+      navigate("/"); // Redirect to home after creation or update
     } catch (error: any) {
       console.error("Error submitting post:", error?.response?.data || error);
-      alert("Failed to create post");
+      alert("Failed to create or update post");
     }
   };
 
   useEffect(() => {
     fetchUserData();
-  }, []);
+    if (editingPost) {
+      // If editing a post, pre-fill the form with the post data
+      setPostData({
+        _id: editingPost._id,
+        title: editingPost.title,
+        category: editingPost.category,
+        content: editingPost.content,
+        image: null, // Image needs to be re-uploaded if changed
+      });
+    }
+  }, [editingPost]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-full py-10 bg-background text-white w-full overflow-hidden">
@@ -137,7 +169,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
       </h2>
       <div className="flex space-x-2 mb-4">
         <button
-          onClick={() => navigate("/edit-profile")} // Navigate to edit profile page
+          onClick={() => navigate("/edit-profile")}
           className="bg-blue-500 hover:bg-blue-700 text-white text-sm font-bold py-1 px-3 rounded"
         >
           Edit Profile
@@ -150,7 +182,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
         </button>
       </div>
       <h3 className="text-lg font-semibold mb-2 mt-4 text-left w-full max-w-lg px-4 sm:px-0">
-        Start a new post:
+        {postData._id ? "Edit Post" : "Start a new post:"}
       </h3>
       <form
         onSubmit={handleSubmit}
@@ -191,7 +223,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
           type="submit"
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
         >
-          Submit Post
+          {postData._id ? "Update Post" : "Submit Post"}
         </button>
       </form>
     </div>

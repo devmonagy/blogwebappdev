@@ -16,60 +16,79 @@ interface Post {
   author: Author;
 }
 
-interface User {
-  _id: string;
-  username: string;
-  email: string;
-  firstName: string;
+interface ValidateTokenResponse {
+  user: {
+    _id: string;
+  };
 }
 
 const SinglePost: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [post, setPost] = useState<Post | null>(null);
-  const [user, setUser] = useState<User | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchUser = () => {
-      const storedUser = localStorage.getItem("user");
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
-      }
-    };
+    const token = localStorage.getItem("token");
 
-    const fetchPost = async () => {
-      try {
-        const response = await axios.get<Post>(
-          `${process.env.REACT_APP_BACKEND_URL}/posts/${id}`
-        );
-        setPost(response.data);
-      } catch (error) {
-        console.error("Error fetching post:", error);
-        setError("Failed to fetch the post.");
-      }
-    };
+    if (token) {
+      axios
+        .post<ValidateTokenResponse>(
+          `${process.env.REACT_APP_BACKEND_URL}/auth/validate-token`,
+          {},
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        )
+        .then((response) => {
+          setUserId(response.data.user._id);
+        })
+        .catch((error) => {
+          console.error("Error validating token:", error);
+          setError("Failed to validate user.");
+        });
+    }
+  }, []);
 
-    fetchUser();
+  const fetchPost = async () => {
+    try {
+      const response = await axios.get<Post>(
+        `${process.env.REACT_APP_BACKEND_URL}/posts/${id}`
+      );
+      setPost(response.data);
+    } catch (error) {
+      console.error("Error fetching post:", error);
+      setError("Failed to fetch the post.");
+    }
+  };
+
+  useEffect(() => {
     fetchPost();
   }, [id]);
 
-  const handleDelete = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("You must be logged in to delete this post.");
-      return;
+  const handleEdit = () => {
+    if (post) {
+      navigate("/dashboard", { state: { post } });
     }
+  };
 
+  const handleDelete = async () => {
     try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("User is not authenticated.");
+        return;
+      }
+
       await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/posts/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      alert("Post deleted successfully");
+      alert("Post deleted successfully.");
       navigate("/");
     } catch (error) {
       console.error("Error deleting post:", error);
-      alert("Failed to delete the post.");
+      setError("Failed to delete the post.");
     }
   };
 
@@ -95,15 +114,21 @@ const SinglePost: React.FC = () => {
         />
       )}
       <p className="text-base">{post.content}</p>
-
-      {/* Show the delete button only if the logged-in user is the author */}
-      {user && post.author._id === user._id && (
-        <button
-          onClick={handleDelete}
-          className="mt-4 bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600"
-        >
-          Delete Post
-        </button>
+      {userId === post.author._id && (
+        <div className="mt-4">
+          <button
+            onClick={handleEdit}
+            className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded mr-2"
+          >
+            Edit Post
+          </button>
+          <button
+            onClick={handleDelete}
+            className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+          >
+            Delete Post
+          </button>
+        </div>
       )}
     </div>
   );
