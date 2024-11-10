@@ -6,6 +6,7 @@ import {
   loginUser,
   updateProfile,
   checkPassword, // Import the checkPassword function
+  validateToken, // Import the validateToken function
 } from "../controllers/authController";
 import {
   getUserProfile,
@@ -39,5 +40,6 @@ router.post(
   upload.single("profilePicture"), // Use multer to handle single file upload
   uploadProfilePicture // Controller to handle the uploaded file
 );
+router.post("/validate-token", validateToken); // Route for validating the token
 
 export default router;

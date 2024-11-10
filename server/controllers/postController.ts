@@ -1,4 +1,3 @@
-// server/controllers/postController.ts
 import { Request, Response, NextFunction } from "express";
 import Post from "../models/Post";
 
@@ -66,6 +65,37 @@ export const getPostById = async (
       return;
     }
     res.status(200).json(post);
+  } catch (error) {
+    next(error); // Pass the error to the error-handling middleware
+  }
+};
+
+// Delete a post by ID
+export const deletePost = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { id } = req.params;
+  const userId = (req as any).userId; // Assuming userId is attached to the req object by your middleware
+
+  try {
+    const post = await Post.findById(id);
+    if (!post) {
+      res.status(404).json({ message: "Post not found" });
+      return;
+    }
+
+    // Check if the logged-in user is the author of the post
+    if (post.author.toString() !== userId) {
+      res
+        .status(403)
+        .json({ message: "You are not authorized to delete this post" });
+      return;
+    }
+
+    await post.deleteOne(); // Use deleteOne instead of remove
+    res.status(200).json({ message: "Post deleted successfully" });
   } catch (error) {
     next(error); // Pass the error to the error-handling middleware
   }

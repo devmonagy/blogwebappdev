@@ -1,4 +1,3 @@
-// src/App.tsx
 import React, { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
@@ -18,6 +17,7 @@ import SinglePost from "./pages/SinglePost"; // Import SinglePost
 import axios from "axios"; // Import only axios
 
 interface User {
+  _id: string;
   username: string;
   email: string;
   firstName: string;
@@ -38,12 +38,8 @@ const App: React.FC = () => {
     return !!localStorage.getItem("token");
   });
   const [user, setUser] = useState<User | null>(() => {
-    const username = localStorage.getItem("username");
-    const email = localStorage.getItem("email");
-    const firstName = localStorage.getItem("firstName");
-    return username && email && firstName
-      ? { username, email, firstName }
-      : null;
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
   });
 
   useEffect(() => {
@@ -62,17 +58,15 @@ const App: React.FC = () => {
           );
 
           if (response.data.valid) {
-            // If valid, update the authentication status and user information
             setIsAuthenticated(true);
-            const { username, email, firstName } = response.data.user;
-            setUser({ username, email, firstName });
+            const user = response.data.user;
+            setUser(user);
+            localStorage.setItem("user", JSON.stringify(user));
           } else {
-            // If the token is invalid, log out the user
             handleLogout();
           }
         } catch (error) {
           console.error("Token validation failed:", error);
-          // Use the custom type guard to check if the error is an Axios error
           if (isAxiosError(error) && error.response.status === 401) {
             handleLogout();
           }
@@ -89,20 +83,17 @@ const App: React.FC = () => {
     firstName: string,
     token: string
   ) => {
-    localStorage.setItem("username", username);
-    localStorage.setItem("email", email);
-    localStorage.setItem("firstName", firstName);
+    const user = { _id: "", username, email, firstName }; // Updated to include _id
+    localStorage.setItem("user", JSON.stringify(user));
     localStorage.setItem("token", token);
 
     setIsAuthenticated(true);
-    setUser({ username, email, firstName });
+    setUser(user);
   };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    localStorage.removeItem("username");
-    localStorage.removeItem("email");
-    localStorage.removeItem("firstName");
+    localStorage.removeItem("user");
 
     setIsAuthenticated(false);
     setUser(null);
@@ -143,8 +134,10 @@ const App: React.FC = () => {
                 isAuthenticated ? <EditProfile /> : <Navigate to="/login" />
               }
             />
-            <Route path="/post/:id" element={<SinglePost />} />{" "}
-            {/* New Route */}
+            <Route
+              path="/post/:id"
+              element={<SinglePost />} // New Route
+            />
           </Routes>
         </main>
         <Footer />
