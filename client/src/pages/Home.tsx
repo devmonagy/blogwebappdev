@@ -39,7 +39,7 @@ const Home: React.FC = () => {
 
   return (
     <div className="p-4 text-primaryText">
-      <h2 className="text-3xl font-bold mb-4">Recent Posts</h2>
+      <h2 className="text-3xl font-bold mb-4 py-1">Recent Posts</h2>
       {error && <p className="text-red-500">{error}</p>}
       {posts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

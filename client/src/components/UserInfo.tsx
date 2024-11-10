@@ -53,7 +53,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Username */}
         <div className="relative">
-          <label className="block mb-1 text-gray-300 flex items-center font-bold text-cyan-700">
+          <label className="block mb-1 text-gray-300 flex items-center font-bold text-cyan-500">
             Username:
             <AiOutlineInfoCircle
               className="ml-2 text-gray-400 cursor-pointer"
@@ -73,7 +73,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
 
         {/* Email */}
         <div>
-          <label className="block mb-1 text-gray-300 font-bold text-cyan-700">
+          <label className="block mb-1 text-gray-300 font-bold text-cyan-500">
             Email:
           </label>
           <p className="text-gray-100">{email || "N/A"}</p>
@@ -81,7 +81,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
 
         {/* First Name */}
         <div>
-          <label className="block mb-1 text-gray-300 font-bold text-cyan-700">
+          <label className="block mb-1 text-gray-300 font-bold text-cyan-500">
             First Name:
           </label>
           <p className="text-gray-100">{firstName || "N/A"}</p>
@@ -89,7 +89,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
 
         {/* Last Name */}
         <div>
-          <label className="block mb-1 text-gray-300 font-bold text-cyan-700">
+          <label className="block mb-1 text-gray-300 font-bold text-cyan-500">
             Last Name:
           </label>
           <p className="text-gray-100">{lastName || "N/A"}</p>
@@ -97,7 +97,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
 
         {/* Member Since */}
         <div className="sm:col-span-2">
-          <label className="block mb-1 text-gray-300 font-bold text-cyan-700">
+          <label className="block mb-1 text-gray-300 font-bold text-cyan-500">
             Member Since:
           </label>
           <p className="text-gray-100">{memberSince || "N/A"}</p>
