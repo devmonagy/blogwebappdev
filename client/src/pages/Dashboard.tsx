@@ -99,49 +99,63 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
   }, [editingPost]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-full py-10 bg-background text-white w-full overflow-hidden">
-      <div className="w-24 h-24 rounded-full mb-4 overflow-hidden">
-        {profilePicture ? (
-          <img
-            src={profilePicture}
-            alt="User Profile"
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full bg-gray-300 flex items-center justify-center">
-            No Image
-          </div>
-        )}
+    <div className="flex flex-col items-center justify-center min-h-full py-10 bg-background text-white w-full px-4 overflow-x-hidden">
+      {/* Header */}
+      <div className="w-full max-w-4xl flex flex-col sm:flex-row items-center justify-between mb-8">
+        {/* Avatar */}
+        <div className="w-24 h-24 rounded-full overflow-hidden shadow-lg mb-4 sm:mb-0">
+          {profilePicture ? (
+            <img
+              src={profilePicture}
+              alt="User Profile"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-700">
+              No Image
+            </div>
+          )}
+        </div>
+
+        {/* Welcome Message */}
+        <div className="flex-1 ml-0 sm:ml-6 text-center sm:text-left">
+          <h2 className="text-3xl font-bold text-primaryText">
+            Welcome, {firstName || "User"}!
+          </h2>
+        </div>
+
+        {/* Buttons */}
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 mt-4 sm:mt-0">
+          <button
+            onClick={() => navigate("/edit-profile")}
+            className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-200 ease-in-out"
+          >
+            Edit Profile
+          </button>
+          <button
+            onClick={onLogout}
+            className="bg-red-600 hover:bg-red-700 text-white text-sm font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-200 ease-in-out"
+          >
+            Logout
+          </button>
+        </div>
       </div>
-      <h2 className="text-2xl font-bold mb-2">
-        Welcome, {firstName || "User"}!
-      </h2>
-      <div className="flex space-x-2 mb-4">
-        <button
-          onClick={() => navigate("/edit-profile")}
-          className="bg-blue-500 hover:bg-blue-700 text-white text-sm font-bold py-1 px-3 rounded"
-        >
-          Edit Profile
-        </button>
-        <button
-          onClick={onLogout}
-          className="bg-red-500 hover:bg-red-600 text-white text-sm font-bold py-1 px-3 rounded"
-        >
-          Logout
-        </button>
+
+      {/* Create/Edit Post */}
+      <div className="w-full max-w-4xl bg-cardBackground rounded-lg shadow-lg p-6 mx-auto">
+        <h3 className="text-2xl font-semibold mb-4 text-primaryText">
+          {editingPost ? "Edit Post" : "Start a New Post:"}
+        </h3>
+        <PostForm
+          initialData={{
+            title: editingPost?.title || "",
+            category: editingPost?.category || "",
+            content: editingPost?.content || "",
+            image: null,
+          }}
+          onSubmit={handlePostSubmit}
+        />
       </div>
-      <h3 className="text-lg font-semibold mb-2 mt-4 text-left w-full max-w-lg px-4 sm:px-0">
-        {editingPost ? "Edit Post" : "Start a new post:"}
-      </h3>
-      <PostForm
-        initialData={{
-          title: editingPost?.title || "",
-          category: editingPost?.category || "",
-          content: editingPost?.content || "",
-          image: null,
-        }}
-        onSubmit={handlePostSubmit}
-      />
     </div>
   );
 };

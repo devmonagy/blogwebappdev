@@ -25,6 +25,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 // server/models/User.ts
 const mongoose_1 = __importStar(require("mongoose"));
+// Helper function to get the default profile picture URL
+const getDefaultProfilePictureUrl = () => {
+    return `${process.env.BACKEND_URL || "http://localhost:5000"}/uploads/userImg.png`;
+};
 // User schema definition
 const UserSchema = new mongoose_1.Schema({
     username: {
@@ -52,5 +56,10 @@ const UserSchema = new mongoose_1.Schema({
         type: String,
         required: [true, "Password is required"],
     },
-});
+    profilePicture: {
+        type: String,
+        default: getDefaultProfilePictureUrl, // Use the helper function
+    },
+}, { timestamps: true } // Include timestamps for createdAt and updatedAt
+);
 exports.default = mongoose_1.default.model("User", UserSchema);

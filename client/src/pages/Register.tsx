@@ -118,14 +118,14 @@ const Register: React.FC = () => {
   return (
     <div className="h-full py-10 flex items-center justify-center bg-background">
       <div className="bg-background p-6 rounded-md shadow-md border border-gray-400 max-w-md w-full mx-4">
-        <h2 className="text-2xl font-bold mb-4 text-center text-white">
+        <h2 className="text-2xl font-bold mb-4 text-center text-black">
           Register
         </h2>
         {error && <p className="text-red-500 mb-4">{error}</p>}
         {success && <p className="text-green-500 mb-4">{success}</p>}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block mb-1 text-gray-300" htmlFor="username">
+            <label className="block mb-1 text-secondaryText" htmlFor="username">
               Username
             </label>
             <input
@@ -134,13 +134,16 @@ const Register: React.FC = () => {
               name="username"
               value={formData.username}
               onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-md text-gray-700"
+              className="w-full px-3 py-2 border rounded-md text-secondaryText"
               required
             />
           </div>
           <div className="flex space-x-4">
             <div className="w-1/2">
-              <label className="block mb-1 text-gray-300" htmlFor="firstName">
+              <label
+                className="block mb-1 text-secondaryText"
+                htmlFor="firstName"
+              >
                 First Name
               </label>
               <input
@@ -149,12 +152,15 @@ const Register: React.FC = () => {
                 name="firstName"
                 value={formData.firstName}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border rounded-md text-gray-700"
+                className="w-full px-3 py-2 border rounded-md text-secondaryText"
                 required
               />
             </div>
             <div className="w-1/2">
-              <label className="block mb-1 text-gray-300" htmlFor="lastName">
+              <label
+                className="block mb-1 text-secondaryText"
+                htmlFor="lastName"
+              >
                 Last Name
               </label>
               <input
@@ -163,13 +169,13 @@ const Register: React.FC = () => {
                 name="lastName"
                 value={formData.lastName}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border rounded-md text-gray-700"
+                className="w-full px-3 py-2 border rounded-md text-secondaryText"
                 required
               />
             </div>
           </div>
           <div>
-            <label className="block mb-1 text-gray-300" htmlFor="email">
+            <label className="block mb-1 text-secondaryText" htmlFor="email">
               Email
             </label>
             <input
@@ -178,12 +184,12 @@ const Register: React.FC = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-md text-gray-700"
+              className="w-full px-3 py-2 border rounded-md text-secondaryText"
               required
             />
           </div>
           <div>
-            <label className="block mb-1 text-gray-300" htmlFor="password">
+            <label className="block mb-1 text-secondaryText" htmlFor="password">
               Password
             </label>
             <div className="eyecomp flex items-center border rounded-md overflow-hidden">
@@ -193,7 +199,7 @@ const Register: React.FC = () => {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border-none text-gray-700 focus:outline-none"
+                className="w-full px-3 py-2 border-none text-secondaryText focus:outline-none"
                 required
               />
               <div
@@ -219,7 +225,7 @@ const Register: React.FC = () => {
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
+            className="w-full bg-black text-white py-2 rounded-md hover:bg-blue-600"
           >
             Register
           </button>

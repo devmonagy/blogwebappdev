@@ -47,16 +47,16 @@ const UserInfo: React.FC<UserInfoProps> = ({
 
   return (
     <div className="space-y-4">
-      <h3 className="text-sm font-bold text-gray-200 mb-4">
+      <h3 className="text-lg font-bold text-primaryText mb-4">
         Review Your Details
       </h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Username */}
         <div className="relative">
-          <label className="block mb-1 text-gray-300 flex items-center font-bold text-cyan-500">
+          <label className="block mb-1 text-primaryText flex items-center font-bold">
             Username:
             <AiOutlineInfoCircle
-              className="ml-2 text-gray-400 cursor-pointer"
+              className="ml-2 text-href cursor-pointer"
               onClick={toggleTooltip}
             />
           </label>
@@ -68,39 +68,39 @@ const UserInfo: React.FC<UserInfoProps> = ({
               Username can't be changed
             </div>
           )}
-          <p className="text-gray-100">{username || "N/A"}</p>
+          <p className="text-secondaryText">{username || "N/A"}</p>
         </div>
 
         {/* Email */}
         <div>
-          <label className="block mb-1 text-gray-300 font-bold text-cyan-500">
+          <label className="block mb-1 text-primaryText font-bold">
             Email:
           </label>
-          <p className="text-gray-100">{email || "N/A"}</p>
+          <p className="text-secondaryText">{email || "N/A"}</p>
         </div>
 
         {/* First Name */}
         <div>
-          <label className="block mb-1 text-gray-300 font-bold text-cyan-500">
+          <label className="block mb-1 text-primaryText 0 font-bold">
             First Name:
           </label>
-          <p className="text-gray-100">{firstName || "N/A"}</p>
+          <p className="text-secondaryText">{firstName || "N/A"}</p>
         </div>
 
         {/* Last Name */}
         <div>
-          <label className="block mb-1 text-gray-300 font-bold text-cyan-500">
+          <label className="block mb-1 text-primaryText font-bold">
             Last Name:
           </label>
-          <p className="text-gray-100">{lastName || "N/A"}</p>
+          <p className="text-secondaryText">{lastName || "N/A"}</p>
         </div>
 
         {/* Member Since */}
         <div className="sm:col-span-2">
-          <label className="block mb-1 text-gray-300 font-bold text-cyan-500">
+          <label className="block mb-1 text-primaryText font-bold">
             Member Since:
           </label>
-          <p className="text-gray-100">{memberSince || "N/A"}</p>
+          <p className="text-secondaryText">{memberSince || "N/A"}</p>
         </div>
       </div>
     </div>

@@ -12,29 +12,27 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateProfile = exports.loginUser = exports.registerUser = void 0;
+exports.validateToken = exports.checkPassword = exports.updateProfile = exports.loginUser = exports.registerUser = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const User_1 = __importDefault(require("../models/User"));
+// Token expiration set to a longer duration, e.g., 7 days
+const TOKEN_EXPIRY = "7d";
 // Register User
 const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { username, firstName, lastName, email, password } = req.body;
     try {
-        // Check if the username already exists
         const existingUsername = yield User_1.default.findOne({ username });
         if (existingUsername) {
             res.status(400).json({ error: "Username already taken" });
             return;
         }
-        // Check if the email already exists
         const existingEmail = yield User_1.default.findOne({ email });
         if (existingEmail) {
             res.status(400).json({ error: "Email already registered" });
             return;
         }
-        // Hash the password before saving to the database
         const hashedPassword = yield bcrypt_1.default.hash(password, 10);
-        // Create a new user instance and save to the database
         const newUser = new User_1.default({
             username,
             firstName,
@@ -55,7 +53,6 @@ exports.registerUser = registerUser;
 const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { usernameOrEmail, password } = req.body;
     try {
-        // Find user by either username or email
         const user = yield User_1.default.findOne({
             $or: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
         });
@@ -63,21 +60,21 @@ const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             res.status(401).json({ error: "Invalid credentials" });
             return;
         }
-        // Compare the provided password with the stored hashed password
         const isPasswordValid = yield bcrypt_1.default.compare(password, user.password);
         if (!isPasswordValid) {
             res.status(401).json({ error: "Invalid credentials" });
             return;
         }
-        // Generate a JWT token
         const token = jsonwebtoken_1.default.sign({ userId: user._id }, process.env.JWT_SECRET, {
-            expiresIn: "1h",
+            expiresIn: TOKEN_EXPIRY,
         });
         res.status(200).json({
             token,
             user: {
                 username: user.username,
                 email: user.email,
+                firstName: user.firstName,
+                profilePicture: user.profilePicture,
             },
         });
     }
@@ -89,20 +86,37 @@ const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 exports.loginUser = loginUser;
 // Update User Profile
 const updateProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { firstName, lastName, email } = req.body;
-    const userId = req.userId; // Use the userId from the AuthenticatedRequest
+    var _a;
+    const { firstName, lastName, email, newPassword } = req.body;
+    const profilePicture = (_a = req.file) === null || _a === void 0 ? void 0 : _a.path;
+    const userId = req.userId;
     if (!userId) {
         res.status(401).json({ error: "User not authenticated" });
         return;
     }
     try {
-        // Find the user by ID and update their profile information
-        const user = yield User_1.default.findByIdAndUpdate(userId, { firstName, lastName, email }, { new: true, runValidators: true } // Return the updated user and run validators
-        );
+        const user = yield User_1.default.findById(userId);
         if (!user) {
             res.status(404).json({ error: "User not found" });
             return;
         }
+        if (firstName)
+            user.firstName = firstName;
+        if (lastName)
+            user.lastName = lastName;
+        if (email)
+            user.email = email;
+        if (profilePicture)
+            user.profilePicture = profilePicture;
+        if (newPassword) {
+            const isSamePassword = yield bcrypt_1.default.compare(newPassword, user.password);
+            if (isSamePassword) {
+                res.status(400).json({ error: "Password can't be your current one!" });
+                return;
+            }
+            user.password = yield bcrypt_1.default.hash(newPassword, 10);
+        }
+        yield user.save();
         res.status(200).json({ message: "Profile updated successfully" });
     }
     catch (error) {
@@ -111,3 +125,56 @@ const updateProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.updateProfile = updateProfile;
+// Check Password
+const checkPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { password } = req.body;
+    const userId = req.userId;
+    if (!userId) {
+        res.status(401).json({ error: "User not authenticated" });
+        return;
+    }
+    try {
+        const user = yield User_1.default.findById(userId);
+        if (!user) {
+            res.status(404).json({ error: "User not found" });
+            return;
+        }
+        const isSame = yield bcrypt_1.default.compare(password, user.password);
+        res.status(200).json({ isSame });
+    }
+    catch (error) {
+        console.error("Error checking password:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+exports.checkPassword = checkPassword;
+// Validate Token
+const validateToken = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const token = (_a = req.header("Authorization")) === null || _a === void 0 ? void 0 : _a.replace("Bearer ", "");
+    if (!token) {
+        res.status(401).json({ valid: false, error: "Token is missing" });
+        return;
+    }
+    try {
+        const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
+        const user = yield User_1.default.findById(decoded.userId);
+        if (!user) {
+            res.status(404).json({ valid: false, error: "User not found" });
+            return;
+        }
+        res.status(200).json({
+            valid: true,
+            user: {
+                _id: user._id,
+                username: user.username,
+                email: user.email,
+                firstName: user.firstName,
+            },
+        });
+    }
+    catch (error) {
+        res.status(401).json({ valid: false, error: "Invalid token" });
+    }
+});
+exports.validateToken = validateToken;

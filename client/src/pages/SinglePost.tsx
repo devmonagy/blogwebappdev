@@ -29,6 +29,7 @@ const SinglePost: React.FC = () => {
   const [post, setPost] = useState<Post | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -45,6 +46,7 @@ const SinglePost: React.FC = () => {
         )
         .then((response) => {
           setUserId(response.data.user._id);
+          setIsAuthenticated(true); // Set as authenticated
         })
         .catch((error) => {
           console.error("Error validating token:", error);
@@ -94,6 +96,55 @@ const SinglePost: React.FC = () => {
     }
   };
 
+  const showFirstFewLines = (content: string, limit: number) => {
+    const text = DOMPurify.sanitize(content);
+    const visibleContent = text.substring(0, limit);
+    const remainingContent = text.substring(limit);
+
+    return (
+      <div>
+        <div
+          className="mb-4"
+          dangerouslySetInnerHTML={{ __html: visibleContent }}
+        />
+        {remainingContent && !isAuthenticated && (
+          <div className="relative ">
+            {/* Apply a blurred overlay over the restricted content */}
+            <div className="absolute top-0 left-0 right-0 bottom-0 backdrop-blur z-10 pointer-events-none rounded-xl" />
+            <div className="z-20 text-center text-primaryText relative py-10 font-black ">
+              <p>
+                Please{" "}
+                <a href="/login" className="text-blue-500 underline">
+                  Login
+                </a>{" "}
+                to view the full content. Not a member?{" "}
+                <a href="/register" className="text-blue-500 underline">
+                  Register
+                </a>{" "}
+                now!
+              </p>
+            </div>
+            {/* Remaining content with blur and user-select: none to prevent copying */}
+            <div
+              className="post-content mb-8 pointer-events-none"
+              style={{ userSelect: "none" }} // Prevent selection and copy
+              dangerouslySetInnerHTML={{ __html: remainingContent }}
+            />
+          </div>
+        )}
+        {/* Only show remaining content if the user is authenticated */}
+        {isAuthenticated && (
+          <div
+            className="post-content mb-8"
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(remainingContent),
+            }}
+          />
+        )}
+      </div>
+    );
+  };
+
   if (error) {
     return <p className="text-red-500">{error}</p>;
   }
@@ -103,41 +154,52 @@ const SinglePost: React.FC = () => {
   }
 
   return (
-    <div className="p-4 text-primaryText">
-      <h2 className="text-3xl font-bold mb-2">{post.title}</h2>
-      <p className="text-sm text-gray-500 mb-4">
-        Category: {post.category} | Author: {post.author.firstName}
-      </p>
-      {post.imagePath && (
-        <img
-          src={`${process.env.REACT_APP_BACKEND_URL}/uploads/${post.imagePath}`}
-          alt={post.title}
-          className="w-full h-64 object-cover mb-4 rounded"
-        />
-      )}
-      {/* Render content as HTML using dangerouslySetInnerHTML */}
-      <div
-        className="text-base"
-        dangerouslySetInnerHTML={{
-          __html: DOMPurify.sanitize(post.content), // Sanitize the HTML to prevent XSS
-        }}
-      ></div>
-      {userId === post.author._id && (
-        <div className="mt-4">
-          <button
-            onClick={handleEdit}
-            className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded mr-2"
-          >
-            Edit Post
-          </button>
-          <button
-            onClick={handleDelete}
-            className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
-          >
-            Delete Post
-          </button>
+    <div className="bg-background ">
+      <div className="container mx-auto p-4 text-primaryText">
+        {/* Top section: Image on the left, Title and Meta on the right */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          <div className="w-full">
+            {post.imagePath && (
+              <img
+                src={`${process.env.REACT_APP_BACKEND_URL}${
+                  post.imagePath.startsWith("/")
+                    ? post.imagePath
+                    : `/${post.imagePath}`
+                }`}
+                alt={`Image for post: ${post.title}`}
+                className="w-full h-full object-cover rounded"
+              />
+            )}
+          </div>
+
+          {/* Right side: Title and Meta centered horizontally and vertically */}
+          <div className="flex flex-col justify-center items-start space-y-4 ">
+            <h2 className="text-3xl font-bold">{post.title}</h2>
+            <p className="text-sm text-gray-500">
+              Category: {post.category} | Author: {post.author.firstName}
+            </p>
+          </div>
         </div>
-      )}
+        {/* Post content section with blurred overlay */}
+        {showFirstFewLines(post.content, 500)} {/* Show the first 500 chars */}
+        {/* Edit and Delete buttons */}
+        {userId === post.author._id && (
+          <div className="flex gap-4 ">
+            <button
+              onClick={handleEdit}
+              className="bg-blue-500 text-white px-4 py-2 rounded"
+            >
+              Edit Post
+            </button>
+            <button
+              onClick={handleDelete}
+              className="bg-red-500 text-white px-4 py-2 rounded"
+            >
+              Delete Post
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

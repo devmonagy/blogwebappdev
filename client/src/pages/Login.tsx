@@ -67,14 +67,14 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   return (
     <div className="h-full py-10 flex items-center justify-center bg-background">
       <div className="bg-background p-6 rounded-md shadow-md border border-gray-400 max-w-md w-full mx-4">
-        <h2 className="text-2xl font-bold mb-4 text-center text-white">
+        <h2 className="text-2xl font-bold mb-4 text-center text-black">
           Login
         </h2>
         {error && <p className="text-red-500 mb-4">{error}</p>}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label
-              className="block mb-1 text-gray-300"
+              className="block mb-1 text-secondaryText"
               htmlFor="usernameOrEmail"
             >
               Username or Email
@@ -85,12 +85,12 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
               name="usernameOrEmail"
               value={formData.usernameOrEmail}
               onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-md text-gray-700"
+              className="w-full px-3 py-2 border rounded-md text-secondaryText"
               required
             />
           </div>
           <div>
-            <label className="block mb-1 text-gray-300" htmlFor="password">
+            <label className="block mb-1 text-secondaryText" htmlFor="password">
               Password
             </label>
             <div className="eyecomp flex items-center border rounded-md overflow-hidden">
@@ -117,12 +117,12 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
+            className="w-full bg-black text-white py-2 rounded-md hover:bg-blue-600"
           >
             Login
           </button>
         </form>
-        <p className="mt-4 text-center text-gray-300">
+        <p className="mt-4 text-center text-secondaryText">
           Don't have an account?{" "}
           <Link to="/register" className="text-blue-400 hover:underline">
             Register here

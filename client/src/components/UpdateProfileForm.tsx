@@ -216,14 +216,14 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
   };
 
   return (
-    <div className="w-full p-6 bg-background border border-gray-400 rounded-md shadow-md">
-      <div className="flex flex-col items-center mb-4">
+    <div className="w-full p-6 bg-background rounded-md ">
+      <div className="flex flex-col items-center mb-4 ">
         <img
           src={profilePicture || "/path/to/default/avatar.jpg"}
           alt="Profile"
           className="w-24 h-24 rounded-full mb-2 object-cover"
         />
-        <label className="text-blue-400 cursor-pointer hover:underline">
+        <label className="text-href cursor-pointer hover:underline">
           Update Avatar
           <input
             type="file"
@@ -235,7 +235,10 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
       </div>
       <form onSubmit={handleFormSubmit} className="space-y-4">
         <div>
-          <label htmlFor="firstName" className="block mb-1 text-gray-300">
+          <label
+            htmlFor="firstName"
+            className="block mb-1 text-primaryText text-sm"
+          >
             First Name:
           </label>
           <input
@@ -243,11 +246,14 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
             id="firstName"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
-            className="w-full px-3 py-2 border rounded-md text-gray-700"
+            className="w-full px-3 py-2 border rounded-md text-gray-700 text-sm"
           />
         </div>
         <div>
-          <label htmlFor="lastName" className="block mb-1 text-gray-300">
+          <label
+            htmlFor="lastName"
+            className="block mb-1 text-primaryText text-sm"
+          >
             Last Name:
           </label>
           <input
@@ -255,11 +261,14 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
             id="lastName"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
-            className="w-full px-3 py-2 border rounded-md text-gray-700"
+            className="w-full px-3 py-2 border rounded-md text-gray-700 text-sm"
           />
         </div>
         <div>
-          <label htmlFor="newEmail" className="block mb-1 text-gray-300">
+          <label
+            htmlFor="newEmail"
+            className="block mb-1 text-primaryText text-sm"
+          >
             New Email Address:
           </label>
           <input
@@ -267,11 +276,14 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
             id="newEmail"
             value={newEmail}
             onChange={(e) => setNewEmail(e.target.value)}
-            className="w-full px-3 py-2 border rounded-md text-gray-700"
+            className="w-full px-3 py-2 border rounded-md text-gray-700 text-sm"
           />
         </div>
         <div>
-          <label htmlFor="newPassword" className="block mb-1 text-gray-300">
+          <label
+            htmlFor="newPassword"
+            className="block mb-1 text-primaryText text-sm"
+          >
             New Password:
           </label>
           <div className="eyecomp flex items-center border rounded-md overflow-hidden">
@@ -283,10 +295,10 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
                 setNewPassword(e.target.value);
                 checkPasswordStrength(e.target.value);
               }}
-              className="w-full px-3 py-2 border-none text-gray-700 focus:outline-none"
+              className="w-full px-3 py-2 border-none text-gray-700 focus:outline-none text-sm"
             />
             <div
-              className="px-3 flex items-center cursor-pointer bg-gray-200"
+              className="px-3 flex items-center cursor-pointer bg-gray-200 "
               onClick={togglePasswordVisibility}
             >
               {showPassword ? (
@@ -304,16 +316,22 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
               style={{ width: `${(passwordStrength / 5) * 100}%` }}
             ></div>
           </div>
-          <p className="mt-2 text-sm text-gray-300">{passwordStatus}</p>
+          <p className="mt-2 text-sm text-secondaryText text-sm ">
+            {passwordStatus}
+          </p>
         </div>
         <button
           type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 w-full"
         >
           Update Profile
         </button>
       </form>
-      {message && <p className="mt-4 text-left text-gray-300">{message}</p>}
+      {message && (
+        <p className="mt-4 text-left text-secondaryText text-sm font-black	">
+          {message}
+        </p>
+      )}
     </div>
   );
 };

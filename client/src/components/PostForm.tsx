@@ -77,8 +77,9 @@ const PostForm: React.FC<PostFormProps> = ({ initialData, onSubmit }) => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full max-w-lg space-y-4 px-4 sm:px-0"
+      className="w-full space-y-6  bg-background text-black rounded-lg"
     >
+      {/* Title Input */}
       <input
         type="text"
         name="title"
@@ -86,8 +87,10 @@ const PostForm: React.FC<PostFormProps> = ({ initialData, onSubmit }) => {
         onChange={handleChange}
         value={postData.title}
         required
-        className="w-full px-3 py-2 border rounded text-black"
+        className="w-full px-4 py-3 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
+
+      {/* Category Input */}
       <input
         type="text"
         name="category"
@@ -95,30 +98,46 @@ const PostForm: React.FC<PostFormProps> = ({ initialData, onSubmit }) => {
         onChange={handleChange}
         value={postData.category}
         required
-        className="w-full px-3 py-2 border rounded text-black"
+        className="w-full px-4 py-3 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
-      {isQuillLoaded && ReactQuill ? ( // Check if Quill is loaded
+
+      {/* Quill Editor */}
+      {isQuillLoaded && ReactQuill ? (
         <ReactQuill
           theme="snow"
           value={postData.content}
           onChange={handleContentChange}
           modules={{ toolbar: toolbarOptions }}
-          className="bg-white text-black"
+          className="w-full bg-white rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       ) : (
-        <p>Loading editor...</p> // Fallback text while Quill is loading
+        <p className="text-center">Loading editor...</p> // Fallback text while Quill is loading
       )}
-      <input
-        type="file"
-        onChange={handleFileChange}
-        className="block text-white"
-      />
-      <button
-        type="submit"
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-      >
-        {postData._id ? "Update Post" : "Submit Post"}
-      </button>
+
+      {/* File Upload Input */}
+      <div className="flex flex-col">
+        <label
+          htmlFor="image"
+          className="text-lg font-semibold text-primaryText"
+        >
+          Upload Image
+        </label>
+        <input
+          type="file"
+          onChange={handleFileChange}
+          className="w-full mt-2 border border-gray-300 rounded-lg text-black"
+        />
+      </div>
+
+      {/* Submit Button */}
+      <div className="flex justify-center">
+        <button
+          type="submit"
+          className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md"
+        >
+          {postData._id ? "Update Post" : "Submit Post"}
+        </button>
+      </div>
     </form>
   );
 };

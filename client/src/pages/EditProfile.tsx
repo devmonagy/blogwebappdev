@@ -45,7 +45,6 @@ const EditProfile: React.FC = () => {
         createdAt,
       } = response.data;
 
-      // Handle the profile picture URL similarly to Dashboard
       let fullProfilePictureUrl: string | null = null;
       if (profilePicture) {
         const profilePicPath = profilePicture.replace(/^\/+|uploads\/+/g, "");
@@ -104,28 +103,37 @@ const EditProfile: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-full py-10 bg-background text-white">
-      <h1 className="text-3xl font-bold mb-6 mb-1 py-1">Edit Your Profile</h1>
-      <div className="flex flex-wrap justify-around w-full max-w-4xl">
-        {/* UpdateProfileForm on the left (order first) */}
-        <div className="w-full md:w-1/2 p-4 order-2 md:order-1">
-          <UpdateProfileForm
-            initialEmail={userInfo?.email || ""}
-            initialFirstName={userInfo?.firstName || ""}
-            initialLastName={userInfo?.lastName || ""}
-            initialProfilePicture={userInfo?.profilePicture || ""}
-            onUpdate={handleUpdate}
-          />
-        </div>
-        {/* UserInfo on the right (order second) */}
-        <div className="w-full md:w-1/2 p-4 order-1 md:order-2">
-          <UserInfo
-            username={userInfo?.username || "N/A"}
-            email={userInfo?.email || "N/A"}
-            firstName={userInfo?.firstName || "N/A"}
-            lastName={userInfo?.lastName || "N/A"}
-            memberSince={userInfo?.memberSince || "N/A"}
-          />
+    <div className="flex flex-col items-center justify-center min-h-screen py-10 bg-background text-white px-4">
+      <h1 className="text-4xl font-semibold mb-8 text-primaryText text-center">
+        Edit Your Profile
+      </h1>
+      <div className="w-full max-w-5xl bg-cardBg p-7 rounded-xl shadow-lg">
+        <div className="flex flex-col md:flex-row gap-8">
+          {/* UpdateProfileForm */}
+          <div className="w-full md:w-1/2">
+            <div className="bg-cardInner p-6 rounded-xl shadow-md">
+              <UpdateProfileForm
+                initialEmail={userInfo?.email || ""}
+                initialFirstName={userInfo?.firstName || ""}
+                initialLastName={userInfo?.lastName || ""}
+                initialProfilePicture={userInfo?.profilePicture || ""}
+                onUpdate={handleUpdate}
+              />
+            </div>
+          </div>
+
+          {/* UserInfo */}
+          <div className="w-full md:w-1/2">
+            <div className="bg-cardInner p-6 rounded-xl shadow-md">
+              <UserInfo
+                username={userInfo?.username || "N/A"}
+                email={userInfo?.email || "N/A"}
+                firstName={userInfo?.firstName || "N/A"}
+                lastName={userInfo?.lastName || "N/A"}
+                memberSince={userInfo?.memberSince || "N/A"}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>

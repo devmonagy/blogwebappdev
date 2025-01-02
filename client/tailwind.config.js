@@ -1,20 +1,23 @@
-// tailwind.config.js
 module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        background: "#0a2540",
-        header: "#092139",
-        footer: "#092139",
-        primaryText: "#FFFFFF",
-        secondaryText: "#B0BEC5",
+        background: "#fff",
+        header: "#f9f9f9",
+        footer: "#f9f9f9",
+        primaryText: "#000",
+        secondaryText: "#818589",
         buttonBackground: "#1E88E5",
-        salmon: "#e63946",
+        href: "#6F8FAF",
       },
       fontFamily: {
         sans: ["Inter", "Arial", "sans-serif"],
         serif: ["Merriweather", "serif"],
+      },
+      container: {
+        center: true,
+        padding: "2rem", // This sets 1rem padding to the left and right of the container.
       },
     },
   },
