@@ -72,7 +72,7 @@ const EditPost: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-full py-10 bg-background text-white w-full px-4">
-      <h1 className="text-3xl font-bold mb-6 text-primaryText">Edit Post</h1>
+      <h2 className="text-3xl font-bold mb-6 text-primaryText">Edit Post</h2>
       <div className="w-full max-w-4xl bg-cardBackground rounded-lg shadow-lg p-6">
         <PostForm
           initialData={{

@@ -104,14 +104,14 @@ const EditProfile: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-10 bg-background text-white px-4">
-      <h1 className="text-4xl font-semibold mb-8 text-primaryText text-center">
+      <h2 className="text-3xl font-semibold mb-8 text-primaryText text-center">
         Edit Your Profile
-      </h1>
+      </h2>
       <div className="w-full max-w-5xl bg-cardBg p-7 rounded-xl shadow-lg">
         <div className="flex flex-col md:flex-row gap-8">
           {/* UpdateProfileForm */}
           <div className="w-full md:w-1/2">
-            <div className="bg-cardInner p-6 rounded-xl shadow-md">
+            <div className="bg-cardInner p-6 rounded-xl shadow-sm">
               <UpdateProfileForm
                 initialEmail={userInfo?.email || ""}
                 initialFirstName={userInfo?.firstName || ""}
@@ -124,7 +124,7 @@ const EditProfile: React.FC = () => {
 
           {/* UserInfo */}
           <div className="w-full md:w-1/2">
-            <div className="bg-cardInner p-6 rounded-xl shadow-md">
+            <div className="bg-cardInner p-6 rounded-xl shadow-sm">
               <UserInfo
                 username={userInfo?.username || "N/A"}
                 email={userInfo?.email || "N/A"}
