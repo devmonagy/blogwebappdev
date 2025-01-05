@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { FaUserEdit, FaRegEdit, FaSignOutAlt } from "react-icons/fa";
 import axios from "axios";
 
 interface DashboardProps {
@@ -56,64 +57,68 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
   }, [editingPost]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-full py-10 bg-background text-white w-full px-4 overflow-x-hidden">
-      {/* Header */}
-      <div className="w-full max-w-4xl flex flex-col sm:flex-row items-center justify-between mb-8">
-        {/* Avatar */}
-        <div className="w-24 h-24 rounded-full overflow-hidden shadow-lg mb-4 sm:mb-0">
-          {profilePicture ? (
-            <img
-              src={profilePicture}
-              alt="User Profile"
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-700">
-              No Image
+    <div className="container p-4">
+      <div className="flex flex-col items-center justify-center min-h-full py-10 bg-background text-white w-full overflow-x-hidden">
+        {/* Header */}
+        <div className="w-full max-w-4xl flex flex-col sm:flex-row sm:justify-between mb-8">
+          {/* Avatar and Welcome Message */}
+          <div className="flex flex-col sm:flex-row items-center w-full sm:w-auto">
+            <div className="flex items-center justify-start sm:justify-center w-full sm:w-auto">
+              {/* Profile Picture */}
+              <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full overflow-hidden shadow-lg">
+                {profilePicture ? (
+                  <img
+                    src={profilePicture}
+                    alt="User Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-700">
+                    No Image
+                  </div>
+                )}
+              </div>
+              {/* Welcome Message and Toolbar */}
+              <div className="ml-4 sm:ml-6 text-left flex-1">
+                <h2 className="text-lg sm:text-xl font-bold text-primaryText">
+                  Welcome, {firstName || "User"}!
+                </h2>
+                {/* Toolbar: Inline below Welcome Message */}
+                <div className="inline-flex space-x-4 mt-2 bg-[#f9f9f9] p-2 sm:p-3 rounded-lg shadow-lg items-center">
+                  <div
+                    className="flex items-center text-black text-sm cursor-pointer hover:text-blue-500 transition-transform transform hover:scale-110"
+                    onClick={() => navigate("/edit-profile")}
+                  >
+                    <FaUserEdit className="w-4 h-4 sm:w-3 sm:h-3" />
+                    <span className="ml-1 sm:ml-2">Profile</span>
+                  </div>
+                  <div
+                    className="flex items-center text-black text-sm cursor-pointer hover:text-green-500 transition-transform transform hover:scale-110"
+                    onClick={() => navigate("/write-post")}
+                  >
+                    <FaRegEdit className="w-4 h-4 sm:w-3 sm:h-3" />
+                    <span className="ml-1 sm:ml-2">Post</span>
+                  </div>
+                  <div
+                    className="flex items-center text-black text-sm cursor-pointer hover:text-red-500 transition-transform transform hover:scale-110"
+                    onClick={onLogout}
+                  >
+                    <FaSignOutAlt className="w-4 h-4 sm:w-3 sm:h-3" />
+                    <span className="ml-1 sm:ml-2">Logout</span>
+                  </div>
+                </div>
+              </div>
             </div>
-          )}
-        </div>
-
-        {/* Welcome Message */}
-        <div className="flex-1 ml-0 sm:ml-6 text-center sm:text-left">
-          <h2 className="text-3xl font-bold text-primaryText">
-            Welcome, {firstName || "User"}!
-          </h2>
-        </div>
-
-        {/* Buttons */}
-        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 mt-4 sm:mt-0">
-          <button
-            onClick={() => navigate("/edit-profile")}
-            className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-200 ease-in-out"
-          >
-            Edit Profile
-          </button>
-          <button
-            onClick={() => navigate("/write-post")}
-            className="bg-green-600 hover:bg-green-700 text-white text-sm font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-200 ease-in-out"
-          >
-            Start Writing
-          </button>
-          <button
-            onClick={onLogout}
-            className="bg-red-600 hover:bg-red-700 text-white text-sm font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-200 ease-in-out"
-          >
-            Logout
-          </button>
+          </div>
         </div>
       </div>
 
       {/* Recent Posts */}
       <div className="w-full max-w-4xl bg-cardBackground rounded-lg shadow-lg p-6 mx-auto">
-        <h3 className="text-2xl font-semibold mb-4 text-primaryText">
+        <h3 className="text-md font-semibold mb-4 text-primaryText">
           Your Recent Activity
         </h3>
-        {/* Placeholder for user posts */}
-        <div className="text-center text-gray-400">
-          {/* Render user's recent posts here */}
-          No recent posts yet.
-        </div>
+        <div className="text-center text-gray-400">No recent posts yet.</div>
       </div>
     </div>
   );
