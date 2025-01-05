@@ -216,7 +216,7 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
   };
 
   return (
-    <div className="w-full p-6 bg-background rounded-md ">
+    <div className="w-full  bg-background rounded-md ">
       <div className="flex flex-col items-center mb-4 ">
         <img
           src={profilePicture || "/path/to/default/avatar.jpg"}
