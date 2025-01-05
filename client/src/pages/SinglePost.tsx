@@ -46,7 +46,7 @@ const SinglePost: React.FC = () => {
         )
         .then((response) => {
           setUserId(response.data.user._id);
-          setIsAuthenticated(true); // Set as authenticated
+          setIsAuthenticated(true);
         })
         .catch((error) => {
           console.error("Error validating token:", error);
@@ -73,7 +73,7 @@ const SinglePost: React.FC = () => {
 
   const handleEdit = () => {
     if (post) {
-      navigate("/dashboard", { state: { post } });
+      navigate(`/edit-post/${post._id}`);
     }
   };
 
@@ -108,10 +108,9 @@ const SinglePost: React.FC = () => {
           dangerouslySetInnerHTML={{ __html: visibleContent }}
         />
         {remainingContent && !isAuthenticated && (
-          <div className="relative ">
-            {/* Apply a blurred overlay over the restricted content */}
+          <div className="relative">
             <div className="absolute top-0 left-0 right-0 bottom-0 backdrop-blur z-10 pointer-events-none rounded-xl" />
-            <div className="z-20 text-center text-primaryText relative py-10 font-black ">
+            <div className="z-20 text-center text-primaryText relative py-10 font-black">
               <p>
                 Please{" "}
                 <a href="/login" className="text-blue-500 underline">
@@ -124,15 +123,13 @@ const SinglePost: React.FC = () => {
                 now!
               </p>
             </div>
-            {/* Remaining content with blur and user-select: none to prevent copying */}
             <div
               className="post-content mb-8 pointer-events-none"
-              style={{ userSelect: "none" }} // Prevent selection and copy
+              style={{ userSelect: "none" }}
               dangerouslySetInnerHTML={{ __html: remainingContent }}
             />
           </div>
         )}
-        {/* Only show remaining content if the user is authenticated */}
         {isAuthenticated && (
           <div
             className="post-content mb-8"
@@ -154,9 +151,8 @@ const SinglePost: React.FC = () => {
   }
 
   return (
-    <div className="bg-background ">
+    <div className="bg-background">
       <div className="container mx-auto p-4 text-primaryText">
-        {/* Top section: Image on the left, Title and Meta on the right */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           <div className="w-full">
             {post.imagePath && (
@@ -171,20 +167,16 @@ const SinglePost: React.FC = () => {
               />
             )}
           </div>
-
-          {/* Right side: Title and Meta centered horizontally and vertically */}
-          <div className="flex flex-col justify-center items-start space-y-4 ">
+          <div className="flex flex-col justify-center items-start space-y-4">
             <h2 className="text-3xl font-bold">{post.title}</h2>
             <p className="text-sm text-gray-500">
               Category: {post.category} | Author: {post.author.firstName}
             </p>
           </div>
         </div>
-        {/* Post content section with blurred overlay */}
-        {showFirstFewLines(post.content, 500)} {/* Show the first 500 chars */}
-        {/* Edit and Delete buttons */}
+        {showFirstFewLines(post.content, 500)}
         {userId === post.author._id && (
-          <div className="flex gap-4 ">
+          <div className="flex gap-4">
             <button
               onClick={handleEdit}
               className="bg-blue-500 text-white px-4 py-2 rounded"

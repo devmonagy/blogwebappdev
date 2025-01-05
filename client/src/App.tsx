@@ -14,6 +14,8 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import EditProfile from "./pages/EditProfile";
 import SinglePost from "./pages/SinglePost"; // Import SinglePost
+import WritePost from "./pages/WritePost";
+import EditPost from "./pages/EditPost";
 import axios from "axios"; // Import only axios
 
 interface User {
@@ -136,6 +138,18 @@ const App: React.FC = () => {
               }
             />
             <Route path="/post/:id" element={<SinglePost />} />
+            <Route
+              path="/write-post"
+              element={
+                isAuthenticated ? <WritePost /> : <Navigate to="/login" />
+              }
+            />
+            <Route
+              path="/edit-post/:id"
+              element={
+                isAuthenticated ? <EditPost /> : <Navigate to="/login" />
+              }
+            />
           </Routes>
         </main>
         <Footer />

@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import PostForm from "../components/PostForm"; // Import the PostForm component
-import "react-quill/dist/quill.snow.css"; // Import Quill styles
 
 interface DashboardProps {
   onLogout: () => void;
@@ -53,47 +51,6 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
     }
   };
 
-  const handlePostSubmit = async (formData: FormData) => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert("User not authenticated");
-        return;
-      }
-
-      if (editingPost?._id) {
-        await axios.put(
-          `${process.env.REACT_APP_BACKEND_URL}/posts/${editingPost._id}`,
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-        alert("Post updated successfully");
-      } else {
-        await axios.post(
-          `${process.env.REACT_APP_BACKEND_URL}/posts/create`,
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-        alert("Post created successfully");
-      }
-
-      navigate("/");
-    } catch (error: any) {
-      console.error("Error submitting post:", error?.response?.data || error);
-      alert("Failed to create or update post");
-    }
-  };
-
   useEffect(() => {
     fetchUserData();
   }, [editingPost]);
@@ -138,23 +95,25 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
           >
             Logout
           </button>
+          <button
+            onClick={() => navigate("/write-post")}
+            className="bg-green-600 hover:bg-green-700 text-white text-sm font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-200 ease-in-out"
+          >
+            Start Writing
+          </button>
         </div>
       </div>
 
-      {/* Create/Edit Post */}
+      {/* Recent Posts */}
       <div className="w-full max-w-4xl bg-cardBackground rounded-lg shadow-lg p-6 mx-auto">
         <h3 className="text-2xl font-semibold mb-4 text-primaryText">
-          {editingPost ? "Edit Post" : "Start a New Post:"}
+          Your Recent Activity
         </h3>
-        <PostForm
-          initialData={{
-            title: editingPost?.title || "",
-            category: editingPost?.category || "",
-            content: editingPost?.content || "",
-            image: null,
-          }}
-          onSubmit={handlePostSubmit}
-        />
+        {/* Placeholder for user posts */}
+        <div className="text-center text-gray-400">
+          {/* Render user's recent posts here */}
+          No recent posts yet.
+        </div>
       </div>
     </div>
   );
