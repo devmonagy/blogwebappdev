@@ -90,16 +90,16 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
             Edit Profile
           </button>
           <button
-            onClick={onLogout}
-            className="bg-red-600 hover:bg-red-700 text-white text-sm font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-200 ease-in-out"
-          >
-            Logout
-          </button>
-          <button
             onClick={() => navigate("/write-post")}
             className="bg-green-600 hover:bg-green-700 text-white text-sm font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-200 ease-in-out"
           >
             Start Writing
+          </button>
+          <button
+            onClick={onLogout}
+            className="bg-red-600 hover:bg-red-700 text-white text-sm font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-200 ease-in-out"
+          >
+            Logout
           </button>
         </div>
       </div>
