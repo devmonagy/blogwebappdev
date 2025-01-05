@@ -102,7 +102,8 @@ const App: React.FC = () => {
   return (
     <Router>
       <div className="bg-background min-h-screen text-primaryText flex flex-col">
-        <Header isAuthenticated={isAuthenticated} />
+        <Header isAuthenticated={isAuthenticated} />{" "}
+        {/* Pass isAuthenticated */}
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<Home />} />
@@ -134,10 +135,7 @@ const App: React.FC = () => {
                 isAuthenticated ? <EditProfile /> : <Navigate to="/login" />
               }
             />
-            <Route
-              path="/post/:id"
-              element={<SinglePost />} // New Route
-            />
+            <Route path="/post/:id" element={<SinglePost />} />
           </Routes>
         </main>
         <Footer />
