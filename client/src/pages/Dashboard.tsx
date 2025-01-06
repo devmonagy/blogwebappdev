@@ -118,19 +118,20 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
                 {/* Toolbar */}
                 <div className="inline-flex space-x-4 mt-2 bg-[#f9f9f9] p-2 sm:p-3 rounded-lg shadow-lg items-center">
                   <div
-                    className="flex items-center text-black text-sm cursor-pointer hover:text-blue-500 transition-transform transform hover:scale-110"
-                    onClick={() => navigate("/edit-profile")}
-                  >
-                    <FaUserEdit className="w-4 h-4 sm:w-3 sm:h-3" />
-                    <span className="ml-1 sm:ml-2">Profile</span>
-                  </div>
-                  <div
                     className="flex items-center text-black text-sm cursor-pointer hover:text-green-500 transition-transform transform hover:scale-110"
                     onClick={() => navigate("/write-post")}
                   >
                     <FaRegEdit className="w-4 h-4 sm:w-3 sm:h-3" />
                     <span className="ml-1 sm:ml-2">Post</span>
                   </div>
+                  <div
+                    className="flex items-center text-black text-sm cursor-pointer hover:text-blue-500 transition-transform transform hover:scale-110"
+                    onClick={() => navigate("/edit-profile")}
+                  >
+                    <FaUserEdit className="w-4 h-4 sm:w-3 sm:h-3" />
+                    <span className="ml-1 sm:ml-2">Profile</span>
+                  </div>
+
                   <div
                     className="flex items-center text-black text-sm cursor-pointer hover:text-red-500 transition-transform transform hover:scale-110"
                     onClick={onLogout}
