@@ -14,6 +14,7 @@ interface Post {
   content: string; // This will contain HTML content
   imagePath: string;
   author: Author;
+  createdAt: string; // Added to track post creation time
 }
 
 const Home: React.FC = () => {
@@ -25,7 +26,12 @@ const Home: React.FC = () => {
       const response = await axios.get<Post[]>(
         `${process.env.REACT_APP_BACKEND_URL}/posts`
       );
-      setPosts(response.data);
+      // Sort posts by createdAt in descending order (newest first)
+      const sortedPosts = response.data.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      setPosts(sortedPosts);
     } catch (error) {
       console.error("Error fetching posts:", error);
       setError("Failed to fetch recent posts.");
