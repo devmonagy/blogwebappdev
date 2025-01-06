@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface Author {
   _id: string;
@@ -20,13 +20,13 @@ interface Post {
 const Home: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const fetchPosts = async () => {
     try {
       const response = await axios.get<Post[]>(
         `${process.env.REACT_APP_BACKEND_URL}/posts`
       );
-      // Sort posts by createdAt in descending order (newest first)
       const sortedPosts = response.data.sort(
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -42,43 +42,54 @@ const Home: React.FC = () => {
     fetchPosts();
   }, []);
 
-  // Function to truncate HTML content while preserving styles and removing line breaks
   const truncateContent = (content: string, maxLength: number) => {
-    // Create a DOM parser to parse the HTML content
     const parser = new DOMParser();
     const doc = parser.parseFromString(content, "text/html");
-
-    // Remove all <br> tags and replace with spaces
-    const brTags = doc.querySelectorAll("br");
-    brTags.forEach((br) => br.parentNode?.removeChild(br));
-
-    // Get the updated HTML content
-    const htmlContent = doc.body.innerHTML;
-
-    // Truncate the HTML content while keeping the inline styles intact
+    const htmlContent = doc.body.textContent || "";
     const truncated = htmlContent.slice(0, maxLength);
-
-    // Add "..." if the content is truncated
     return truncated.length < htmlContent.length
       ? `${truncated}...`
       : truncated;
   };
 
+  const formatDate = (dateString: string) => {
+    const options: Intl.DateTimeFormatOptions = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
   return (
-    <div className="bg-background">
-      <div className="container mx-auto p-4 text-primaryText">
-        <h2 className="text-3xl font-bold mb-4 py-1 text-center">
-          Recent Posts
-        </h2>
+    <div className="bg-background min-h-screen">
+      <div className="container py-10 mx-auto p-4 flex flex-col gap-6 lg:max-w-screen-md">
         {error && <p className="text-red-500">{error}</p>}
         {posts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="flex flex-col gap-6">
             {posts.map((post) => (
-              <div key={post._id} className="border p-4 rounded shadow-md">
-                <h3 className="text-xl font-semibold">{post.title}</h3>
-                <p className="text-sm text-gray-500 mb-2">
-                  Category: {post.category} | Author: {post.author.firstName}
-                </p>
+              <div
+                key={post._id}
+                onClick={() => navigate(`/post/${post._id}`)}
+                className="flex flex-row items-center border p-4 rounded shadow-md bg-white cursor-pointer hover:shadow-lg transition-shadow"
+              >
+                <div className="flex-1">
+                  <h3 className="text-lg sm:text-xl font-semibold">
+                    {post.title}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-gray-500 mb-2">
+                    Category: {post.category} | Author: {post.author.firstName}
+                  </p>
+                  <div
+                    className="text-xs sm:text-sm mb-4"
+                    dangerouslySetInnerHTML={{
+                      __html: truncateContent(post.content, 100),
+                    }}
+                  />
+                  <p className="text-xs sm:text-sm text-gray-500">
+                    {formatDate(post.createdAt)}
+                  </p>
+                </div>
                 {post.imagePath && (
                   <img
                     src={`${process.env.REACT_APP_BACKEND_URL}${
@@ -87,21 +98,9 @@ const Home: React.FC = () => {
                         : `/${post.imagePath}`
                     }`}
                     alt={post.title}
-                    className="w-full h-48 object-cover mb-2 rounded"
+                    className="w-24 h-24 object-cover rounded ml-4 sm:w-32 sm:h-32"
                   />
                 )}
-                <div
-                  className="text-xs"
-                  dangerouslySetInnerHTML={{
-                    __html: truncateContent(post.content, 300),
-                  }}
-                />
-                <Link
-                  to={`/post/${post._id}`}
-                  className="text-href hover:underline mt-2 block"
-                >
-                  Read More
-                </Link>
               </div>
             ))}
           </div>

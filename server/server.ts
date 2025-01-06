@@ -25,7 +25,8 @@ connectDB();
 // Define the allowed origins for CORS (Cross-Origin Resource Sharing)
 const allowedOrigins = [
   "http://localhost:3000", // Allow frontend application on localhost for development
-  "http://192.168.1.204:3000", // Allow frontend application on the local network, useful for testing on multiple devices
+  "http://192.168.1.204:3000", // Allow frontend application on the local network
+  "http://172.16.109.61:3000", // Allow frontend application on the office at work
 ];
 
 // Apply CORS middleware to enable requests from the allowed origins and support credentials
