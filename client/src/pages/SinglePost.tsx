@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import DOMPurify from "dompurify"; // Import DOMPurify to sanitize HTML
-import "../styles/quill-custom.css"; // Import your custom Quill CSS
+import DOMPurify from "dompurify";
+import "../styles/quill-custom.css";
 
 interface Author {
   _id: string;
@@ -48,68 +48,59 @@ const SinglePost: React.FC = () => {
           setUserId(response.data.user._id);
           setIsAuthenticated(true);
         })
-        .catch((error) => {
-          console.error("Error validating token:", error);
-          setError("Failed to validate user.");
-        });
+        .catch(() => setError("Failed to validate user."));
     }
   }, []);
 
-  const fetchPost = async () => {
-    try {
-      const response = await axios.get<Post>(
-        `${process.env.REACT_APP_BACKEND_URL}/posts/${id}`
-      );
-      setPost(response.data);
-    } catch (error) {
-      console.error("Error fetching post:", error);
-      setError("Failed to fetch the post.");
-    }
-  };
-
   useEffect(() => {
+    const fetchPost = async () => {
+      try {
+        const response = await axios.get<Post>(
+          `${process.env.REACT_APP_BACKEND_URL}/posts/${id}`
+        );
+        setPost(response.data);
+      } catch {
+        setError("Failed to fetch the post.");
+      }
+    };
     fetchPost();
   }, [id]);
 
   const handleEdit = () => {
-    if (post) {
-      navigate(`/edit-post/${post._id}`);
-    }
+    if (post) navigate(`/edit-post/${post._id}`);
   };
 
   const handleDelete = async () => {
     try {
       const token = localStorage.getItem("token");
-      if (!token) {
-        setError("User is not authenticated.");
-        return;
-      }
+      if (!token) return setError("User is not authenticated.");
 
       await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/posts/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert("Post deleted successfully.");
       navigate("/");
-    } catch (error) {
-      console.error("Error deleting post:", error);
+    } catch {
       setError("Failed to delete the post.");
     }
   };
 
   const showFirstFewLines = (content: string, limit: number) => {
-    const text = DOMPurify.sanitize(content);
-    const visibleContent = text.substring(0, limit);
-    const remainingContent = text.substring(limit);
+    const sanitizedContent = DOMPurify.sanitize(content);
+    const visibleContent = sanitizedContent.substring(0, limit);
+    const remainingContent = sanitizedContent.substring(limit);
 
     return (
       <div>
         <div
-          className="mb-4"
-          dangerouslySetInnerHTML={{ __html: visibleContent }}
+          className={isAuthenticated ? "" : "relative fade-text"}
+          dangerouslySetInnerHTML={{
+            __html: isAuthenticated ? sanitizedContent : visibleContent,
+          }}
         />
-        {remainingContent && !isAuthenticated && (
-          <div className="relative">
-            <div className="absolute top-0 left-0 right-0 bottom-0 backdrop-blur z-10 pointer-events-none rounded-xl" />
+        {!isAuthenticated && remainingContent && (
+          <div className="relative mt-4">
+            <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent pointer-events-none" />
             <div className="z-20 text-center text-primaryText relative py-10 font-black">
               <p>
                 Please{" "}
@@ -123,71 +114,50 @@ const SinglePost: React.FC = () => {
                 now!
               </p>
             </div>
-            <div
-              className="post-content mb-8 pointer-events-none"
-              style={{ userSelect: "none" }}
-              dangerouslySetInnerHTML={{ __html: remainingContent }}
-            />
           </div>
-        )}
-        {isAuthenticated && (
-          <div
-            className="post-content mb-8"
-            dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(remainingContent),
-            }}
-          />
         )}
       </div>
     );
   };
 
-  if (error) {
-    return <p className="text-red-500">{error}</p>;
-  }
+  if (error) return <p className="text-red-500">{error}</p>;
 
-  if (!post) {
-    return <p className="text-gray-500">Loading...</p>;
-  }
+  if (!post) return <p className="text-gray-500">Loading...</p>;
 
   return (
-    <div className="bg-background">
-      <div className="container mx-auto p-4 text-primaryText">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          <div className="w-full">
-            {post.imagePath && (
-              <img
-                src={`${process.env.REACT_APP_BACKEND_URL}${
-                  post.imagePath.startsWith("/")
-                    ? post.imagePath
-                    : `/${post.imagePath}`
-                }`}
-                alt={`Image for post: ${post.title}`}
-                className="w-full h-full object-cover rounded"
-              />
-            )}
-          </div>
-          <div className="flex flex-col justify-center items-start space-y-4">
-            <h2 className="text-3xl font-bold">{post.title}</h2>
-            <p className="text-sm text-gray-500">
-              Category: {post.category} | Author: {post.author.firstName}
-            </p>
-          </div>
+    <div className="bg-background min-h-screen py-8">
+      <div className="container mx-auto p-4 text-primaryText max-w-4xl shadow-lg rounded-lg bg-white">
+        {post.imagePath && (
+          <img
+            src={`${process.env.REACT_APP_BACKEND_URL}${
+              post.imagePath.startsWith("/")
+                ? post.imagePath
+                : `/${post.imagePath}`
+            }`}
+            alt={`Image for post: ${post.title}`}
+            className="w-full h-100 object-cover rounded-md mb-6 shadow-md"
+          />
+        )}
+        <div className="mb-6">
+          <h2 className="text-4xl font-extrabold mb-2">{post.title}</h2>
+          <p className="text-gray-600 text-sm">
+            Category: {post.category} | Author: {post.author.firstName}
+          </p>
         </div>
-        {showFirstFewLines(post.content, 500)}
+        <div>{showFirstFewLines(post.content, 1000)}</div>
         {userId === post.author._id && (
-          <div className="flex gap-4">
+          <div className="flex justify-end gap-4 mt-6">
             <button
               onClick={handleEdit}
-              className="bg-blue-500 text-white px-4 py-2 rounded"
+              className="bg-blue-600 text-white px-4 py-2 rounded shadow-md hover:bg-blue-700"
             >
-              Edit Post
+              Edit
             </button>
             <button
               onClick={handleDelete}
-              className="bg-red-500 text-white px-4 py-2 rounded"
+              className="bg-red-600 text-white px-4 py-2 rounded shadow-md hover:bg-red-700"
             >
-              Delete Post
+              Delete
             </button>
           </div>
         )}
