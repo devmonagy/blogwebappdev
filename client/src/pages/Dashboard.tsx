@@ -152,9 +152,16 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
           Your Writings
         </h3>
         {userPosts.length > 0 ? (
-          <ul className="text-left space-y-2">
-            {userPosts.slice(0, 3).map((post) => (
-              <li key={post._id} className="flex justify-between items-center">
+          <ul className="text-left">
+            {userPosts.slice(0, 3).map((post, index) => (
+              <li
+                key={post._id}
+                className={`flex justify-between items-center ${
+                  index !== userPosts.length - 1
+                    ? "border-b border-slate-200"
+                    : ""
+                } py-3`}
+              >
                 <span className="text-primaryText">{post.title}</span>
                 <button
                   className="text-blue-500 hover:underline"
