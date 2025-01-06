@@ -13,10 +13,11 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import EditProfile from "./pages/EditProfile";
-import SinglePost from "./pages/SinglePost"; // Import SinglePost
+import SinglePost from "./pages/SinglePost";
 import WritePost from "./pages/WritePost";
 import EditPost from "./pages/EditPost";
-import axios from "axios"; // Import only axios
+import AllUserPosts from "./pages/AllUserPosts";
+import axios from "axios";
 
 interface User {
   _id: string;
@@ -104,8 +105,7 @@ const App: React.FC = () => {
   return (
     <Router>
       <div className="bg-background min-h-screen text-primaryText flex flex-col">
-        <Header isAuthenticated={isAuthenticated} />{" "}
-        {/* Pass isAuthenticated */}
+        <Header isAuthenticated={isAuthenticated} />
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<Home />} />
@@ -137,7 +137,6 @@ const App: React.FC = () => {
                 isAuthenticated ? <EditProfile /> : <Navigate to="/login" />
               }
             />
-            <Route path="/post/:id" element={<SinglePost />} />
             <Route
               path="/write-post"
               element={
@@ -150,6 +149,13 @@ const App: React.FC = () => {
                 isAuthenticated ? <EditPost /> : <Navigate to="/login" />
               }
             />
+            <Route
+              path="/all-user-posts"
+              element={
+                isAuthenticated ? <AllUserPosts /> : <Navigate to="/login" />
+              }
+            />
+            <Route path="/post/:id" element={<SinglePost />} />
           </Routes>
         </main>
         <Footer />

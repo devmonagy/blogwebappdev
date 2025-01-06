@@ -12,9 +12,16 @@ interface UserProfileResponse {
   profilePicture: string;
 }
 
+interface UserPost {
+  _id: string;
+  title: string;
+  createdAt: string; // Assuming posts include a creation date field
+}
+
 const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
   const [firstName, setFirstName] = useState<string | null>(null);
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
+  const [userPosts, setUserPosts] = useState<UserPost[]>([]); // State for user posts
   const navigate = useNavigate();
   const location = useLocation();
   const editingPost = location.state?.post;
@@ -38,6 +45,30 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
     }
   };
 
+  const fetchUserPosts = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const response = await axios.get<UserPost[]>(
+        `${process.env.REACT_APP_BACKEND_URL}/posts/user-posts`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      // Sort posts by newest first (descending order of `createdAt`)
+      const sortedPosts = response.data.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+
+      setUserPosts(sortedPosts);
+    } catch (error) {
+      console.error("Error fetching user posts:", error);
+    }
+  };
+
   const handleProfilePicture = (path: string) => {
     if (path) {
       const profilePicUrl = path.startsWith("http")
@@ -54,6 +85,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
 
   useEffect(() => {
     fetchUserData();
+    fetchUserPosts(); // Fetch posts when component mounts
   }, [editingPost]);
 
   return (
@@ -83,7 +115,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
                 <h2 className="text-lg sm:text-xl font-bold text-primaryText">
                   Welcome, {firstName || "User"}!
                 </h2>
-                {/* Toolbar: Inline below Welcome Message */}
+                {/* Toolbar */}
                 <div className="inline-flex space-x-4 mt-2 bg-[#f9f9f9] p-2 sm:p-3 rounded-lg shadow-lg items-center">
                   <div
                     className="flex items-center text-black text-sm cursor-pointer hover:text-blue-500 transition-transform transform hover:scale-110"
@@ -116,9 +148,33 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
       {/* Recent Posts */}
       <div className="w-full max-w-4xl bg-cardBackground rounded-lg shadow-lg p-6 mx-auto">
         <h3 className="text-md font-semibold mb-4 text-primaryText">
-          Your Recent Activity
+          Your Writings
         </h3>
-        <div className="text-center text-gray-400">No recent posts yet.</div>
+        {userPosts.length > 0 ? (
+          <ul className="text-left space-y-2">
+            {userPosts.slice(0, 3).map((post) => (
+              <li key={post._id} className="flex justify-between items-center">
+                <span className="text-primaryText">{post.title}</span>
+                <button
+                  className="text-blue-500 hover:underline"
+                  onClick={() => navigate(`/post/${post._id}`)}
+                >
+                  View
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div className="text-center text-gray-400">No recent posts yet.</div>
+        )}
+        {userPosts.length > 3 && (
+          <button
+            className="mt-4 text-blue-500 hover:underline"
+            onClick={() => navigate("/all-user-posts")}
+          >
+            Load More
+          </button>
+        )}
       </div>
     </div>
   );

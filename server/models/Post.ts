@@ -6,20 +6,32 @@ interface IPost extends Document {
   category: string;
   content: string;
   imagePath?: string;
-  author: mongoose.Types.ObjectId;
-  createdAt?: Date;
-  updatedAt?: Date;
+  author: mongoose.Types.ObjectId; // Reference to the User model
+  createdAt?: Date; // Automatically added by timestamps
+  updatedAt?: Date; // Automatically added by timestamps
 }
 
 // Define the Post schema
 const PostSchema: Schema = new Schema<IPost>(
   {
-    title: { type: String, required: true, trim: true },
-    category: { type: String, required: true },
-    content: { type: String, required: true },
-    imagePath: { type: String },
+    title: {
+      type: String,
+      required: true,
+      trim: true, // Removes leading/trailing whitespace
+    },
+    category: {
+      type: String,
+      required: true,
+    },
+    content: {
+      type: String,
+      required: true,
+    },
+    imagePath: {
+      type: String, // Optional field for image paths
+    },
     author: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId, // References the User model
       ref: "User",
       required: true,
     },
