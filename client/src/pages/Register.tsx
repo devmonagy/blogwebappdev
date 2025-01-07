@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 interface RegisterResponse {
   message: string;
@@ -230,6 +230,13 @@ const Register: React.FC = () => {
             Register
           </button>
         </form>
+        <p className="mt-4 text-center text-secondaryText">
+          Already a member?{" "}
+          <Link to="/login" className="text-blue-400 hover:underline">
+            Login here
+          </Link>
+          .
+        </p>
       </div>
     </div>
   );

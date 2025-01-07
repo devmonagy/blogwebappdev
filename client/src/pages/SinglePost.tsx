@@ -107,11 +107,12 @@ const SinglePost: React.FC = () => {
                 <a href="/login" className="text-blue-500 underline">
                   Login
                 </a>{" "}
-                to view the full content. Not a member?{" "}
+                to read the full post. <br />
+                Not a member?{" "}
                 <a href="/register" className="text-blue-500 underline">
                   Register
                 </a>{" "}
-                now!
+                for free access!
               </p>
             </div>
           </div>
