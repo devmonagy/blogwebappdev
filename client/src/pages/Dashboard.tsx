@@ -24,6 +24,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
   const [userPosts, setUserPosts] = useState<UserPost[]>([]);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [isDropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const navigate = useNavigate();
   const location = useLocation();
   const editingPost = location.state?.post;
@@ -40,7 +41,6 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
         }
       );
 
-      console.log("User data fetched:", response.data); // Log the complete user data
       setFirstName(response.data.firstName);
       handleProfilePicture(response.data.profilePicture);
       setIsAdmin(response.data.role === "admin");
@@ -92,9 +92,9 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
   }, [editingPost]);
 
   return (
-    <div className="container p-4">
-      <div className="flex flex-col items-center justify-center min-h-full py-10 bg-background text-white w-full overflow-x-hidden">
-        <div className="w-full max-w-4xl flex flex-col sm:flex-row sm:justify-between mb-8">
+    <div className="container p-4" style={{ overflow: "hidden" }}>
+      <div className="flex flex-col items-center justify-center min-h-full py-10 bg-background text-white w-full  relative">
+        <div className="w-full max-w-4xl flex flex-col sm:flex-row sm:justify-between mb-8 relative z-10">
           <div className="flex flex-col sm:flex-row items-center w-full sm:w-auto">
             <div className="flex items-center justify-start sm:justify-center w-full sm:w-auto">
               <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full overflow-hidden shadow-lg">
@@ -114,7 +114,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
                 <h2 className="text-lg sm:text-xl font-bold text-primaryText">
                   Welcome, {firstName || "User"}!
                 </h2>
-                <div className="inline-flex space-x-4 mt-2 bg-[#f9f9f9] p-2 sm:p-3 rounded-lg shadow-lg items-center">
+                <div className="inline-flex space-x-4 mt-2 bg-[#f9f9f9] p-2 sm:p-3 rounded-lg shadow-lg items-center relative">
+                  {/* Main Links */}
                   <div
                     className="flex items-center text-black text-sm cursor-pointer hover:text-green-500 transition-transform transform hover:scale-110"
                     onClick={() => navigate("/write-post")}
@@ -129,21 +130,54 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
                     <FaUserEdit className="w-4 h-4 sm:w-3 sm:h-3" />
                     <span className="ml-1 sm:ml-2">Profile</span>
                   </div>
-                  {isAdmin && (
-                    <div
-                      className="flex items-center text-black text-sm cursor-pointer hover:text-purple-500 transition-transform transform hover:scale-110"
-                      onClick={() => navigate("/admin-dashboard")}
-                    >
-                      <FaUsers className="w-4 h-4 sm:w-3 sm:h-3" />
-                      <span className="ml-1 sm:ml-2">Admin</span>
-                    </div>
-                  )}
                   <div
                     className="flex items-center text-black text-sm cursor-pointer hover:text-red-500 transition-transform transform hover:scale-110"
                     onClick={onLogout}
                   >
                     <FaSignOutAlt className="w-4 h-4 sm:w-3 sm:h-3" />
                     <span className="ml-1 sm:ml-2">Logout</span>
+                  </div>
+
+                  {/* Dropdown Menu */}
+                  <div className="relative">
+                    <button
+                      className="flex items-center text-black text-sm cursor-pointer hover:text-gray-500 transition-transform transform hover:scale-110"
+                      onClick={() => setDropdownOpen(!isDropdownOpen)}
+                    >
+                      ⋮
+                    </button>
+                    {isDropdownOpen && (
+                      <div
+                        className="absolute top-full right-0 bg-white text-black shadow-md rounded-lg py-2 w-48 z-50"
+                        style={{
+                          overflowY: "auto",
+                          maxHeight: "300px",
+                          position: "absolute",
+                          zIndex: 9999,
+                        }}
+                      >
+                        {isAdmin && (
+                          <div
+                            className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                            onClick={() => navigate("/admin-dashboard")}
+                          >
+                            Admin
+                          </div>
+                        )}
+                        <div
+                          className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                          onClick={() => alert("Link 2 Clicked")}
+                        >
+                          Link 2
+                        </div>
+                        <div
+                          className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                          onClick={() => alert("Link 3 Clicked")}
+                        >
+                          Link 3
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -152,7 +186,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
         </div>
       </div>
 
-      <div className="w-full max-w-4xl bg-cardBackground rounded-lg shadow-lg p-6 mx-auto">
+      <div className="w-full max-w-4xl bg-cardBackground rounded-lg shadow-lg p-6 mx-auto z-0">
         <h3 className="text-md font-semibold mb-4 text-primaryText">
           Your Writings
         </h3>
