@@ -9,7 +9,7 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ isAuthenticated }) => {
   return (
     <div className="bg-header">
-      <header className="container mx-auto flex items-center justify-between p-4 text-primaryText">
+      <header className="p-4 mx-auto flex items-center justify-between  text-primaryText">
         {/* Clickable Logo (wrapped in h1) and Caption */}
         <div className="flex flex-col">
           <h1 className="text-4xl font-bold">
