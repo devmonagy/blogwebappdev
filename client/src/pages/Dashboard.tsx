@@ -158,7 +158,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
                   {/* Dropdown Menu */}
                   <div className="relative" ref={dropdownRef}>
                     <button
-                      className="flex items-center text-black text-sm cursor-pointer hover:text-gray-500 transition-transform transform hover:scale-110"
+                      className="flex items-center text-black text-md cursor-pointer hover:text-gray-500 transition-transform transform hover:scale-110"
                       onClick={() => setDropdownOpen(!isDropdownOpen)}
                     >
                       ⋮
