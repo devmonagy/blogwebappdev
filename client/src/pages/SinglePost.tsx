@@ -126,8 +126,8 @@ const SinglePost: React.FC = () => {
   if (!post) return <p className="text-gray-500">Loading...</p>;
 
   return (
-    <div className="bg-background min-h-screen py-8">
-      <div className="container mx-auto p-4 text-primaryText max-w-4xl shadow-lg rounded-lg bg-white">
+    <div className="container p-4 bg-background min-h-screen py-8">
+      <div className=" mx-auto p-3 text-primaryText max-w-4xl shadow-lg rounded-lg bg-white">
         {post.imagePath && (
           <img
             src={`${process.env.REACT_APP_BACKEND_URL}${
