@@ -41,8 +41,10 @@ const AllUserPosts: React.FC = () => {
   }, []);
 
   return (
-    <div className="container p-4">
-      <h1 className="text-2xl font-bold mb-6">All Your Posts</h1>
+    <div className="container p-4 max-w-4xl">
+      <h1 className="text-2xl font-bold mb-6 text-center pt-10">
+        All Your Posts
+      </h1>
       <ul className="space-y-4">
         {userPosts.map((post) => (
           <li
