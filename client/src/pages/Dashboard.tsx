@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FaUserEdit, FaRegEdit, FaSignOutAlt, FaUsers } from "react-icons/fa";
 import axios from "axios";
@@ -25,6 +25,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
   const [userPosts, setUserPosts] = useState<UserPost[]>([]);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [isDropdownOpen, setDropdownOpen] = useState<boolean>(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const editingPost = location.state?.post;
@@ -91,6 +92,22 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
     fetchUserPosts();
   }, [editingPost]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <div className="container p-4" style={{ overflow: "hidden" }}>
       <div className="flex flex-col items-center justify-center min-h-full py-10 bg-background text-white w-full  relative">
@@ -139,7 +156,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
                   </div>
 
                   {/* Dropdown Menu */}
-                  <div className="relative">
+                  <div className="relative" ref={dropdownRef}>
                     <button
                       className="flex items-center text-black text-sm cursor-pointer hover:text-gray-500 transition-transform transform hover:scale-110"
                       onClick={() => setDropdownOpen(!isDropdownOpen)}
