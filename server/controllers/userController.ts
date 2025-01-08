@@ -8,7 +8,10 @@ export const getUserProfile = async (
   res: Response
 ): Promise<void> => {
   try {
-    const user = await User.findById(req.userId);
+    // Explicitly request the 'role' field if it's not being selected by default
+    const user = await User.findById(req.userId).select(
+      "username email firstName lastName profilePicture role createdAt"
+    );
     if (!user) {
       res.status(404).json({ error: "User not found" });
       return;
@@ -19,7 +22,8 @@ export const getUserProfile = async (
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
-      profilePicture: user.profilePicture, // Include profile picture
+      profilePicture: user.profilePicture,
+      role: user.role, // Ensure the role is included in the response
       createdAt: user.createdAt,
     });
   } catch (error) {
@@ -28,7 +32,6 @@ export const getUserProfile = async (
   }
 };
 
-// Add this function to handle profile picture upload
 export const uploadProfilePicture = async (
   req: AuthenticatedRequest & { file?: Express.Multer.File },
   res: Response

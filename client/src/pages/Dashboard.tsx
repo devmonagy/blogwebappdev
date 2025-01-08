@@ -40,6 +40,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
         }
       );
 
+      console.log("User data fetched:", response.data); // Log the complete user data
       setFirstName(response.data.firstName);
       handleProfilePicture(response.data.profilePicture);
       setIsAdmin(response.data.role === "admin");
