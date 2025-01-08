@@ -60,7 +60,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       const { token } = response.data;
 
       onLogin(username, email, firstName, role, token); // Pass role as well
-      navigate(role === "admin" ? "/admin-dashboard" : "/dashboard");
+      navigate("/dashboard"); // Always redirect to the regular dashboard
     } catch (err: any) {
       setError(err.response?.data?.error || "Login failed");
     }
