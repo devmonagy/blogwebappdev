@@ -183,9 +183,9 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
                         )}
                         <div
                           className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                          onClick={() => alert("Link 2 Clicked")}
+                          onClick={() => navigate("/all-user-posts")}
                         >
-                          Link 2
+                          Your Writings
                         </div>
                         <div
                           className="px-4 py-2 cursor-pointer hover:bg-gray-100"
