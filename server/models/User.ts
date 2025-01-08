@@ -9,6 +9,7 @@ interface IUser extends Document {
   email: string;
   password: string;
   profilePicture: string;
+  role: string; // Add role field
   createdAt: Date;
   updatedAt: Date;
 }
@@ -50,6 +51,11 @@ const UserSchema: Schema = new Schema(
     profilePicture: {
       type: String,
       default: getDefaultProfilePictureUrl, // Use the helper function
+    },
+    role: {
+      type: String,
+      enum: ["user", "admin"], // Allow only 'user' or 'admin'
+      default: "user", // Default role
     },
   },
   { timestamps: true } // Include timestamps for createdAt and updatedAt

@@ -1,4 +1,3 @@
-// server/controllers/authController.ts
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -73,9 +72,11 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
     res.status(200).json({
       token,
       user: {
+        _id: user._id,
         username: user.username,
         email: user.email,
         firstName: user.firstName,
+        role: user.role, // Include role
         profilePicture: user.profilePicture,
       },
     });
@@ -172,7 +173,9 @@ export const validateToken = async (
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
       userId: string;
     };
-    const user = await User.findById(decoded.userId);
+    const user = await User.findById(decoded.userId).select(
+      "username email firstName role"
+    );
 
     if (!user) {
       res.status(404).json({ valid: false, error: "User not found" });
@@ -186,6 +189,7 @@ export const validateToken = async (
         username: user.username,
         email: user.email,
         firstName: user.firstName,
+        role: user.role, // Include role
       },
     });
   } catch (error) {

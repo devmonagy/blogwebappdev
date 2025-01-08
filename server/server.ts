@@ -9,7 +9,8 @@ import cors from "cors";
 // Import custom database connection function and route handlers
 import connectDB from "./config/db";
 import authRoutes from "./routes/authRoutes";
-import postRoutes from "./routes/postRoutes"; // Use default import for postRoutes
+import postRoutes from "./routes/postRoutes";
+import adminRoutes from "./routes/adminRoutes"; // Import admin routes
 
 // Load environment variables from .env file
 dotenv.config();
@@ -52,7 +53,10 @@ app.get("/", (req, res) => {
 app.use("/auth", authRoutes);
 
 // Use blog post routes as specified in the postRoutes module
-app.use("/posts", postRoutes); // Use default import
+app.use("/posts", postRoutes);
+
+// Use admin routes for admin functionality
+app.use("/admin", adminRoutes);
 
 // Start the server on the specified port and log a message to the console
 app.listen(PORT, () => {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { FaUserEdit, FaRegEdit, FaSignOutAlt } from "react-icons/fa";
+import { FaUserEdit, FaRegEdit, FaSignOutAlt, FaUsers } from "react-icons/fa";
 import axios from "axios";
 
 interface DashboardProps {
@@ -10,18 +10,20 @@ interface DashboardProps {
 interface UserProfileResponse {
   firstName: string;
   profilePicture: string;
+  role: string;
 }
 
 interface UserPost {
   _id: string;
   title: string;
-  createdAt: string; // Assuming posts include a creation date field
+  createdAt: string;
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
   const [firstName, setFirstName] = useState<string | null>(null);
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
-  const [userPosts, setUserPosts] = useState<UserPost[]>([]); // State for user posts
+  const [userPosts, setUserPosts] = useState<UserPost[]>([]);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const navigate = useNavigate();
   const location = useLocation();
   const editingPost = location.state?.post;
@@ -40,6 +42,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
 
       setFirstName(response.data.firstName);
       handleProfilePicture(response.data.profilePicture);
+      setIsAdmin(response.data.role === "admin");
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
@@ -57,7 +60,6 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
         }
       );
 
-      // Sort posts by newest first (descending order of `createdAt`)
       const sortedPosts = response.data.sort(
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -85,18 +87,15 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
 
   useEffect(() => {
     fetchUserData();
-    fetchUserPosts(); // Fetch posts when component mounts
+    fetchUserPosts();
   }, [editingPost]);
 
   return (
     <div className="container p-4">
       <div className="flex flex-col items-center justify-center min-h-full py-10 bg-background text-white w-full overflow-x-hidden">
-        {/* Header */}
         <div className="w-full max-w-4xl flex flex-col sm:flex-row sm:justify-between mb-8">
-          {/* Avatar and Welcome Message */}
           <div className="flex flex-col sm:flex-row items-center w-full sm:w-auto">
             <div className="flex items-center justify-start sm:justify-center w-full sm:w-auto">
-              {/* Profile Picture */}
               <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full overflow-hidden shadow-lg">
                 {profilePicture ? (
                   <img
@@ -110,12 +109,10 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
                   </div>
                 )}
               </div>
-              {/* Welcome Message and Toolbar */}
               <div className="ml-4 sm:ml-6 text-left flex-1">
                 <h2 className="text-lg sm:text-xl font-bold text-primaryText">
                   Welcome, {firstName || "User"}!
                 </h2>
-                {/* Toolbar */}
                 <div className="inline-flex space-x-4 mt-2 bg-[#f9f9f9] p-2 sm:p-3 rounded-lg shadow-lg items-center">
                   <div
                     className="flex items-center text-black text-sm cursor-pointer hover:text-green-500 transition-transform transform hover:scale-110"
@@ -131,7 +128,15 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
                     <FaUserEdit className="w-4 h-4 sm:w-3 sm:h-3" />
                     <span className="ml-1 sm:ml-2">Profile</span>
                   </div>
-
+                  {isAdmin && (
+                    <div
+                      className="flex items-center text-black text-sm cursor-pointer hover:text-purple-500 transition-transform transform hover:scale-110"
+                      onClick={() => navigate("/admin-dashboard")}
+                    >
+                      <FaUsers className="w-4 h-4 sm:w-3 sm:h-3" />
+                      <span className="ml-1 sm:ml-2">Admin</span>
+                    </div>
+                  )}
                   <div
                     className="flex items-center text-black text-sm cursor-pointer hover:text-red-500 transition-transform transform hover:scale-110"
                     onClick={onLogout}
@@ -146,7 +151,6 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
         </div>
       </div>
 
-      {/* Recent Posts */}
       <div className="w-full max-w-4xl bg-cardBackground rounded-lg shadow-lg p-6 mx-auto">
         <h3 className="text-md font-semibold mb-4 text-primaryText">
           Your Writings

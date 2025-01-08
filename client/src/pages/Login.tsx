@@ -8,6 +8,7 @@ interface LoginProps {
     username: string,
     email: string,
     firstName: string,
+    role: string,
     token: string
   ) => void;
 }
@@ -16,7 +17,8 @@ interface LoginResponse {
   user: {
     username: string;
     email: string;
-    firstName: string; // Added firstName here
+    firstName: string;
+    role: string; // Added role here
   };
   token: string;
 }
@@ -54,11 +56,11 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         formData
       );
 
-      const { username, email, firstName } = response.data.user; // Extract firstName from the response
+      const { username, email, firstName, role } = response.data.user; // Extract role from the response
       const { token } = response.data;
 
-      onLogin(username, email, firstName, token); // Pass firstName as well
-      navigate("/dashboard");
+      onLogin(username, email, firstName, role, token); // Pass role as well
+      navigate(role === "admin" ? "/admin-dashboard" : "/dashboard");
     } catch (err: any) {
       setError(err.response?.data?.error || "Login failed");
     }

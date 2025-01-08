@@ -17,6 +17,7 @@ import SinglePost from "./pages/SinglePost";
 import WritePost from "./pages/WritePost";
 import EditPost from "./pages/EditPost";
 import AllUserPosts from "./pages/AllUserPosts";
+import AdminDashboard from "./pages/AdminDashboard";
 import axios from "axios";
 
 interface User {
@@ -24,16 +25,12 @@ interface User {
   username: string;
   email: string;
   firstName: string;
+  role: string;
 }
 
 interface TokenValidationResponse {
   valid: boolean;
   user: User;
-}
-
-// Custom type guard to check if error is an Axios error
-function isAxiosError(error: any): error is { response: { status: number } } {
-  return error && error.response && typeof error.response.status === "number";
 }
 
 const App: React.FC = () => {
@@ -45,48 +42,14 @@ const App: React.FC = () => {
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (token) {
-      const validateToken = async () => {
-        try {
-          // Attempt to validate the token with the backend
-          const response = await axios.post<TokenValidationResponse>(
-            `${process.env.REACT_APP_BACKEND_URL}/auth/validate-token`,
-            {},
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
-
-          if (response.data.valid) {
-            setIsAuthenticated(true);
-            const user = response.data.user;
-            setUser(user);
-            localStorage.setItem("user", JSON.stringify(user));
-          } else {
-            handleLogout();
-          }
-        } catch (error) {
-          console.error("Token validation failed:", error);
-          if (isAxiosError(error) && error.response.status === 401) {
-            handleLogout();
-          }
-        }
-      };
-
-      validateToken();
-    }
-  }, []);
-
   const handleLogin = (
     username: string,
     email: string,
     firstName: string,
+    role: string,
     token: string
   ) => {
-    const user = { _id: "", username, email, firstName }; // Updated to include _id
+    const user = { _id: "", username, email, firstName, role };
     localStorage.setItem("user", JSON.stringify(user));
     localStorage.setItem("token", token);
 
@@ -116,7 +79,11 @@ const App: React.FC = () => {
                 isAuthenticated ? (
                   <Navigate to="/dashboard" />
                 ) : (
-                  <Login onLogin={handleLogin} />
+                  <Login
+                    onLogin={(username, email, firstName, role, token) =>
+                      handleLogin(username, email, firstName, role, token)
+                    }
+                  />
                 )
               }
             />
@@ -156,6 +123,23 @@ const App: React.FC = () => {
               }
             />
             <Route path="/post/:id" element={<SinglePost />} />
+            <Route
+              path="/admin-dashboard"
+              element={
+                isAuthenticated && user?.role === "admin" ? (
+                  <AdminDashboard />
+                ) : (
+                  <Navigate
+                    to={isAuthenticated ? "/dashboard" : "/login"}
+                    replace
+                  />
+                )
+              }
+            />
+            <Route
+              path="*"
+              element={<div>404 - Page not found. Please check your URL.</div>}
+            />
           </Routes>
         </main>
         <Footer />
