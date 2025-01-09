@@ -116,8 +116,8 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="h-full py-10 flex items-center justify-center bg-background">
-      <div className="bg-background p-6 rounded-md shadow-lg  max-w-md w-full mx-4">
+    <div className="container p-7 h-full py-10 flex items-center justify-center bg-background">
+      <div className="bg-background p-6 rounded-md shadow-lg  max-w-md w-full">
         <h2 className="text-2xl font-bold mb-4 text-center text-black">
           Register
         </h2>
