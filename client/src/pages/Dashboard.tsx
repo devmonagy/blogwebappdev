@@ -141,7 +141,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
                     onClick={() => navigate("/write-post")}
                   >
                     <FaRegEdit className="w-4 h-4 sm:w-3 sm:h-3" />
-                    <span className="ml-1 sm:ml-2">Post</span>
+                    <span className="ml-1 sm:ml-2">Write</span>
                   </div>
                   <div
                     className="flex items-center text-black text-sm cursor-pointer hover:text-blue-500 transition-transform transform hover:scale-110"
