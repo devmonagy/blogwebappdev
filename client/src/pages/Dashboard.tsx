@@ -109,9 +109,12 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
   }, []);
 
   return (
-    <div className="container p-4" style={{ overflow: "hidden" }}>
+    <div
+      className="container p-4 lg:max-w-screen-md"
+      style={{ overflow: "hidden" }}
+    >
       <div className="flex flex-col items-center justify-center min-h-full py-10 bg-background text-white w-full  relative">
-        <div className="w-full max-w-4xl flex flex-col sm:flex-row sm:justify-between mb-8 relative z-10">
+        <div className="w-full lg:max-w-screen-md flex flex-col sm:flex-row sm:justify-between mb-8 relative z-10">
           <div className="flex flex-col sm:flex-row items-center w-full sm:w-auto">
             <div className="flex items-center justify-start sm:justify-center w-full sm:w-auto">
               <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full overflow-hidden shadow-lg">
@@ -203,7 +206,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
         </div>
       </div>
 
-      <div className="w-full max-w-4xl bg-cardBackground rounded-lg shadow-lg p-6 mx-auto z-0">
+      <div className="w-full  bg-cardBackground rounded-lg shadow-lg p-6 mx-auto z-0">
         <h3 className="text-md font-semibold mb-4 text-primaryText">
           Your Writings
         </h3>

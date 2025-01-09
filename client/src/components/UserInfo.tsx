@@ -68,7 +68,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
               Username can't be changed
             </div>
           )}
-          <p className="text-secondaryText">{username || "N/A"}</p>
+          <p className="text-secondaryText text-xs">{username || "N/A"}</p>
         </div>
 
         {/* Email */}
@@ -76,7 +76,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
           <label className="block mb-1 text-primaryText font-bold">
             Email:
           </label>
-          <p className="text-secondaryText">{email || "N/A"}</p>
+          <p className="text-secondaryText text-xs">{email || "N/A"}</p>
         </div>
 
         {/* First Name */}
@@ -84,7 +84,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
           <label className="block mb-1 text-primaryText 0 font-bold">
             First Name:
           </label>
-          <p className="text-secondaryText">{firstName || "N/A"}</p>
+          <p className="text-secondaryText text-xs	">{firstName || "N/A"}</p>
         </div>
 
         {/* Last Name */}
@@ -92,7 +92,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
           <label className="block mb-1 text-primaryText font-bold">
             Last Name:
           </label>
-          <p className="text-secondaryText">{lastName || "N/A"}</p>
+          <p className="text-secondaryText text-xs	">{lastName || "N/A"}</p>
         </div>
 
         {/* Member Since */}
@@ -100,7 +100,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
           <label className="block mb-1 text-primaryText font-bold">
             Member Since:
           </label>
-          <p className="text-secondaryText">{memberSince || "N/A"}</p>
+          <p className="text-secondaryText text-xs">{memberSince || "N/A"}</p>
         </div>
       </div>
     </div>

@@ -74,7 +74,7 @@ const Home: React.FC = () => {
                 className="flex flex-row items-center border p-4 rounded shadow-md bg-white cursor-pointer hover:shadow-lg transition-shadow"
               >
                 <div className="flex-1">
-                  <h3 className="text-lg sm:text-xl font-semibold">
+                  <h3 className="text-sm sm:text-xl font-semibold">
                     {post.title}
                   </h3>
                   <p className="text-xs sm:text-sm text-gray-500 mb-2">

@@ -126,8 +126,8 @@ const SinglePost: React.FC = () => {
   if (!post) return <p className="text-gray-500">Loading...</p>;
 
   return (
-    <div className="container p-4 bg-background min-h-screen py-8">
-      <div className=" mx-auto p-3 text-primaryText max-w-4xl shadow-lg rounded-lg bg-white">
+    <div className="container p-4 bg-background min-h-screen py-8 lg:max-w-screen-md">
+      <div className=" mx-auto p-3 text-primaryText  shadow-lg rounded-lg bg-white">
         {post.imagePath && (
           <img
             src={`${process.env.REACT_APP_BACKEND_URL}${
@@ -140,7 +140,7 @@ const SinglePost: React.FC = () => {
           />
         )}
         <div className="mb-6">
-          <h2 className="text-4xl font-extrabold mb-2">{post.title}</h2>
+          <h2 className="text-2xl font-extrabold mb-2">{post.title}</h2>
           <p className="text-gray-600 text-sm">
             Category: {post.category} | Author: {post.author.firstName}
           </p>
