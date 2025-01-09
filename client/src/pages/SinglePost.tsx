@@ -101,7 +101,7 @@ const SinglePost: React.FC = () => {
         {!isAuthenticated && remainingContent && (
           <div className="relative mt-4">
             <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent pointer-events-none" />
-            <div className="z-20 text-center text-primaryText relative py-10 font-black">
+            <div className="z-20 text-center text-primaryText text-sm relative py-10 font-black">
               <p>
                 Please{" "}
                 <a href="/login" className="text-blue-500 underline">
@@ -112,7 +112,7 @@ const SinglePost: React.FC = () => {
                 <a href="/register" className="text-blue-500 underline">
                   Register
                 </a>{" "}
-                for free access!
+                for FREE access!
               </p>
             </div>
           </div>
@@ -126,7 +126,7 @@ const SinglePost: React.FC = () => {
   if (!post) return <p className="text-gray-500">Loading...</p>;
 
   return (
-    <div className="container p-4 bg-background min-h-screen py-8 lg:max-w-screen-md">
+    <div className="container p-7 bg-background min-h-screen py-8 lg:max-w-screen-md">
       <div className=" mx-auto p-3 text-primaryText  shadow-lg rounded-lg bg-white">
         {post.imagePath && (
           <img
@@ -136,7 +136,7 @@ const SinglePost: React.FC = () => {
                 : `/${post.imagePath}`
             }`}
             alt={`Image for post: ${post.title}`}
-            className="w-full h-100 object-cover rounded-md mb-6 shadow-md"
+            className="w-full h-80 object-cover rounded-md mb-6 shadow-md"
           />
         )}
         <div className="mb-6">

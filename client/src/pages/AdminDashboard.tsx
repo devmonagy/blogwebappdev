@@ -52,7 +52,7 @@ const AdminDashboard: React.FC = () => {
   }, []);
 
   return (
-    <div className="container p-4 lg:max-w-screen-md">
+    <div className="container p-7 lg:max-w-screen-md">
       <h1 className="text-xl font-bold">Admin Dashboard</h1>
       <table className="w-full mt-4 border-collapse border border-gray-400">
         <thead>

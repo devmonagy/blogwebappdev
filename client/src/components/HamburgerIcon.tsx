@@ -5,7 +5,7 @@ interface HamburgerIconProps {
 }
 
 const HamburgerIcon: React.FC<HamburgerIconProps> = ({ isOpen }) => (
-  <div className="w-6 h-6 flex flex-col justify-between items-center cursor-pointer transform translate-y-[-5px]">
+  <div className="w-6 h-6 flex flex-col justify-between items-center cursor-pointer transform translate-y-[-9px]">
     {" "}
     {/* Adjusted using transform */}
     <span

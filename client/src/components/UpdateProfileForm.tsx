@@ -216,12 +216,12 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
   };
 
   return (
-    <div className="w-full  bg-background rounded-md ">
-      <div className="flex flex-col items-center mb-4 ">
+    <div className="w-full bg-background rounded-md">
+      <div className="flex flex-col items-center mb-4">
         <img
           src={profilePicture || "/path/to/default/avatar.jpg"}
           alt="Profile"
-          className="w-24 h-24 rounded-full mb-2 object-cover"
+          className="w-24 h-24 rounded-full mb-2 object-cover shadow-lg" // Added shadow here
         />
         <label className="text-href cursor-pointer hover:underline">
           Update Avatar
@@ -298,7 +298,7 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
               className="w-full px-3 py-2 border-none text-gray-700 focus:outline-none text-sm"
             />
             <div
-              className="px-3 flex items-center cursor-pointer bg-gray-200 "
+              className="px-3 flex items-center cursor-pointer bg-gray-200"
               onClick={togglePasswordVisibility}
             >
               {showPassword ? (
@@ -316,7 +316,7 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
               style={{ width: `${(passwordStrength / 5) * 100}%` }}
             ></div>
           </div>
-          <p className="mt-2 text-sm text-secondaryText text-sm ">
+          <p className="mt-2 text-sm text-secondaryText text-sm">
             {passwordStatus}
           </p>
         </div>
@@ -328,7 +328,7 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
         </button>
       </form>
       {message && (
-        <p className="mt-4 text-left text-secondaryText text-sm font-black	">
+        <p className="mt-4 text-left text-secondaryText text-sm font-black">
           {message}
         </p>
       )}

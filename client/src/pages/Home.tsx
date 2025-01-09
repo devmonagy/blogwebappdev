@@ -63,7 +63,7 @@ const Home: React.FC = () => {
 
   return (
     <div className="bg-background min-h-screen">
-      <div className="container py-10 mx-auto p-4 flex flex-col gap-6 lg:max-w-screen-md">
+      <div className="container py-10 mx-auto p-7 flex flex-col gap-6 lg:max-w-screen-md">
         {error && <p className="text-red-500">{error}</p>}
         {posts.length > 0 ? (
           <div className="flex flex-col gap-6">

@@ -41,7 +41,7 @@ const AllUserPosts: React.FC = () => {
   }, []);
 
   return (
-    <div className="container p-4 lg:max-w-screen-md">
+    <div className="container p-7 lg:max-w-screen-md">
       <h1 className="text-2xl font-bold mb-6 text-center pt-10">
         All Your Posts
       </h1>

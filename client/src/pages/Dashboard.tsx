@@ -110,7 +110,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
 
   return (
     <div
-      className="container p-4 lg:max-w-screen-md"
+      className="container p-7 lg:max-w-screen-md"
       style={{ overflow: "hidden" }}
     >
       <div className="flex flex-col items-center justify-center min-h-full py-10 bg-background text-white w-full  relative">

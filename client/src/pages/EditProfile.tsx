@@ -103,7 +103,7 @@ const EditProfile: React.FC = () => {
   };
 
   return (
-    <div className="container lg:max-w-screen-md p-4 flex flex-col items-center justify-center  py-10 bg-background text-white px-4">
+    <div className="container lg:max-w-screen-md p-7 flex flex-col items-center justify-center py-10 bg-background text-white ">
       <h2 className="text-3xl font-semibold mb-8 text-primaryText text-center">
         Edit Your Profile
       </h2>
