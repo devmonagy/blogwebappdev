@@ -74,3 +74,7 @@
   height: 250px;
   background: linear-gradient(to bottom, transparent, white 95%);
 }
+.light-icon {
+  color: rgb(0, 0, 0); /* Set to a light color */
+  opacity: 0.5; /* Make it semi-transparent to appear lighter */
+}

@@ -2,6 +2,13 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import DOMPurify from "dompurify";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHandsClapping } from "@fortawesome/free-solid-svg-icons";
+import {
+  faComment,
+  faBookmark,
+  faShareSquare,
+} from "@fortawesome/free-regular-svg-icons";
 import "../styles/quill-custom.css";
 
 interface Author {
@@ -149,7 +156,6 @@ const SinglePost: React.FC = () => {
             alt={`${post?.author.firstName}'s profile`}
             className="w-12 h-12 rounded-full object-cover shadow-md mr-4"
           />
-
           <div>
             <p className="text-lg font-medium">{post?.author.firstName}</p>
             <p className="text-sm text-gray-500">
@@ -162,21 +168,26 @@ const SinglePost: React.FC = () => {
         <div className="flex justify-between items-center border-t border-b py-4 mb-6">
           <div className="flex items-center space-x-4">
             <div className="flex items-center text-gray-600 cursor-pointer">
-              <span className="material-icons mr-1">thumb_up</span>
+              <FontAwesomeIcon
+                icon={faHandsClapping}
+                className="light-icon mr-1"
+              />
               <span>0</span>
             </div>
             <div className="flex items-center text-gray-600 cursor-pointer">
-              <span className="material-icons mr-1">chat_bubble_outline</span>
+              <FontAwesomeIcon icon={faComment} className="mr-1" />
               <span>0</span>
             </div>
           </div>
           <div className="relative flex items-center space-x-4">
-            <span className="material-icons text-gray-600 cursor-pointer">
-              bookmark_border
-            </span>
-            <span className="material-icons text-gray-600 cursor-pointer">
-              share
-            </span>
+            <FontAwesomeIcon
+              icon={faBookmark}
+              className="text-gray-600 cursor-pointer"
+            />
+            <FontAwesomeIcon
+              icon={faShareSquare}
+              className="text-gray-600 cursor-pointer"
+            />
             {userId && (
               <>
                 <span
