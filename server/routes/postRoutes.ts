@@ -7,6 +7,7 @@ import {
   updatePost,
 } from "../controllers/postController";
 import authenticate from "../middleware/authenticate";
+import { checkAdmin } from "../middleware/checkAdmin"; // Import the checkAdmin middleware
 import Post from "../models/Post"; // Import the Post model
 import multer from "multer";
 
@@ -36,10 +37,16 @@ router.get("/", getPosts);
 // Route to get a single post by ID
 router.get("/:id", getPostById);
 
-// Route to update a post by ID (with authentication and file upload)
-router.put("/:id", authenticate, upload.single("image"), updatePost);
+// Route to update a post by ID (with authentication, admin check, and file upload)
+router.put(
+  "/:id",
+  authenticate,
+  checkAdmin,
+  upload.single("image"),
+  updatePost
+);
 
-// Route to delete a post by ID (with authentication)
-router.delete("/:id", authenticate, deletePost);
+// Route to delete a post by ID (with authentication and admin check)
+router.delete("/:id", authenticate, checkAdmin, deletePost);
 
 export default router;

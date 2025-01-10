@@ -79,6 +79,7 @@ export const updatePost = async (
   const { id } = req.params;
   const { title, category, content } = req.body;
   const userId = (req as any).userId; // Assuming userId is attached to the req object by your middleware
+  const isAdmin = (req as any).isAdmin; // Assuming isAdmin is attached to the req object by your middleware
 
   let imagePath;
   if (req.file) {
@@ -92,15 +93,15 @@ export const updatePost = async (
       return;
     }
 
-    // Check if the logged-in user is the author of the post
-    if (post.author.toString() !== userId) {
+    // Check if the logged-in user is the author of the post or an admin
+    if (post.author.toString() !== userId && !isAdmin) {
       res
         .status(403)
         .json({ message: "You are not authorized to update this post" });
       return;
     }
 
-    // Update the post fields
+    // Update the post fields, retaining the original author
     if (title) post.title = title;
     if (category) post.category = category;
     if (content) post.content = content;
@@ -120,26 +121,29 @@ export const deletePost = async (
   next: NextFunction
 ) => {
   const { id } = req.params;
-  const userId = (req as any).userId; // Assuming userId is attached to the req object by your middleware
+  const userId = (req as any).userId; // Attached by your authentication middleware
+  const isAdmin = (req as any).isAdmin; // Attached by the checkAdmin middleware
 
   try {
     const post = await Post.findById(id);
+
     if (!post) {
-      res.status(404).json({ message: "Post not found" });
+      res.status(404).json({ message: "Post not found." });
       return;
     }
 
-    // Check if the logged-in user is the author of the post
-    if (post.author.toString() !== userId) {
+    // Check if the logged-in user is the author or an admin
+    if (post.author.toString() !== userId && !isAdmin) {
       res
         .status(403)
-        .json({ message: "You are not authorized to delete this post" });
+        .json({ message: "You are not authorized to delete this post." });
       return;
     }
 
-    await post.deleteOne(); // Use deleteOne instead of remove
-    res.status(200).json({ message: "Post deleted successfully" });
+    await post.deleteOne(); // Delete the post
+    res.status(200).json({ message: "Post deleted successfully." });
   } catch (error) {
-    next(error); // Pass the error to the error-handling middleware
+    console.error("Error deleting post:", error);
+    res.status(500).json({ message: "Failed to delete post." });
   }
 };

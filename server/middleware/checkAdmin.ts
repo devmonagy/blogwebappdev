@@ -7,11 +7,24 @@ export const checkAdmin = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const user = await User.findById((req as any).userId);
+    const userId = (req as any).userId;
 
-    if (!user || user.role !== "admin") {
-      res.status(403).json({ message: "Access denied. Admins only." });
+    if (!userId) {
+      res.status(401).json({ message: "Unauthorized. User ID not found." });
       return;
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      res.status(404).json({ message: "User not found." });
+      return;
+    }
+
+    if (user.role === "admin") {
+      (req as any).isAdmin = true; // Set isAdmin flag
+    } else {
+      (req as any).isAdmin = false;
     }
 
     next();
