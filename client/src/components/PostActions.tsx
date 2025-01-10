@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import clapLightImage from "../assets/clapLight.png";
 import {
@@ -28,15 +28,33 @@ const PostActions: React.FC<PostActionsProps> = ({
   const menuRef = useRef<HTMLDivElement>(null);
   const iconRef = useRef<HTMLSpanElement>(null);
 
+  // Handles clicking outside the menu to close it
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node) &&
+        iconRef.current &&
+        !iconRef.current.contains(event.target as Node)
+      ) {
+        setShowOptions(false);
+      }
+    };
+
+    // Add when the component is mounted
+    document.addEventListener("mousedown", handleClickOutside);
+
+    // Return function to be called when unmounted
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <div className="flex justify-between items-center border-t border-b py-4 mb-6">
       <div className="flex items-center space-x-4">
         <div className="flex items-center text-gray-600 cursor-pointer">
-          <img
-            src={clapLightImage}
-            alt="Clap"
-            className="mr-1 w-5 h-5 clapImg"
-          />
+          <img src={clapLightImage} alt="Clap" className="mr-1 w-5 h-5" />
           <span>0</span>
         </div>
         <div className="flex items-center text-gray-600 cursor-pointer">
