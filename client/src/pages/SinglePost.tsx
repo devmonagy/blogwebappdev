@@ -26,6 +26,7 @@ const SinglePost: React.FC = () => {
   const [post, setPost] = useState<Post | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null); // State for storing user role
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const navigate = useNavigate();
 
@@ -33,13 +34,14 @@ const SinglePost: React.FC = () => {
     const token = localStorage.getItem("token");
     if (token) {
       axios
-        .post<{ user: { _id: string } }>(
+        .post<{ user: { _id: string; role: string } }>( // Assuming the role is returned here
           `${process.env.REACT_APP_BACKEND_URL}/auth/validate-token`,
           {},
           { headers: { Authorization: `Bearer ${token}` } }
         )
         .then((response) => {
           setUserId(response.data.user._id);
+          setUserRole(response.data.user.role); // Set user role
           setIsAuthenticated(true);
         })
         .catch(() => {
@@ -152,6 +154,7 @@ const SinglePost: React.FC = () => {
         </div>
         <PostActions
           userId={userId}
+          userRole={userRole} // Pass userRole to PostActions
           postAuthorId={post?.author._id}
           handleEdit={handleEdit}
           handlePinStory={handlePinStory}

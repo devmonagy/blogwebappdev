@@ -10,6 +10,7 @@ import {
 interface PostActionsProps {
   userId: string | null;
   postAuthorId: string;
+  userRole: string | null; // Added to track the role of the user
   handleEdit: () => void;
   handlePinStory: () => void;
   handleStorySettings: () => void;
@@ -19,6 +20,7 @@ interface PostActionsProps {
 const PostActions: React.FC<PostActionsProps> = ({
   userId,
   postAuthorId,
+  userRole, // Added userRole prop
   handleEdit,
   handlePinStory,
   handleStorySettings,
@@ -50,6 +52,9 @@ const PostActions: React.FC<PostActionsProps> = ({
     };
   }, []);
 
+  const isAdmin = userRole === "admin";
+  const isAuthor = userId === postAuthorId;
+
   return (
     <div className="flex justify-between items-center border-t border-b py-4 mb-6">
       <div className="flex items-center space-x-4">
@@ -72,7 +77,7 @@ const PostActions: React.FC<PostActionsProps> = ({
           className="text-gray-600 cursor-pointer"
         />
         {userId && (
-          <>
+          <div>
             <span
               className="material-icons text-gray-600 cursor-pointer"
               ref={iconRef}
@@ -91,9 +96,9 @@ const PostActions: React.FC<PostActionsProps> = ({
                 }px`,
               }}
             >
-              <ul>
-                {userId === postAuthorId ? (
-                  <ul className="text-gray-900">
+              <ul className="text-gray-900">
+                {isAuthor && (
+                  <>
                     <li
                       className="cursor-pointer hover:bg-gray-100 px-4 py-2 text-sm"
                       onClick={handleEdit}
@@ -118,9 +123,10 @@ const PostActions: React.FC<PostActionsProps> = ({
                     >
                       Delete story
                     </li>
-                  </ul>
-                ) : (
-                  <ul className="text-gray-900">
+                  </>
+                )}
+                {!isAuthor && (
+                  <>
                     <li className="cursor-pointer hover:bg-gray-100 px-4 py-2 text-sm">
                       Show more
                     </li>
@@ -130,11 +136,28 @@ const PostActions: React.FC<PostActionsProps> = ({
                     <li className="cursor-pointer hover:bg-gray-100 rounded-b-lg px-4 py-2 text-sm">
                       Follow author
                     </li>
-                  </ul>
+                  </>
+                )}
+                {isAdmin && !isAuthor && (
+                  <>
+                    <hr className="my-2" /> {/* Separator line */}
+                    <li
+                      className="cursor-pointer hover:bg-gray-100 px-4 py-2 text-sm"
+                      onClick={handleEdit}
+                    >
+                      Edit story
+                    </li>
+                    <li
+                      className="cursor-pointer hover:bg-red-100 text-red-600 rounded-b-lg px-4 py-2 text-sm"
+                      onClick={handleDelete}
+                    >
+                      Delete story
+                    </li>
+                  </>
                 )}
               </ul>
             </div>
-          </>
+          </div>
         )}
       </div>
     </div>
