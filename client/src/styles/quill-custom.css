@@ -83,3 +83,7 @@
   color: rgb(0, 0, 0); /* Set to a light color */
   opacity: 1; /* Make it semi-transparent to appear lighter */
 }
+
+.clapImg {
+  opacity: 0.75;
+}
