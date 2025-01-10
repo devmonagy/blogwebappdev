@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import DOMPurify from "dompurify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHandsClapping } from "@fortawesome/free-solid-svg-icons";
+import clapLightImage from "../assets/clapLight.png";
 import {
   faComment,
   faBookmark,
@@ -103,6 +103,14 @@ const SinglePost: React.FC = () => {
     }
   };
 
+  const handlePinStory = () => {
+    // Placeholder function for pinning a story
+  };
+
+  const handleStorySettings = () => {
+    // Placeholder function for story settings
+  };
+
   const contentForAuthenticated = () => {
     if (!post) return null; // Guard to ensure post is not null
     return (
@@ -168,10 +176,7 @@ const SinglePost: React.FC = () => {
         <div className="flex justify-between items-center border-t border-b py-4 mb-6">
           <div className="flex items-center space-x-4">
             <div className="flex items-center text-gray-600 cursor-pointer">
-              <FontAwesomeIcon
-                icon={faHandsClapping}
-                className="light-icon mr-1"
-              />
+              <img src={clapLightImage} alt="Clap" className="mr-1 w-5 h-5 " />
               <span>0</span>
             </div>
             <div className="flex items-center text-gray-600 cursor-pointer">
@@ -209,35 +214,46 @@ const SinglePost: React.FC = () => {
                   }}
                 >
                   <ul>
-                    {userId === post.author._id && (
-                      <>
+                    {userId === post.author._id ? (
+                      <ul className="text-gray-900">
                         <li
-                          className="cursor-pointer hover:bg-gray-100 text-gray-900 px-4 py-2 text-sm"
+                          className="cursor-pointer hover:bg-gray-100 px-4 py-2 text-sm"
                           onClick={handleEdit}
                         >
-                          Edit
+                          Edit story
                         </li>
                         <li
-                          className="cursor-pointer hover:bg-gray-100 text-gray-900 px-4 py-2 text-sm"
+                          className="cursor-pointer hover:bg-gray-100 px-4 py-2 text-sm"
+                          onClick={handlePinStory}
+                        >
+                          Pin this story to your profile
+                        </li>
+                        <li
+                          className="cursor-pointer hover:bg-gray-100 px-4 py-2 text-sm"
+                          onClick={handleStorySettings}
+                        >
+                          Story Settings
+                        </li>
+                        <li
+                          className="cursor-pointer hover:bg-red-100 text-red-600 rounded-b-lg px-4 py-2 text-sm"
                           onClick={handleDelete}
                         >
-                          Delete
+                          Delete story
                         </li>
-                        <li className="mx-4 h-px bg-gray-300"></li>{" "}
-                        {/* Divider */}
-                      </>
+                      </ul>
+                    ) : (
+                      <ul className="text-gray-900">
+                        <li className="cursor-pointer hover:bg-gray-100 px-4 py-2 text-sm">
+                          Show more
+                        </li>
+                        <li className="cursor-pointer hover:bg-gray-100 px-4 py-2 text-sm">
+                          Show less
+                        </li>
+                        <li className="cursor-pointer hover:bg-gray-100 rounded-b-lg px-4 py-2 text-sm">
+                          Follow author
+                        </li>
+                      </ul>
                     )}
-                    {userId !== post.author._id && (
-                      <li className="cursor-pointer hover:bg-gray-100 text-gray-900 px-4 py-2 text-sm">
-                        Follow Author
-                      </li>
-                    )}
-                    <li className="cursor-pointer hover:bg-gray-100 text-gray-900 px-4 py-2 text-sm">
-                      Show More
-                    </li>
-                    <li className="cursor-pointer hover:bg-gray-100 text-gray-900 px-4 py-2 text-sm">
-                      Show Less
-                    </li>
                   </ul>
                 </div>
               </>
