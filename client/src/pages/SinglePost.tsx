@@ -2,14 +2,8 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import DOMPurify from "dompurify";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import clapLightImage from "../assets/clapLight.png";
-import {
-  faComment,
-  faBookmark,
-  faShareSquare,
-} from "@fortawesome/free-regular-svg-icons";
 import "../styles/quill-custom.css";
+import PostActions from "../components/PostActions";
 
 interface Author {
   _id: string;
@@ -33,10 +27,7 @@ const SinglePost: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [showOptions, setShowOptions] = useState<boolean>(false);
   const navigate = useNavigate();
-  const menuRef = useRef<HTMLDivElement>(null);
-  const iconRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -69,20 +60,6 @@ const SinglePost: React.FC = () => {
 
     fetchPost();
   }, [id]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setShowOptions(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
 
   const handleEdit = () => {
     navigate(`/edit-post/${id}`);
@@ -173,97 +150,14 @@ const SinglePost: React.FC = () => {
             </p>
           </div>
         </div>
-        <div className="flex justify-between items-center border-t border-b py-4 mb-6">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center text-gray-600 cursor-pointer">
-              <img
-                src={clapLightImage}
-                alt="Clap"
-                className="mr-1 w-5 h-5 clapImg"
-              />
-              <span>0</span>
-            </div>
-            <div className="flex items-center text-gray-600 cursor-pointer">
-              <FontAwesomeIcon icon={faComment} className="mr-1" />
-              <span>0</span>
-            </div>
-          </div>
-          <div className="relative flex items-center space-x-4">
-            <FontAwesomeIcon
-              icon={faBookmark}
-              className="text-gray-600 cursor-pointer"
-            />
-            <FontAwesomeIcon
-              icon={faShareSquare}
-              className="text-gray-600 cursor-pointer"
-            />
-            {userId && (
-              <>
-                <span
-                  className="material-icons text-gray-600 cursor-pointer"
-                  ref={iconRef}
-                  onClick={() => setShowOptions(!showOptions)}
-                >
-                  more_vert
-                </span>
-                <div
-                  ref={menuRef}
-                  className={`absolute right-0 bg-white rounded-md shadow-xl z-20 w-[max-content] ${
-                    !showOptions ? "hidden" : ""
-                  }`}
-                  style={{
-                    top: `${
-                      iconRef.current ? iconRef.current.offsetHeight + 2 : 20
-                    }px`,
-                  }}
-                >
-                  <ul>
-                    {userId === post.author._id ? (
-                      <ul className="text-gray-900">
-                        <li
-                          className="cursor-pointer hover:bg-gray-100 px-4 py-2 text-sm"
-                          onClick={handleEdit}
-                        >
-                          Edit story
-                        </li>
-                        <li
-                          className="cursor-pointer hover:bg-gray-100 px-4 py-2 text-sm"
-                          onClick={handlePinStory}
-                        >
-                          Pin this story to your profile
-                        </li>
-                        <li
-                          className="cursor-pointer hover:bg-gray-100 px-4 py-2 text-sm"
-                          onClick={handleStorySettings}
-                        >
-                          Story settings
-                        </li>
-                        <li
-                          className="cursor-pointer hover:bg-red-100 text-red-600 rounded-b-lg px-4 py-2 text-sm"
-                          onClick={handleDelete}
-                        >
-                          Delete story
-                        </li>
-                      </ul>
-                    ) : (
-                      <ul className="text-gray-900">
-                        <li className="cursor-pointer hover:bg-gray-100 px-4 py-2 text-sm">
-                          Show more
-                        </li>
-                        <li className="cursor-pointer hover:bg-gray-100 px-4 py-2 text-sm">
-                          Show less
-                        </li>
-                        <li className="cursor-pointer hover:bg-gray-100 rounded-b-lg px-4 py-2 text-sm">
-                          Follow author
-                        </li>
-                      </ul>
-                    )}
-                  </ul>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
+        <PostActions
+          userId={userId}
+          postAuthorId={post?.author._id}
+          handleEdit={handleEdit}
+          handlePinStory={handlePinStory}
+          handleStorySettings={handleStorySettings}
+          handleDelete={handleDelete}
+        />
         {post?.imagePath && (
           <img
             src={`${process.env.REACT_APP_BACKEND_URL}${post.imagePath}`}
