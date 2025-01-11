@@ -56,7 +56,7 @@ const PostActions: React.FC<PostActionsProps> = ({
   const isAuthor = userId === postAuthorId;
 
   return (
-    <div className="flex justify-between items-center border-t border-b py-4 mb-6">
+    <div className="flex justify-between items-center border-t border-b py-2 mb-6">
       <div className="flex items-center space-x-4">
         <div className="flex items-center text-gray-600 cursor-pointer">
           <img src={clapLightImage} alt="Clap" className="mr-1 w-5 h-5" />
@@ -79,7 +79,7 @@ const PostActions: React.FC<PostActionsProps> = ({
         {userId && (
           <div>
             <span
-              className="material-icons text-gray-600 cursor-pointer"
+              className="material-icons pt-1.5 text-gray-600 cursor-pointer"
               ref={iconRef}
               onClick={() => setShowOptions(!showOptions)}
             >
