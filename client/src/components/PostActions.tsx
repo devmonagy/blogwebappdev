@@ -137,7 +137,7 @@ const PostActions: React.FC<PostActionsProps> = ({
                     <li className="cursor-pointer hover:bg-gray-100 px-4 py-2 text-sm">
                       Show less
                     </li>
-                    <li className="cursor-pointer hover:bg-gray-100 rounded-b-lg px-4 py-2 text-sm">
+                    <li className="cursor-pointer hover:bg-gray-100 px-4 py-2 mb-1 text-sm">
                       Follow author
                     </li>
                   </>
