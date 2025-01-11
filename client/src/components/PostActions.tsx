@@ -59,7 +59,11 @@ const PostActions: React.FC<PostActionsProps> = ({
     <div className="flex justify-between items-center border-t border-b py-2 mb-6">
       <div className="flex items-center space-x-4">
         <div className="flex items-center text-gray-600 cursor-pointer">
-          <img src={clapLightImage} alt="Clap" className="mr-1 w-5 h-5" />
+          <img
+            src={clapLightImage}
+            alt="Clap"
+            className="mr-1 w-5 h-5 clapImg"
+          />
           <span>0</span>
         </div>
         <div className="flex items-center text-gray-600 cursor-pointer">
