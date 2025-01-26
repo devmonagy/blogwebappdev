@@ -71,7 +71,7 @@ const Home: React.FC = () => {
               <div
                 key={post._id}
                 onClick={() => navigate(`/post/${post._id}`)}
-                className="flex flex-row items-center border p-4 rounded shadow-md bg-white cursor-pointer hover:shadow-lg transition-shadow"
+                className="flex flex-row items-center p-4 rounded shadow-sm bg-white cursor-pointer hover:shadow-lg transition-shadow"
               >
                 <div className="flex-1">
                   <h3 className="text-sm sm:text-xl font-semibold">
