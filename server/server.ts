@@ -1,6 +1,5 @@
 // server/server.ts
 
-// Import necessary Node.js modules and middleware
 import path from "path";
 import express from "express";
 import dotenv from "dotenv";
@@ -12,30 +11,32 @@ import authRoutes from "./routes/authRoutes";
 import postRoutes from "./routes/postRoutes";
 import adminRoutes from "./routes/adminRoutes"; // Import admin routes
 
-// Load environment variables from .env file
 dotenv.config();
 
-// Create an Express application
 const app = express();
-// Define the port on which the server will run. Default to 5000 if not specified in the environment
 const PORT = process.env.PORT || 5000;
 
-// Establish connection to MongoDB using the custom function
-connectDB();
+// Connect to MongoDB
+connectDB()
+  .then(() => {
+    console.log("✅ MongoDB connected successfully");
+  })
+  .catch((err) => {
+    console.error("❌ MongoDB connection error:", err);
+  });
 
-// Define the allowed origins for CORS (Cross-Origin Resource Sharing)
+// Allowed CORS origins
 const allowedOrigins = [
-  "http://localhost:3000", // Local dev
-  "http://192.168.1.204:3000", // Local network dev
-  "http://172.16.109.61:3000", // Office network dev
-  "https://blogwebapp.monagy.com", // Current deployed frontend on Vercel
+  "http://localhost:3000",
+  "http://192.168.1.204:3000",
+  "http://172.16.109.61:3000",
+  "https://blogwebapp.monagy.com",
 ];
 
-// Apply CORS middleware to enable requests from allowed origins and support credentials
+// CORS setup
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests with no origin (like curl or Postman) or if origin is in the list
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
@@ -46,29 +47,26 @@ app.use(
   })
 );
 
-// Add middleware to parse JSON bodies. This is necessary for handling JSON requests
+// Middleware
 app.use(express.json());
 
-// Simple route to test if the server is running and connected to the database
+// Root test route
 app.get("/", (req, res) => {
   res.send("Hello, MongoDB is connected!");
 });
 
-// ✅ Ping route for uptime check (used by cron-job.org)
+// ✅ Ping route for uptime checks (log each ping)
 app.get("/ping", (req, res) => {
+  console.log("🔁 /ping hit at", new Date().toISOString());
   res.status(200).send("pong");
 });
 
-// Use authentication routes as specified in the authRoutes module
+// API Routes
 app.use("/auth", authRoutes);
-
-// Use blog post routes as specified in the postRoutes module
 app.use("/posts", postRoutes);
-
-// Use admin routes for admin functionality
 app.use("/admin", adminRoutes);
 
-// Start the server on the specified port and log a message to the console
+// Start server
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
