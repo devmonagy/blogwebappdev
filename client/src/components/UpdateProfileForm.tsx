@@ -6,7 +6,7 @@ interface UpdateProfileFormProps {
   initialEmail: string;
   initialFirstName: string;
   initialLastName: string;
-  initialProfilePicture: string | null; // Allow null for cases where there is no picture
+  initialProfilePicture: string | null;
   onUpdate: (
     email: string,
     firstName: string,
@@ -104,7 +104,7 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
         );
 
         if (response.data && response.data.profilePicture) {
-          const updatedProfilePicture = `${process.env.REACT_APP_BACKEND_URL}/uploads/${response.data.profilePicture}`;
+          const updatedProfilePicture = response.data.profilePicture;
           setProfilePicture(updatedProfilePicture);
           onUpdate(newEmail, firstName, lastName, updatedProfilePicture);
           setMessage("Profile picture updated successfully!");
@@ -221,14 +221,14 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
         <img
           src={profilePicture || "/path/to/default/avatar.jpg"}
           alt="Profile"
-          className="w-24 h-24 rounded-full mb-2 object-cover shadow-lg" // Added shadow here
+          className="w-24 h-24 rounded-full mb-2 object-cover shadow-lg"
         />
         <label className="text-href cursor-pointer hover:underline">
           Update Avatar
           <input
             type="file"
             className="hidden"
-            accept="image/*"
+            accept="image/png, image/jpeg, image/jpg, image/webp, image/gif"
             onChange={handleProfilePictureChange}
           />
         </label>

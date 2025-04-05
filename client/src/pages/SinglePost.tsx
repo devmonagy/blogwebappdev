@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import DOMPurify from "dompurify";
@@ -26,7 +26,7 @@ const SinglePost: React.FC = () => {
   const [post, setPost] = useState<Post | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
-  const [userRole, setUserRole] = useState<string | null>(null); // State for storing user role
+  const [userRole, setUserRole] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const navigate = useNavigate();
 
@@ -34,14 +34,14 @@ const SinglePost: React.FC = () => {
     const token = localStorage.getItem("token");
     if (token) {
       axios
-        .post<{ user: { _id: string; role: string } }>( // Assuming the role is returned here
+        .post<{ user: { _id: string; role: string } }>(
           `${process.env.REACT_APP_BACKEND_URL}/auth/validate-token`,
           {},
           { headers: { Authorization: `Bearer ${token}` } }
         )
         .then((response) => {
           setUserId(response.data.user._id);
-          setUserRole(response.data.user.role); // Set user role
+          setUserRole(response.data.user.role);
           setIsAuthenticated(true);
         })
         .catch(() => {
@@ -82,16 +82,8 @@ const SinglePost: React.FC = () => {
     }
   };
 
-  const handlePinStory = () => {
-    // Placeholder function for pinning a story
-  };
-
-  const handleStorySettings = () => {
-    // Placeholder function for story settings
-  };
-
   const contentForAuthenticated = () => {
-    if (!post) return null; // Guard to ensure post is not null
+    if (!post) return null;
     return (
       <div
         className="text-base leading-relaxed"
@@ -101,7 +93,7 @@ const SinglePost: React.FC = () => {
   };
 
   const contentForUnauthenticated = () => {
-    if (!post) return null; // Guard to ensure post is not null
+    if (!post) return null;
     return (
       <>
         <div
@@ -127,43 +119,47 @@ const SinglePost: React.FC = () => {
   if (error) return <p className="text-red-500">{error}</p>;
   if (!post) return <p className="text-gray-500">Loading...</p>;
 
+  const getValidImageUrl = (url: string) => {
+    return url.startsWith("http")
+      ? url
+      : `${process.env.REACT_APP_BACKEND_URL}${url}`;
+  };
+
   return (
     <div className="container p-7 bg-background min-h-screen py-8 lg:max-w-screen-md">
       <div className="mx-auto p-3 text-primaryText shadow-lg rounded-lg bg-white">
-        <h1 className="text-3xl font-bold mb-4">{post?.title}</h1>
+        <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
         <div className="flex items-center mb-6">
           <img
             src={
-              post?.author.profilePicture
-                ? post.author.profilePicture.startsWith("http")
-                  ? post.author.profilePicture
-                  : `${process.env.REACT_APP_BACKEND_URL}${post.author.profilePicture}`
+              post.author.profilePicture
+                ? getValidImageUrl(post.author.profilePicture)
                 : "/default-profile-picture.jpg"
             }
-            alt={`${post?.author.firstName}'s profile`}
+            alt={`${post.author.firstName}'s profile`}
             className="w-12 h-12 rounded-full object-cover shadow-md mr-4"
           />
           <div>
-            <p className="text-lg font-medium">{post?.author.firstName}</p>
+            <p className="text-lg font-medium">{post.author.firstName}</p>
             <p className="text-sm text-gray-500">
               Published in:{" "}
-              <span className="font-semibold">{post?.category}</span> ·{" "}
+              <span className="font-semibold">{post.category}</span> ·{" "}
               {new Date(post.createdAt).toLocaleDateString()}
             </p>
           </div>
         </div>
         <PostActions
           userId={userId}
-          userRole={userRole} // Pass userRole to PostActions
-          postAuthorId={post?.author._id}
+          userRole={userRole}
+          postAuthorId={post.author._id}
           handleEdit={handleEdit}
-          handlePinStory={handlePinStory}
-          handleStorySettings={handleStorySettings}
+          handlePinStory={() => {}}
+          handleStorySettings={() => {}}
           handleDelete={handleDelete}
         />
-        {post?.imagePath && (
+        {post.imagePath && (
           <img
-            src={`${process.env.REACT_APP_BACKEND_URL}${post.imagePath}`}
+            src={getValidImageUrl(post.imagePath)}
             alt={`Image for post: ${post.title}`}
             className="w-full h-80 object-cover rounded-md mb-6 shadow-md"
           />

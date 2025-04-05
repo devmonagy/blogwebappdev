@@ -9,16 +9,15 @@ interface IUser extends Document {
   email: string;
   password: string;
   profilePicture: string;
-  role: string; // Add role field
+  role: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
-// Helper function to get the default profile picture URL
+// ✅ Set your Cloudinary-hosted default image here
 const getDefaultProfilePictureUrl = (): string => {
-  const backendUrl =
-    process.env.BACKEND_URL || "https://blogwebapp-dev.onrender.com";
-  return `${backendUrl}/uploads/defaultImg.webp`;
+  return "https://res.cloudinary.com/dqdix32m5/image/upload/v1743881926/UserProfilePics/1743881923775-mo.png";
+  // You can use the public image link or asset URL — just make sure it's direct-access.
 };
 
 // User schema definition
@@ -51,15 +50,15 @@ const UserSchema: Schema = new Schema(
     },
     profilePicture: {
       type: String,
-      default: getDefaultProfilePictureUrl, // Use the helper function
+      default: getDefaultProfilePictureUrl, // ✅ Use Cloudinary-hosted default
     },
     role: {
       type: String,
-      enum: ["user", "admin"], // Allow only 'user' or 'admin'
-      default: "user", // Default role
+      enum: ["user", "admin"],
+      default: "user",
     },
   },
-  { timestamps: true } // Include timestamps for createdAt and updatedAt
+  { timestamps: true }
 );
 
 export default mongoose.model<IUser>("User", UserSchema);

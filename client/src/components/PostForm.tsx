@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
-import "react-quill/dist/quill.snow.css"; // Import Quill styles
-import "../styles/quill-custom.css"; // Import custom Quill CSS
+import "react-quill/dist/quill.snow.css";
+import "../styles/quill-custom.css";
 
-// Import ReactQuill dynamically to handle SSR (Server-Side Rendering) issues
 let ReactQuill: any = null;
 if (typeof window !== "undefined") {
   ReactQuill = require("react-quill");
@@ -19,7 +18,6 @@ interface PostFormProps {
   onSubmit: (formData: FormData) => void;
 }
 
-// Configure the toolbar options for Quill
 const toolbarOptions = [
   [{ font: [] }],
   [{ header: [1, 2, 3, 4, 5, 6, false] }],
@@ -37,10 +35,9 @@ const toolbarOptions = [
 
 const PostForm: React.FC<PostFormProps> = ({ initialData, onSubmit }) => {
   const [postData, setPostData] = useState(initialData);
-  const [isQuillLoaded, setIsQuillLoaded] = useState(false); // Track if Quill is loaded
+  const [isQuillLoaded, setIsQuillLoaded] = useState(false);
 
   useEffect(() => {
-    // Check if Quill is successfully loaded
     if (ReactQuill) {
       setIsQuillLoaded(true);
     }
@@ -69,7 +66,7 @@ const PostForm: React.FC<PostFormProps> = ({ initialData, onSubmit }) => {
     formData.append("category", postData.category);
     formData.append("content", postData.content);
     if (postData.image) {
-      formData.append("image", postData.image);
+      formData.append("image", postData.image); // ← correct way to pass File
     }
     onSubmit(formData);
   };
@@ -77,9 +74,8 @@ const PostForm: React.FC<PostFormProps> = ({ initialData, onSubmit }) => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full space-y-6  bg-background text-black rounded-lg"
+      className="w-full space-y-6 bg-background text-black rounded-lg"
     >
-      {/* Title Input */}
       <input
         type="text"
         name="title"
@@ -90,7 +86,6 @@ const PostForm: React.FC<PostFormProps> = ({ initialData, onSubmit }) => {
         className="w-full px-4 py-3 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
 
-      {/* Category Input */}
       <input
         type="text"
         name="category"
@@ -101,7 +96,6 @@ const PostForm: React.FC<PostFormProps> = ({ initialData, onSubmit }) => {
         className="w-full px-4 py-3 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
 
-      {/* Quill Editor */}
       {isQuillLoaded && ReactQuill ? (
         <ReactQuill
           theme="snow"
@@ -111,10 +105,9 @@ const PostForm: React.FC<PostFormProps> = ({ initialData, onSubmit }) => {
           className="w-full bg-white rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       ) : (
-        <p className="text-center">Loading editor...</p> // Fallback text while Quill is loading
+        <p className="text-center">Loading editor...</p>
       )}
 
-      {/* File Upload Input */}
       <div className="flex flex-col">
         <label
           htmlFor="image"
@@ -124,12 +117,12 @@ const PostForm: React.FC<PostFormProps> = ({ initialData, onSubmit }) => {
         </label>
         <input
           type="file"
+          accept="image/*"
           onChange={handleFileChange}
           className="w-full mt-2 border border-gray-300 rounded-lg text-black"
         />
       </div>
 
-      {/* Submit Button */}
       <div className="flex justify-center">
         <button
           type="submit"

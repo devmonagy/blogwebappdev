@@ -49,9 +49,6 @@ app.use(
 // Add middleware to parse JSON bodies. This is necessary for handling JSON requests
 app.use(express.json());
 
-// Serve static files from the 'uploads' directory. Necessary for any uploaded files like images
-app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
-
 // Simple route to test if the server is running and connected to the database
 app.get("/", (req, res) => {
   res.send("Hello, MongoDB is connected!");

@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import {
   createPost,
   getPosts,
@@ -7,29 +7,43 @@ import {
   updatePost,
 } from "../controllers/postController";
 import authenticate from "../middleware/authenticate";
-import { checkAdmin } from "../middleware/checkAdmin"; // Import the checkAdmin middleware
-import Post from "../models/Post"; // Import the Post model
-import multer from "multer";
+import { checkAdmin } from "../middleware/checkAdmin";
+import Post from "../models/Post";
+import { createUploadMiddleware } from "../middleware/upload"; // Import factory function
 
-// Configure multer for file uploads
-const upload = multer({ dest: "uploads/" });
+// Create Cloudinary upload middleware specifically for blog post images
+const postImageUpload = createUploadMiddleware("BlogPostImages");
+
+// Optional: define AuthenticatedRequest for better typing
+interface AuthenticatedRequest extends Request {
+  userId?: string;
+}
 
 const router = Router();
 
 // Route to get all posts created by the logged-in user
-router.get("/user-posts", authenticate, async (req, res) => {
-  const userId = (req as any).userId; // Assuming userId is attached by the authenticate middleware
-  try {
-    const userPosts = await Post.find({ author: userId });
-    res.status(200).json(userPosts);
-  } catch (error) {
-    console.error("Error fetching user posts:", error); // Log full error stack
-    res.status(500).json({ error: "Failed to fetch user posts" });
+router.get(
+  "/user-posts",
+  authenticate,
+  async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.userId;
+    try {
+      const userPosts = await Post.find({ author: userId });
+      res.status(200).json(userPosts);
+    } catch (error) {
+      console.error("Error fetching user posts:", error);
+      res.status(500).json({ error: "Failed to fetch user posts" });
+    }
   }
-});
+);
 
-// Route to create a new post (with authentication and file upload)
-router.post("/create", authenticate, upload.single("image"), createPost);
+// Route to create a new post (Cloudinary handles image)
+router.post(
+  "/create",
+  authenticate,
+  postImageUpload.single("image"),
+  createPost
+);
 
 // Route to get all posts
 router.get("/", getPosts);
@@ -37,16 +51,16 @@ router.get("/", getPosts);
 // Route to get a single post by ID
 router.get("/:id", getPostById);
 
-// Route to update a post by ID (with authentication, admin check, and file upload)
+// Route to update a post by ID (admin + upload)
 router.put(
   "/:id",
   authenticate,
   checkAdmin,
-  upload.single("image"),
+  postImageUpload.single("image"),
   updatePost
 );
 
-// Route to delete a post by ID (with authentication and admin check)
+// Route to delete a post by ID (admin)
 router.delete("/:id", authenticate, checkAdmin, deletePost);
 
 export default router;

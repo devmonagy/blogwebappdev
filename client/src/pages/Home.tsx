@@ -11,10 +11,10 @@ interface Post {
   _id: string;
   title: string;
   category: string;
-  content: string; // This will contain HTML content
+  content: string;
   imagePath: string;
   author: Author;
-  createdAt: string; // Added to track post creation time
+  createdAt: string;
 }
 
 const Home: React.FC = () => {
@@ -61,6 +61,14 @@ const Home: React.FC = () => {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
+  const getValidImageUrl = (url: string) => {
+    return url.startsWith("http")
+      ? url
+      : `${process.env.REACT_APP_BACKEND_URL}${
+          url.startsWith("/") ? "" : "/"
+        }${url}`;
+  };
+
   return (
     <div className="bg-background min-h-screen">
       <div className="container py-10 mx-auto p-7 flex flex-col gap-6 lg:max-w-screen-md">
@@ -92,11 +100,7 @@ const Home: React.FC = () => {
                 </div>
                 {post.imagePath && (
                   <img
-                    src={`${process.env.REACT_APP_BACKEND_URL}${
-                      post.imagePath.startsWith("/")
-                        ? post.imagePath
-                        : `/${post.imagePath}`
-                    }`}
+                    src={getValidImageUrl(post.imagePath)}
                     alt={post.title}
                     className="w-24 h-24 object-cover rounded ml-4 sm:w-32 sm:h-32"
                   />

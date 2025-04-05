@@ -5,7 +5,8 @@
     "outDir": "./build",
     "rootDir": "./server",
     "strict": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "typeRoots": ["./node_modules/@types", "./types"] // Add this line
   },
-  "include": ["server/**/*"]
+  "include": ["server/**/*", "types/**/*"] // Modify this line
 }
