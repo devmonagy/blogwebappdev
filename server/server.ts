@@ -54,6 +54,11 @@ app.get("/", (req, res) => {
   res.send("Hello, MongoDB is connected!");
 });
 
+// ✅ Ping route for uptime check (used by cron-job.org)
+app.get("/ping", (req, res) => {
+  res.status(200).send("pong");
+});
+
 // Use authentication routes as specified in the authRoutes module
 app.use("/auth", authRoutes);
 
