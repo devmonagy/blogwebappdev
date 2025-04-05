@@ -16,7 +16,8 @@ interface IUser extends Document {
 
 // Helper function to get the default profile picture URL
 const getDefaultProfilePictureUrl = (): string => {
-  const backendUrl = process.env.BACKEND_URL || "http://192.168.1.204:5000";
+  const backendUrl =
+    process.env.BACKEND_URL || "https://blogwebapp-dev.onrender.com";
   return `${backendUrl}/uploads/defaultImg.webp`;
 };
 
