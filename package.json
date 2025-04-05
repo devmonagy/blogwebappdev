@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node build/server.js",
     "dev": "nodemon --exec \"npx ts-node\" server/server.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "postinstall": "npm rebuild bcrypt --build-from-source"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
