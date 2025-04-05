@@ -25,16 +25,24 @@ connectDB();
 
 // Define the allowed origins for CORS (Cross-Origin Resource Sharing)
 const allowedOrigins = [
-  "http://localhost:3000", // Allow frontend application on localhost for development
-  "http://192.168.1.204:3000", // Allow frontend application on the local network
-  "http://172.16.109.61:3000", // Allow frontend application on the office at work
+  "http://localhost:3000", // Local dev
+  "http://192.168.1.204:3000", // Local network dev
+  "http://172.16.109.61:3000", // Office network dev
+  "https://blogwebappdev.vercel.app", // Current deployed frontend on Vercel
 ];
 
-// Apply CORS middleware to enable requests from the allowed origins and support credentials
+// Apply CORS middleware to enable requests from allowed origins and support credentials
 app.use(
   cors({
-    origin: allowedOrigins,
-    credentials: true, // This is necessary for sites that use cookies, HTTP authentication, etc.
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like curl or Postman) or if origin is in the list
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
   })
 );
 
