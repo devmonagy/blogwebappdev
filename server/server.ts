@@ -57,7 +57,6 @@ app.get("/", (req, res) => {
 
 // ✅ Ping route for uptime checks (log each ping)
 app.get("/ping", (req, res) => {
-  console.log("🔁 /ping hit at", new Date().toISOString());
   res.status(200).send("pong");
 });
 
