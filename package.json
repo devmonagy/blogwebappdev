@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A MERN blog web application",
   "scripts": {
-    "start": "tsc && node build/server.js",
+    "start": "node build/server.js",
     "dev": "nodemon --exec \"npx ts-node\" server/server.ts",
     "build": "tsc"
   },
