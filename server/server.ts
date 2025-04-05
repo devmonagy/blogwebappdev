@@ -28,7 +28,7 @@ const allowedOrigins = [
   "http://localhost:3000", // Local dev
   "http://192.168.1.204:3000", // Local network dev
   "http://172.16.109.61:3000", // Office network dev
-  "https://blogwebappdev.vercel.app", // Current deployed frontend on Vercel
+  "https://blogwebapp.monagy.com", // Current deployed frontend on Vercel
 ];
 
 // Apply CORS middleware to enable requests from allowed origins and support credentials
