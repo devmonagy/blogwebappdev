@@ -86,7 +86,7 @@ const SinglePost: React.FC = () => {
     if (!post) return null;
     return (
       <div
-        className="text-base leading-relaxed"
+        className="ql-editor text-base leading-relaxed"
         dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
       />
     );
@@ -97,7 +97,7 @@ const SinglePost: React.FC = () => {
     return (
       <>
         <div
-          className="text-base leading-relaxed fade-out-overlay"
+          className="ql-editor text-base leading-relaxed fade-out-overlay"
           dangerouslySetInnerHTML={{
             __html: DOMPurify.sanitize(post.content.substring(0, 500)),
           }}
