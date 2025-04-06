@@ -1,274 +1,149 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { FaUserEdit, FaRegEdit, FaSignOutAlt } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import "../styles/quill-custom.css";
 
-interface DashboardProps {
-  onLogout: () => void;
-}
-
-interface UserProfileResponse {
+interface Author {
+  _id: string;
   firstName: string;
-  profilePicture: string;
-  role: string;
 }
 
-interface UserPost {
+interface Post {
   _id: string;
   title: string;
+  category: string;
+  content: string;
+  imagePath: string;
+  author: Author;
   createdAt: string;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
-  const [firstName, setFirstName] = useState<string | null>(null);
-  const [profilePicture, setProfilePicture] = useState<string | null>(null);
-  const [userPosts, setUserPosts] = useState<UserPost[]>([]);
-  const [isAdmin, setIsAdmin] = useState<boolean>(false);
-  const [isDropdownOpen, setDropdownOpen] = useState<boolean>(false);
+const Home: React.FC = () => {
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const location = useLocation();
-  const editingPost = location.state?.post;
 
-  const fetchUserData = async () => {
+  const fetchPosts = async () => {
+    setLoading(true);
     try {
-      const token = localStorage.getItem("token");
-      if (!token) return;
+      // 🔁 Wake up Render backend
+      await fetch(`${process.env.REACT_APP_BACKEND_URL}/`);
 
-      const res = await axios.get<UserProfileResponse>(
-        `${process.env.REACT_APP_BACKEND_URL}/auth/user-profile`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+      const response = await axios.get<Post[]>(
+        `${process.env.REACT_APP_BACKEND_URL}/posts`
       );
-
-      setFirstName(res.data.firstName);
-      handleProfilePicture(res.data.profilePicture);
-      setIsAdmin(res.data.role === "admin");
-    } catch (err) {
-      console.error("Error fetching user data:", err);
-    }
-  };
-
-  const fetchUserPosts = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-
-      await fetch(`${process.env.REACT_APP_BACKEND_URL}/`); // 🔁 Wake backend
-
-      const res = await axios.get<UserPost[]>(
-        `${process.env.REACT_APP_BACKEND_URL}/posts/user-posts`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      const sortedPosts = res.data.sort(
+      const sortedPosts = response.data.sort(
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
 
-      setUserPosts(sortedPosts);
-    } catch (err) {
-      console.error("Error fetching user posts:", err);
+      setPosts(sortedPosts);
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+      setError("Failed to fetch recent posts.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleProfilePicture = (path: string) => {
-    if (path) {
-      const url = path.startsWith("http")
-        ? path
-        : `${process.env.REACT_APP_BACKEND_URL}/uploads/${path.replace(
-            /^\/+|uploads\/+/g,
-            ""
-          )}`;
-      setProfilePicture(url);
-    } else {
-      setProfilePicture(null);
-    }
-  };
-
   useEffect(() => {
-    setLoading(true);
-    fetchUserData();
-    fetchUserPosts();
-  }, [editingPost]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    fetchPosts();
   }, []);
 
+  const truncateContent = (content: string, maxLength: number) => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(content, "text/html");
+    const htmlContent = doc.body.textContent || "";
+    const truncated = htmlContent.slice(0, maxLength);
+    return truncated.length < htmlContent.length
+      ? `${truncated}...`
+      : truncated;
+  };
+
+  const formatDate = (dateString: string) => {
+    const options: Intl.DateTimeFormatOptions = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
+  const getValidImageUrl = (url: string) => {
+    return url.startsWith("http")
+      ? url
+      : `${process.env.REACT_APP_BACKEND_URL}${
+          url.startsWith("/") ? "" : "/"
+        }${url}`;
+  };
+
   const renderSkeleton = () => (
-    <div className="space-y-4 animate-pulse">
-      <div className="flex items-center">
-        <div className="w-16 h-16 sm:w-24 sm:h-24 bg-gray-300 rounded-full" />
-        <div className="ml-4 space-y-2 flex-1">
-          <div className="h-4 bg-gray-300 rounded w-1/2" />
-          <div className="h-3 bg-gray-200 rounded w-1/3" />
+    <div className="animate-pulse flex flex-col gap-6">
+      {Array.from({ length: 3 }).map((_, index) => (
+        <div
+          key={index}
+          className="flex flex-row items-center p-4 rounded bg-white shadow-sm"
+        >
+          <div className="flex-1 space-y-3">
+            <div className="h-4 bg-gray-300 rounded w-3/4" />
+            <div className="h-3 bg-gray-200 rounded w-1/2" />
+            <div className="h-3 bg-gray-200 rounded w-full" />
+          </div>
+          <div className="ml-4 bg-gray-300 w-24 h-24 sm:w-32 sm:h-32 rounded" />
         </div>
-      </div>
-      <div className="bg-gray-200 h-32 rounded-lg" />
+      ))}
     </div>
   );
 
   return (
-    <div
-      className="container p-7 lg:max-w-screen-md"
-      style={{ overflow: "hidden" }}
-    >
-      <div className="flex flex-col items-center justify-center min-h-full py-10 bg-background text-white w-full relative">
-        <div className="w-full lg:max-w-screen-md flex flex-col sm:flex-row sm:justify-between mb-8 relative z-10">
-          <div className="flex flex-col sm:flex-row items-center w-full sm:w-auto">
-            <div className="flex items-center justify-start sm:justify-center w-full sm:w-auto">
-              <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full overflow-hidden shadow-lg">
-                {profilePicture ? (
-                  <img
-                    src={profilePicture}
-                    alt="User Profile"
-                    className="w-full h-full object-cover"
+    <div className="bg-background min-h-screen">
+      <div className="container py-10 mx-auto p-7 flex flex-col gap-6 lg:max-w-screen-md">
+        {loading ? (
+          renderSkeleton()
+        ) : error ? (
+          <p className="text-red-500">{error}</p>
+        ) : posts.length > 0 ? (
+          <div className="flex flex-col gap-6">
+            {posts.map((post) => (
+              <div
+                key={post._id}
+                onClick={() => navigate(`/post/${post._id}`)}
+                className="flex flex-row items-center p-4 rounded shadow-sm bg-white cursor-pointer hover:shadow-lg transition-shadow opacity-0 animate-fade-in"
+              >
+                <div className="flex-1">
+                  <h2 className="text-sm sm:text-lg font-semibold">
+                    {post.title}
+                  </h2>
+                  <p className="text-xs sm:text-sm text-gray-500 mb-2">
+                    Category: {post.category} | Author: {post.author.firstName}
+                  </p>
+                  <div
+                    className="text-xs sm:text-sm mb-4"
+                    dangerouslySetInnerHTML={{
+                      __html: truncateContent(post.content, 100),
+                    }}
                   />
-                ) : (
-                  <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-700">
-                    No Image
-                  </div>
+                  <p className="text-xs sm:text-sm text-gray-500">
+                    {formatDate(post.createdAt)}
+                  </p>
+                </div>
+                {post.imagePath && (
+                  <img
+                    src={getValidImageUrl(post.imagePath)}
+                    alt={post.title}
+                    className="w-24 h-24 object-cover rounded ml-4 sm:w-32 sm:h-32"
+                  />
                 )}
               </div>
-              <div className="ml-4 sm:ml-6 text-left flex-1">
-                <h2 className="text-lg sm:text-xl font-bold text-primaryText">
-                  Welcome, {firstName || "User"}!
-                </h2>
-                <div className="inline-flex space-x-4 mt-2 bg-[#f9f9f9] p-2 sm:p-3 rounded-lg shadow-lg items-center relative">
-                  <div
-                    className="flex items-center text-black text-sm cursor-pointer hover:text-green-500 transition-transform transform hover:scale-110"
-                    onClick={() => navigate("/write-post")}
-                  >
-                    <FaRegEdit className="w-4 h-4 sm:w-3 sm:h-3" />
-                    <span className="ml-1 sm:ml-2">Write</span>
-                  </div>
-                  <div
-                    className="flex items-center text-black text-sm cursor-pointer hover:text-blue-500 transition-transform transform hover:scale-110"
-                    onClick={() => navigate("/edit-profile")}
-                  >
-                    <FaUserEdit className="w-4 h-4 sm:w-3 sm:h-3" />
-                    <span className="ml-1 sm:ml-2">Profile</span>
-                  </div>
-                  <div
-                    className="flex items-center text-black text-sm cursor-pointer hover:text-red-500 transition-transform transform hover:scale-110"
-                    onClick={onLogout}
-                  >
-                    <FaSignOutAlt className="w-4 h-4 sm:w-3 sm:h-3" />
-                    <span className="ml-1 sm:ml-2">Logout</span>
-                  </div>
-
-                  <div className="relative" ref={dropdownRef}>
-                    <button
-                      className="flex items-center text-black text-md cursor-pointer hover:text-gray-500 transition-transform transform hover:scale-110"
-                      onClick={() => setDropdownOpen(!isDropdownOpen)}
-                    >
-                      ⋮
-                    </button>
-                    {isDropdownOpen && (
-                      <div
-                        className="absolute top-full right-0 bg-white text-black shadow-md rounded-lg py-2 w-48 z-50"
-                        style={{
-                          overflowY: "auto",
-                          maxHeight: "300px",
-                          position: "absolute",
-                          zIndex: 9999,
-                        }}
-                      >
-                        {isAdmin && (
-                          <div
-                            className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                            onClick={() => navigate("/admin-dashboard")}
-                          >
-                            Admin
-                          </div>
-                        )}
-                        <div
-                          className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                          onClick={() => navigate("/all-user-posts")}
-                        >
-                          Your Writings
-                        </div>
-                        <div
-                          className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                          onClick={() => alert("Link 3 Clicked")}
-                        >
-                          Link 3
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="w-full bg-cardBackground rounded-lg shadow-lg p-6 mx-auto z-0">
-        <h3 className="text-md font-semibold mb-4 text-primaryText">
-          Your Writings
-        </h3>
-        {loading ? (
-          <div className="space-y-3 animate-pulse">
-            {[...Array(3)].map((_, index) => (
-              <div key={index} className="h-4 bg-gray-200 rounded w-full" />
             ))}
           </div>
-        ) : userPosts.length > 0 ? (
-          <ul className="text-left">
-            {userPosts.slice(0, 3).map((post, index) => (
-              <li
-                key={post._id}
-                className={`flex justify-between items-center ${
-                  index !== userPosts.length - 1
-                    ? "border-b border-slate-200"
-                    : ""
-                } py-3`}
-              >
-                <span className="text-primaryText">{post.title}</span>
-                <button
-                  className="text-blue-500 hover:underline"
-                  onClick={() => navigate(`/post/${post._id}`)}
-                >
-                  View
-                </button>
-              </li>
-            ))}
-          </ul>
         ) : (
-          <div className="text-center text-gray-400">No recent posts yet.</div>
-        )}
-        {userPosts.length > 3 && (
-          <button
-            className="mt-4 text-blue-500 hover:underline"
-            onClick={() => navigate("/all-user-posts")}
-          >
-            Load More
-          </button>
+          <p className="text-gray-500">No posts available yet.</p>
         )}
       </div>
     </div>
   );
 };
 
-export default Dashboard;
+export default Home;

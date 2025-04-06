@@ -26,82 +26,77 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [isDropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const editingPost = location.state?.post;
 
+  const fetchUserData = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const res = await axios.get<UserProfileResponse>(
+        `${process.env.REACT_APP_BACKEND_URL}/auth/user-profile`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      setFirstName(res.data.firstName);
+      handleProfilePicture(res.data.profilePicture);
+      setIsAdmin(res.data.role === "admin");
+    } catch (err) {
+      console.error("Error fetching user data:", err);
+    }
+  };
+
+  const fetchUserPosts = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      await fetch(`${process.env.REACT_APP_BACKEND_URL}/`); // 🔁 Wake backend
+
+      const res = await axios.get<UserPost[]>(
+        `${process.env.REACT_APP_BACKEND_URL}/posts/user-posts`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      const sortedPosts = res.data.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+
+      setUserPosts(sortedPosts);
+    } catch (err) {
+      console.error("Error fetching user posts:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleProfilePicture = (path: string) => {
     if (path) {
-      const profilePicUrl = path.startsWith("http")
+      const url = path.startsWith("http")
         ? path
         : `${process.env.REACT_APP_BACKEND_URL}/uploads/${path.replace(
             /^\/+|uploads\/+/g,
             ""
           )}`;
-      setProfilePicture(profilePicUrl);
+      setProfilePicture(url);
     } else {
       setProfilePicture(null);
     }
   };
 
-  const fetchUserData = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
-    const response = await axios.get<UserProfileResponse>(
-      `${process.env.REACT_APP_BACKEND_URL}/auth/user-profile`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-
-    setFirstName(response.data.firstName);
-    handleProfilePicture(response.data.profilePicture);
-    setIsAdmin(response.data.role === "admin");
-  };
-
-  const fetchUserPosts = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
-    const response = await axios.get<UserPost[]>(
-      `${process.env.REACT_APP_BACKEND_URL}/posts/user-posts`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-
-    const sorted = response.data.sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-
-    setUserPosts(sorted);
-    sessionStorage.setItem("cachedUserPosts", JSON.stringify(sorted));
-  };
-
   useEffect(() => {
-    const init = async () => {
-      setLoading(true);
-      try {
-        await fetch(`${process.env.REACT_APP_BACKEND_URL}/`); // 🔁 Cold start ping
-
-        const cached = sessionStorage.getItem("cachedUserPosts");
-        if (cached) {
-          setUserPosts(JSON.parse(cached));
-        } else {
-          await fetchUserPosts();
-        }
-
-        await fetchUserData();
-      } catch (err) {
-        console.error("Error initializing dashboard:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    init();
+    setLoading(true);
+    fetchUserData();
+    fetchUserPosts();
   }, [editingPost]);
 
   useEffect(() => {
@@ -120,16 +115,30 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
     };
   }, []);
 
+  const renderSkeleton = () => (
+    <div className="space-y-4 animate-pulse">
+      <div className="flex items-center">
+        <div className="w-16 h-16 sm:w-24 sm:h-24 bg-gray-300 rounded-full" />
+        <div className="ml-4 space-y-2 flex-1">
+          <div className="h-4 bg-gray-300 rounded w-1/2" />
+          <div className="h-3 bg-gray-200 rounded w-1/3" />
+        </div>
+      </div>
+      <div className="bg-gray-200 h-32 rounded-lg" />
+    </div>
+  );
+
   return (
-    <div className="container p-7 lg:max-w-screen-md">
+    <div
+      className="container p-7 lg:max-w-screen-md"
+      style={{ overflow: "hidden" }}
+    >
       <div className="flex flex-col items-center justify-center min-h-full py-10 bg-background text-white w-full relative">
         <div className="w-full lg:max-w-screen-md flex flex-col sm:flex-row sm:justify-between mb-8 relative z-10">
           <div className="flex flex-col sm:flex-row items-center w-full sm:w-auto">
             <div className="flex items-center justify-start sm:justify-center w-full sm:w-auto">
               <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full overflow-hidden shadow-lg">
-                {loading ? (
-                  <div className="w-full h-full bg-gray-300 animate-pulse" />
-                ) : profilePicture ? (
+                {profilePicture ? (
                   <img
                     src={profilePicture}
                     alt="User Profile"
@@ -167,6 +176,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
                     <FaSignOutAlt className="w-4 h-4 sm:w-3 sm:h-3" />
                     <span className="ml-1 sm:ml-2">Logout</span>
                   </div>
+
                   <div className="relative" ref={dropdownRef}>
                     <button
                       className="flex items-center text-black text-md cursor-pointer hover:text-gray-500 transition-transform transform hover:scale-110"
@@ -175,7 +185,15 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
                       ⋮
                     </button>
                     {isDropdownOpen && (
-                      <div className="absolute top-full right-0 bg-white text-black shadow-md rounded-lg py-2 w-48 z-50">
+                      <div
+                        className="absolute top-full right-0 bg-white text-black shadow-md rounded-lg py-2 w-48 z-50"
+                        style={{
+                          overflowY: "auto",
+                          maxHeight: "300px",
+                          position: "absolute",
+                          zIndex: 9999,
+                        }}
+                      >
                         {isAdmin && (
                           <div
                             className="px-4 py-2 cursor-pointer hover:bg-gray-100"
@@ -211,12 +229,9 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
           Your Writings
         </h3>
         {loading ? (
-          <div className="space-y-4">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div
-                key={i}
-                className="h-5 bg-gray-300 rounded w-full animate-pulse"
-              />
+          <div className="space-y-3 animate-pulse">
+            {[...Array(3)].map((_, index) => (
+              <div key={index} className="h-4 bg-gray-200 rounded w-full" />
             ))}
           </div>
         ) : userPosts.length > 0 ? (
