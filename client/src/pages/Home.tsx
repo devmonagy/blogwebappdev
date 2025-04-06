@@ -82,9 +82,9 @@ const Home: React.FC = () => {
                 className="flex flex-row items-center p-4 rounded shadow-sm bg-white cursor-pointer hover:shadow-lg transition-shadow"
               >
                 <div className="flex-1">
-                  <h3 className="text-sm sm:text-xl font-semibold">
+                  <h2 className="text-sm sm:text-lg font-semibold">
                     {post.title}
-                  </h3>
+                  </h2>
                   <p className="text-xs sm:text-sm text-gray-500 mb-2">
                     Category: {post.category} | Author: {post.author.firstName}
                   </p>
