@@ -151,8 +151,8 @@ const Home: React.FC = () => {
           style={{ transition: "transform 1s" }}
         >
           <span className="info-text text-sm">
-            This is a production version 1.0.0. Currently in development to
-            receive updates & features 🚀
+            Production v1.0.0 — currently under active development for future
+            enhancements 🚀
           </span>
           <button
             onClick={handleCloseInfoBar}
