@@ -28,6 +28,7 @@ const SinglePost: React.FC = () => {
   const [userId, setUserId] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -50,36 +51,52 @@ const SinglePost: React.FC = () => {
     }
 
     const fetchPost = async () => {
+      setLoading(true);
       try {
+        await fetch(`${process.env.REACT_APP_BACKEND_URL}/`);
+
+        const cached = sessionStorage.getItem(`post-${id}`);
+        if (cached) {
+          setPost(JSON.parse(cached));
+          setLoading(false);
+          return;
+        }
+
         const response = await axios.get<Post>(
           `${process.env.REACT_APP_BACKEND_URL}/posts/${id}`
         );
         setPost(response.data);
+        sessionStorage.setItem(`post-${id}`, JSON.stringify(response.data));
       } catch {
         setError("Failed to fetch the post.");
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchPost();
+    if (id) fetchPost();
   }, [id]);
 
-  const handleEdit = () => {
-    navigate(`/edit-post/${id}`);
-  };
+  const handleEdit = () => navigate(`/edit-post/${id}`);
 
   const handleDelete = async () => {
     const token = localStorage.getItem("token");
-    if (token) {
-      try {
-        await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/posts/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        alert("Post deleted successfully.");
-        navigate("/");
-      } catch {
-        setError("Failed to delete the post.");
-      }
+    if (!token) return;
+    try {
+      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/posts/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      alert("Post deleted successfully.");
+      navigate("/");
+    } catch {
+      setError("Failed to delete the post.");
     }
+  };
+
+  const getValidImageUrl = (url: string) => {
+    return url.startsWith("http")
+      ? url
+      : `${process.env.REACT_APP_BACKEND_URL}${url}`;
   };
 
   const contentForAuthenticated = () => {
@@ -116,57 +133,75 @@ const SinglePost: React.FC = () => {
     );
   };
 
-  if (error) return <p className="text-red-500">{error}</p>;
-  if (!post) return <p className="text-gray-500">Loading...</p>;
-
-  const getValidImageUrl = (url: string) => {
-    return url.startsWith("http")
-      ? url
-      : `${process.env.REACT_APP_BACKEND_URL}${url}`;
-  };
+  const renderSkeleton = () => (
+    <div className="animate-pulse space-y-6">
+      <div className="h-8 bg-gray-300 rounded w-3/4" />
+      <div className="flex items-center space-x-4">
+        <div className="w-12 h-12 rounded-full bg-gray-300" />
+        <div className="flex-1 space-y-2">
+          <div className="h-4 w-32 bg-gray-200 rounded" />
+          <div className="h-3 w-24 bg-gray-100 rounded" />
+        </div>
+      </div>
+      <div className="w-full h-64 bg-gray-200 rounded-md" />
+      <div className="space-y-3">
+        <div className="h-4 bg-gray-100 rounded w-full" />
+        <div className="h-4 bg-gray-100 rounded w-5/6" />
+        <div className="h-4 bg-gray-100 rounded w-4/6" />
+      </div>
+    </div>
+  );
 
   return (
     <div className="container p-7 bg-background min-h-screen py-8 lg:max-w-screen-md">
-      <div className="mx-auto p-3 text-primaryText shadow-lg rounded-lg bg-white">
-        <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
-        <div className="flex items-center mb-6">
-          <img
-            src={
-              post.author.profilePicture
-                ? getValidImageUrl(post.author.profilePicture)
-                : "/default-profile-picture.jpg"
-            }
-            alt={`${post.author.firstName}'s profile`}
-            className="w-12 h-12 rounded-full object-cover shadow-md mr-4"
-          />
-          <div>
-            <p className="text-lg font-medium">{post.author.firstName}</p>
-            <p className="text-sm text-gray-500">
-              Published in:{" "}
-              <span className="font-semibold">{post.category}</span> ·{" "}
-              {new Date(post.createdAt).toLocaleDateString()}
-            </p>
-          </div>
-        </div>
-        <PostActions
-          userId={userId}
-          userRole={userRole}
-          postAuthorId={post.author._id}
-          handleEdit={handleEdit}
-          handlePinStory={() => {}}
-          handleStorySettings={() => {}}
-          handleDelete={handleDelete}
-        />
-        {post.imagePath && (
-          <img
-            src={getValidImageUrl(post.imagePath)}
-            alt={`Image for post: ${post.title}`}
-            className="w-full h-80 object-cover rounded-md mb-6 shadow-md"
-          />
-        )}
-        {isAuthenticated
-          ? contentForAuthenticated()
-          : contentForUnauthenticated()}
+      <div className="mx-auto p-3 text-primaryText shadow-lg rounded-lg bg-white animate-fade-in">
+        {loading ? (
+          renderSkeleton()
+        ) : error ? (
+          <p className="text-red-500">{error}</p>
+        ) : post ? (
+          <>
+            <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
+            <div className="flex items-center mb-6">
+              <img
+                src={
+                  post.author.profilePicture
+                    ? getValidImageUrl(post.author.profilePicture)
+                    : "/default-profile-picture.jpg"
+                }
+                alt={`${post.author.firstName}'s profile`}
+                className="w-12 h-12 rounded-full object-cover shadow-md mr-4"
+              />
+              <div>
+                <p className="text-lg font-medium">{post.author.firstName}</p>
+                <p className="text-sm text-gray-500">
+                  Published in:{" "}
+                  <span className="font-semibold">{post.category}</span> ·{" "}
+                  {new Date(post.createdAt).toLocaleDateString()}
+                </p>
+              </div>
+            </div>
+            <PostActions
+              userId={userId}
+              userRole={userRole}
+              postAuthorId={post.author._id}
+              handleEdit={handleEdit}
+              handlePinStory={() => {}}
+              handleStorySettings={() => {}}
+              handleDelete={handleDelete}
+            />
+            {post.imagePath && (
+              <img
+                src={getValidImageUrl(post.imagePath)}
+                alt={`Image for post: ${post.title}`}
+                className="w-full h-80 object-cover rounded-md mb-6 shadow-md"
+              />
+            )}
+            {isAuthenticated
+              ? contentForAuthenticated()
+              : contentForUnauthenticated()}
+          </>
+        ) : null}
       </div>
     </div>
   );
