@@ -23,7 +23,7 @@ const Header: React.FC<HeaderProps> = ({ isAuthenticated }) => {
               href="https://monagy.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="underline underline-offset-2 decoration-[0.5px] text-href hover:text-href"
+              className="decoration-[0.5px] text-href hover:text-primaryText transition-colors duration-300 ease-in-out"
             >
               Mohamed Nagy
             </a>
