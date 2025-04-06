@@ -20,10 +20,14 @@ interface Post {
 const Home: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
 
   const fetchPosts = async () => {
+    setLoading(true);
     try {
+      await fetch(`${process.env.REACT_APP_BACKEND_URL}/`); // 🔁 Render warm-up ping
+
       const response = await axios.get<Post[]>(
         `${process.env.REACT_APP_BACKEND_URL}/posts`
       );
@@ -35,6 +39,8 @@ const Home: React.FC = () => {
     } catch (error) {
       console.error("Error fetching posts:", error);
       setError("Failed to fetch recent posts.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -72,8 +78,13 @@ const Home: React.FC = () => {
   return (
     <div className="bg-background min-h-screen">
       <div className="container py-10 mx-auto p-7 flex flex-col gap-6 lg:max-w-screen-md">
-        {error && <p className="text-red-500">{error}</p>}
-        {posts.length > 0 ? (
+        {loading ? (
+          <div className="flex justify-center items-center py-10">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primaryText"></div>
+          </div>
+        ) : error ? (
+          <p className="text-red-500">{error}</p>
+        ) : posts.length > 0 ? (
           <div className="flex flex-col gap-6">
             {posts.map((post) => (
               <div
