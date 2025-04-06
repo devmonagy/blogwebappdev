@@ -30,13 +30,6 @@ const Home: React.FC = () => {
       // 🔁 Wake up Render backend
       await fetch(`${process.env.REACT_APP_BACKEND_URL}/`);
 
-      const cached = sessionStorage.getItem("cachedPosts");
-      if (cached) {
-        setPosts(JSON.parse(cached));
-        setLoading(false);
-        return;
-      }
-
       const response = await axios.get<Post[]>(
         `${process.env.REACT_APP_BACKEND_URL}/posts`
       );
@@ -46,7 +39,6 @@ const Home: React.FC = () => {
       );
 
       setPosts(sortedPosts);
-      sessionStorage.setItem("cachedPosts", JSON.stringify(sortedPosts));
     } catch (error) {
       console.error("Error fetching posts:", error);
       setError("Failed to fetch recent posts.");

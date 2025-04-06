@@ -54,12 +54,6 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
     const token = localStorage.getItem("token");
     if (!token) return;
 
-    const cached = sessionStorage.getItem("cachedUserPosts");
-    if (cached) {
-      setUserPosts(JSON.parse(cached));
-      return;
-    }
-
     try {
       const response = await axios.get<UserPost[]>(
         `${process.env.REACT_APP_BACKEND_URL}/posts/user-posts`,
@@ -74,7 +68,6 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
       );
 
       setUserPosts(sortedPosts);
-      sessionStorage.setItem("cachedUserPosts", JSON.stringify(sortedPosts));
     } catch (error) {
       console.error("Error fetching user posts:", error);
     }

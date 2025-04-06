@@ -55,18 +55,10 @@ const SinglePost: React.FC = () => {
       try {
         await fetch(`${process.env.REACT_APP_BACKEND_URL}/`);
 
-        const cached = sessionStorage.getItem(`post-${id}`);
-        if (cached) {
-          setPost(JSON.parse(cached));
-          setLoading(false);
-          return;
-        }
-
         const response = await axios.get<Post>(
           `${process.env.REACT_APP_BACKEND_URL}/posts/${id}`
         );
         setPost(response.data);
-        sessionStorage.setItem(`post-${id}`, JSON.stringify(response.data));
       } catch {
         setError("Failed to fetch the post.");
       } finally {
