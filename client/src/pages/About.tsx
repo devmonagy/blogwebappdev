@@ -1,9 +1,78 @@
+// client/src/pages/About.tsx
 import React from "react";
 
 const About: React.FC = () => {
   return (
-    <div className="about p-4 text-primaryText">
-      <h2>About Pages</h2>
+    <div className="about container py-20 mx-auto p-7 flex flex-col gap-6 lg:max-w-screen-md">
+      <h1 className="text-3xl font-bold mb-4">🚀 App Release Information</h1>
+      <p className="mb-4">
+        I'm excited to officially launch <strong>Version 1.0.0</strong> of my
+        full-stack MERN blog web application! 🎉
+        <br />
+        <em>(Deployed April 4, 2025)</em>
+      </p>
+
+      <p className="mb-4">
+        This marks the first production-ready release of the app, now deployed
+        and live using:
+      </p>
+
+      <ul className="list-disc list-inside mb-4">
+        <li>
+          🖥️ <strong>Frontend:</strong> React (with TypeScript), hosted on
+          Vercel
+        </li>
+        <li>
+          🛠️ <strong>Backend:</strong> Node.js + Express + MongoDB, deployed on
+          Render
+        </li>
+        <li>
+          🗃️ <strong>Database:</strong> MongoDB Atlas
+        </li>
+      </ul>
+
+      <h2 className="text-2xl font-semibold mt-6 mb-2">
+        🛠️ Key Features in v1.0.0
+      </h2>
+      <ul className="list-disc list-inside mb-4">
+        <li>🧑‍💻 User Registration & Login (with JWT authentication)</li>
+        <li>🔐 Passwords securely hashed using bcryptjs</li>
+        <li>📝 Create and manage blog posts (with optional image upload)</li>
+        <li>📦 REST API for user and post management</li>
+        <li>🎨 Responsive frontend styled with Tailwind CSS</li>
+        <li>
+          🛡️ CORS-enabled backend to support secure frontend/backend
+          communication
+        </li>
+      </ul>
+
+      <h2 className="text-2xl font-semibold mt-6 mb-2">⚠️ Note</h2>
+      <p className="mb-4">
+        This is an early production release. More features and refinements are
+        actively being worked on — including:
+      </p>
+      <ul className="list-disc list-inside mb-4">
+        <li>✏️ Post editing</li>
+        <li>👤 User profile customization</li>
+        <li>🧰 Improved editor experience with formatting options</li>
+        <li>🤝 Social interactions</li>
+      </ul>
+
+      <p className="mt-6 mb-2">
+        Thanks for checking it out! Feel free to explore the live app at:
+      </p>
+      <a
+        href="https://blogwebapp.monagy.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-blue-500 underline"
+      >
+        👉 https://blogwebapp.monagy.com
+      </a>
+
+      <p className="mt-4">
+        Feedback, bug reports, and contributions are always welcome! 🙌
+      </p>
     </div>
   );
 };
