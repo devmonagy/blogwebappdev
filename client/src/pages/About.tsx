@@ -8,7 +8,6 @@ const About: React.FC = () => {
       <p className="mb-4">
         I'm excited to officially launch <strong>Version 1.0.0</strong> of my
         full-stack MERN blog web application! 🎉
-        <br />
         <em>(Deployed April 4, 2025)</em>
       </p>
 
@@ -70,9 +69,7 @@ const About: React.FC = () => {
         👉 https://blogwebapp.monagy.com
       </a>
 
-      <p className="mt-4">
-        Feedback, bug reports, and contributions are always welcome! 🙌
-      </p>
+      <p className="mt-4">Feedback and bug reports are always welcome! 🙌</p>
     </div>
   );
 };
