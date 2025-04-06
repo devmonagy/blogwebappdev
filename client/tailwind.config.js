@@ -16,11 +16,20 @@ module.exports = {
         serif: ["Merriweather", "serif"],
       },
       fontSize: {
-        xxs: "0.65rem", // Added smaller font size
+        xxs: "0.65rem",
       },
       container: {
         center: true,
-        padding: "2rem", // This sets 2rem padding to the left and right of the container.
+        padding: "2rem",
+      },
+      animation: {
+        "fade-in": "fadeIn 0.6s ease-out forwards",
+      },
+      keyframes: {
+        fadeIn: {
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" },
+        },
       },
     },
   },

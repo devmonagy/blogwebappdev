@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import "../styles/quill-custom.css";
 
 interface Author {
   _id: string;
@@ -26,7 +27,15 @@ const Home: React.FC = () => {
   const fetchPosts = async () => {
     setLoading(true);
     try {
-      await fetch(`${process.env.REACT_APP_BACKEND_URL}/`); // 🔁 Render warm-up ping
+      // 🔁 Wake up Render backend
+      await fetch(`${process.env.REACT_APP_BACKEND_URL}/`);
+
+      const cached = sessionStorage.getItem("cachedPosts");
+      if (cached) {
+        setPosts(JSON.parse(cached));
+        setLoading(false);
+        return;
+      }
 
       const response = await axios.get<Post[]>(
         `${process.env.REACT_APP_BACKEND_URL}/posts`
@@ -35,7 +44,9 @@ const Home: React.FC = () => {
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
+
       setPosts(sortedPosts);
+      sessionStorage.setItem("cachedPosts", JSON.stringify(sortedPosts));
     } catch (error) {
       console.error("Error fetching posts:", error);
       setError("Failed to fetch recent posts.");
@@ -75,13 +86,29 @@ const Home: React.FC = () => {
         }${url}`;
   };
 
+  const renderSkeleton = () => (
+    <div className="animate-pulse flex flex-col gap-6">
+      {Array.from({ length: 3 }).map((_, index) => (
+        <div
+          key={index}
+          className="flex flex-row items-center p-4 rounded bg-white shadow-sm"
+        >
+          <div className="flex-1 space-y-3">
+            <div className="h-4 bg-gray-300 rounded w-3/4" />
+            <div className="h-3 bg-gray-200 rounded w-1/2" />
+            <div className="h-3 bg-gray-200 rounded w-full" />
+          </div>
+          <div className="ml-4 bg-gray-300 w-24 h-24 sm:w-32 sm:h-32 rounded" />
+        </div>
+      ))}
+    </div>
+  );
+
   return (
     <div className="bg-background min-h-screen">
       <div className="container py-10 mx-auto p-7 flex flex-col gap-6 lg:max-w-screen-md">
         {loading ? (
-          <div className="flex justify-center items-center py-10">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primaryText"></div>
-          </div>
+          renderSkeleton()
         ) : error ? (
           <p className="text-red-500">{error}</p>
         ) : posts.length > 0 ? (
@@ -90,7 +117,7 @@ const Home: React.FC = () => {
               <div
                 key={post._id}
                 onClick={() => navigate(`/post/${post._id}`)}
-                className="flex flex-row items-center p-4 rounded shadow-sm bg-white cursor-pointer hover:shadow-lg transition-shadow"
+                className="flex flex-row items-center p-4 rounded shadow-sm bg-white cursor-pointer hover:shadow-lg transition-shadow opacity-0 animate-fade-in"
               >
                 <div className="flex-1">
                   <h2 className="text-sm sm:text-lg font-semibold">
