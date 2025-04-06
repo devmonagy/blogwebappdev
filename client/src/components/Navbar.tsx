@@ -14,14 +14,12 @@ const Navbar: React.FC<NavbarProps> = ({ isAuthenticated }) => {
     setIsOpen(!isOpen);
   };
 
-  // This function handles clicks outside the nav menu
   const handleClickOutside = (event: MouseEvent) => {
     if (navRef.current && !navRef.current.contains(event.target as Node)) {
       setIsOpen(false);
     }
   };
 
-  // Attach the listener to the window when the component mounts and detach on unmount
   useEffect(() => {
     if (isOpen) {
       window.addEventListener("click", handleClickOutside);
@@ -29,13 +27,17 @@ const Navbar: React.FC<NavbarProps> = ({ isAuthenticated }) => {
     return () => {
       window.removeEventListener("click", handleClickOutside);
     };
-  }, [isOpen]); // Only re-run if isOpen changes
+  }, [isOpen]);
 
   return (
     <nav className="relative" ref={navRef}>
       {/* Hamburger Icon for Mobile */}
       <div className="md:hidden">
-        <button onClick={toggleMenu}>
+        <button
+          onClick={toggleMenu}
+          aria-label={isOpen ? "Close menu" : "Open menu"} // Accessible label
+          className="p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+        >
           <HamburgerIcon isOpen={isOpen} />
         </button>
       </div>
