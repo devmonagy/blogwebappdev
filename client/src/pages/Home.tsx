@@ -22,6 +22,7 @@ const Home: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [infoBarVisible, setInfoBarVisible] = useState<boolean>(true);
   const navigate = useNavigate();
 
   const fetchPosts = async () => {
@@ -96,51 +97,68 @@ const Home: React.FC = () => {
     </div>
   );
 
+  const handleCloseInfoBar = () => {
+    setInfoBarVisible(false);
+  };
+
   return (
-    <div className="bg-background min-h-screen">
+    <div className="bg-background min-h-screen relative">
       <div className="container py-10 mx-auto p-7 flex flex-col gap-6 lg:max-w-screen-md">
         {loading ? (
           renderSkeleton()
         ) : error ? (
           <p className="text-red-500">{error}</p>
         ) : posts.length > 0 ? (
-          <div className="flex flex-col gap-6">
-            {posts.map((post) => (
-              <div
-                key={post._id}
-                onClick={() => navigate(`/post/${post._id}`)}
-                className="flex flex-row items-center p-4 rounded shadow-sm bg-white cursor-pointer hover:shadow-lg transition-shadow opacity-0 animate-fade-in"
-              >
-                <div className="flex-1">
-                  <h2 className="text-sm sm:text-lg font-semibold">
-                    {post.title}
-                  </h2>
-                  <p className="text-xs sm:text-sm text-gray-500 mb-2">
-                    Category: {post.category} | Author: {post.author.firstName}
-                  </p>
-                  <div
-                    className="text-xs sm:text-sm mb-4"
-                    dangerouslySetInnerHTML={{
-                      __html: truncateContent(post.content, 100),
-                    }}
-                  />
-                  <p className="text-xs sm:text-sm text-gray-500">
-                    {formatDate(post.createdAt)}
-                  </p>
-                </div>
-                {post.imagePath && (
-                  <img
-                    src={getValidImageUrl(post.imagePath)}
-                    alt={post.title}
-                    className="w-24 h-24 object-cover rounded ml-4 sm:w-32 sm:h-32"
-                  />
-                )}
+          posts.map((post) => (
+            <div
+              key={post._id}
+              onClick={() => navigate(`/post/${post._id}`)}
+              className="flex flex-row items-center p-4 rounded shadow-sm bg-white cursor-pointer hover:shadow-lg transition-shadow opacity-0 animate-fade-in"
+            >
+              <div className="flex-1">
+                <h2 className="text-sm sm:text-lg font-semibold">
+                  {post.title}
+                </h2>
+                <p className="text-xs sm:text-sm text-gray-500 mb-2">
+                  Category: {post.category} | Author: {post.author.firstName}
+                </p>
+                <div
+                  className="text-xs sm:text-sm mb-4"
+                  dangerouslySetInnerHTML={{
+                    __html: truncateContent(post.content, 100),
+                  }}
+                />
+                <p className="text-xs sm:text-sm text-gray-500">
+                  {formatDate(post.createdAt)}
+                </p>
               </div>
-            ))}
-          </div>
+              {post.imagePath && (
+                <img
+                  src={getValidImageUrl(post.imagePath)}
+                  alt={post.title}
+                  className="w-24 h-24 object-cover rounded ml-4 sm:w-32 sm:h-32"
+                />
+              )}
+            </div>
+          ))
         ) : (
           <p className="text-gray-500">No posts available yet.</p>
         )}
+        <div
+          className={`fixed bottom-0 left-0 right-0 bg-blue-500 text-white py-3 px-4 text-center transition-transform duration-1000 ease-in-out ${
+            infoBarVisible ? "translate-y-0" : "translate-y-full"
+          }`}
+          style={{ transition: "transform 1s" }}
+        >
+          <button
+            onClick={handleCloseInfoBar}
+            className="absolute top-1 right-3 text-white text-2xl"
+          >
+            &times;
+          </button>
+          This is a production version 1.0.0. We will continue to receive
+          updates for features.
+        </div>
       </div>
     </div>
   );
