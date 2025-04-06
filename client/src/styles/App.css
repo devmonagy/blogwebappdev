@@ -31,3 +31,9 @@ h6 {
 .eyecomp {
   background: #e5e7eb;
 }
+.round-skeleton {
+  width: 24px; /* adjust size as needed */
+  height: 24px; /* same as width */
+  background-color: #e0e0e0; /* your choice of skeleton color */
+  border-radius: 50%;
+}
