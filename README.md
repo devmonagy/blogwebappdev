@@ -23,6 +23,6 @@ Improved editor experience with formatting options
 
 Thanks for checking it out! Feel free to visit the live app at:
 
-👉 https://blogwebappdev.vercel.app
+👉 https://blogwebapp.monagy.com
 
-Feedback, bug reports, and contributions are always welcome! 🙌
+Feedback and bug reports are always welcome! 🙌
