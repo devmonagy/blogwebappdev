@@ -5,11 +5,10 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 
-// Import custom database connection function and route handlers
 import connectDB from "./config/db";
 import authRoutes from "./routes/authRoutes";
 import postRoutes from "./routes/postRoutes";
-import adminRoutes from "./routes/adminRoutes"; // Import admin routes
+import adminRoutes from "./routes/adminRoutes";
 
 dotenv.config();
 
@@ -25,27 +24,34 @@ connectDB()
     console.error("❌ MongoDB connection error:", err);
   });
 
-// Allowed CORS origins
+// List of allowed frontend origins
 const allowedOrigins = [
   "http://localhost:3000",
   "http://192.168.1.204:3000",
   "http://172.16.109.61:3000",
-  "https://blogwebapp.monagy.com",
+  "https://blogwebapp.monagy.com", // Vercel frontend
+  "https://blogwebapp-dev.onrender.com", // Render backend
 ];
 
-// CORS setup
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  })
-);
+// Default CORS middleware (strict)
+app.use((req, res, next) => {
+  if (req.path === "/ping") {
+    // ✅ Relaxed CORS for uptime pings only
+    cors({ origin: "*" })(req, res, next);
+  } else {
+    // 🔒 Strict CORS for app requests
+    cors({
+      origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error("Not allowed by CORS"));
+        }
+      },
+      credentials: true,
+    })(req, res, next);
+  }
+});
 
 // Middleware
 app.use(express.json());
@@ -55,17 +61,18 @@ app.get("/", (req, res) => {
   res.send("Hello, MongoDB is connected!");
 });
 
-// ✅ Ping route for uptime checks (log each ping)
+// ✅ Ping route for uptime monitoring
 app.get("/ping", (req, res) => {
+  console.log("🔁 /ping hit at", new Date().toISOString());
   res.status(200).send("pong");
 });
 
-// API Routes
+// Routes
 app.use("/auth", authRoutes);
 app.use("/posts", postRoutes);
 app.use("/admin", adminRoutes);
 
-// Start server
+// Start the server
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
