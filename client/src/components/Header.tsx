@@ -14,7 +14,7 @@ const Header: React.FC<HeaderProps> = ({ isAuthenticated }) => {
         <div className="flex flex-col">
           <h1 className="text-3xl font-bold">
             <Link to="/" className="text-href">
-              BLOGWEBAPP
+              Blogwebapp
             </Link>
           </h1>
           <p className="text-xxs text-primaryText mt-1">
