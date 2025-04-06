@@ -156,8 +156,8 @@ const Home: React.FC = () => {
           >
             &times;
           </button>
-          This is a production version 1.0.0. We will continue to receive
-          updates for features.
+          This is a production version 1.0.0. Currently in development to
+          receive updates & features 🚀.
         </div>
       </div>
     </div>
