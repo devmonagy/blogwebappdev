@@ -8,7 +8,7 @@ const About: React.FC = () => {
       <p className="mb-4">
         I'm excited to officially launch <strong>Version 1.0.0</strong> of my
         full-stack MERN blog web application! 🎉
-        <em>(Deployed April 4, 2025)</em>
+        <em> (Deployed April 4, 2025).</em>
       </p>
 
       <p className="mb-4">
