@@ -18,7 +18,14 @@ const Header: React.FC<HeaderProps> = ({ isAuthenticated }) => {
             </Link>
           </h1>
           <p className="text-xxs text-primaryText mt-1">
-            Application Development: Mohamed Nagy
+            Application Development:{" "}
+            <a
+              href="https://monagy.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Mohamed Nagy
+            </a>
           </p>
         </div>
 
