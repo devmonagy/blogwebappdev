@@ -37,3 +37,7 @@ h6 {
   background-color: #e0e0e0; /* your choice of skeleton color */
   border-radius: 50%;
 }
+.info-text {
+  flex-grow: 1;
+  text-align: center;
+}

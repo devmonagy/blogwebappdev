@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import "../styles/quill-custom.css";
+import "../styles/quill-custom.css"; // Ensure this file includes the CSS below
 
 interface Author {
   _id: string;
@@ -145,19 +145,21 @@ const Home: React.FC = () => {
           <p className="text-gray-500">No posts available yet.</p>
         )}
         <div
-          className={`fixed bottom-0 left-0 right-0 bg-blue-500 text-white py-3 px-4 text-center transition-transform duration-1000 ease-in-out ${
+          className={`fixed bottom-0 left-0 right-0 bg-blue-500 text-white py-3 px-4 text-center transition-transform duration-1000 ease-in-out flex justify-between items-center ${
             infoBarVisible ? "translate-y-0" : "translate-y-full"
           }`}
           style={{ transition: "transform 1s" }}
         >
+          <span className="info-text text-sm">
+            This is a production version 1.0.0. Currently in development to
+            receive updates & features 🚀
+          </span>
           <button
             onClick={handleCloseInfoBar}
-            className="absolute top-1 right-3 text-white text-2xl"
+            className="text-white text-2xl ml-4"
           >
             &times;
           </button>
-          This is a production version 1.0.0. Currently in development to
-          receive updates & features 🚀.
         </div>
       </div>
     </div>
