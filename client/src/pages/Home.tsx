@@ -22,15 +22,13 @@ const Home: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [infoBarVisible, setInfoBarVisible] = useState<boolean>(true);
+  const [infoBarVisible, setInfoBarVisible] = useState<boolean>(false); // Initially false
   const navigate = useNavigate();
 
   const fetchPosts = async () => {
     setLoading(true);
     try {
-      // 🔁 Wake up Render backend
       await fetch(`${process.env.REACT_APP_BACKEND_URL}/`);
-
       const response = await axios.get<Post[]>(
         `${process.env.REACT_APP_BACKEND_URL}/posts`
       );
@@ -38,7 +36,6 @@ const Home: React.FC = () => {
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
-
       setPosts(sortedPosts);
     } catch (error) {
       console.error("Error fetching posts:", error);
@@ -50,16 +47,19 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     fetchPosts();
+    const timer = setTimeout(() => {
+      setInfoBarVisible(true); // Enable the bar after initial render
+    }, 100); // Small delay to ensure transition
+    return () => clearTimeout(timer);
   }, []);
 
   const truncateContent = (content: string, maxLength: number) => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(content, "text/html");
     const htmlContent = doc.body.textContent || "";
-    const truncated = htmlContent.slice(0, maxLength);
-    return truncated.length < htmlContent.length
-      ? `${truncated}...`
-      : truncated;
+    return htmlContent.length > maxLength
+      ? `${htmlContent.slice(0, maxLength)}...`
+      : htmlContent;
   };
 
   const formatDate = (dateString: string) => {
@@ -160,7 +160,6 @@ const Home: React.FC = () => {
               backend cold starts.
             </Link>
           </span>
-
           <button
             onClick={handleCloseInfoBar}
             className="text-white text-2xl ml-4"
