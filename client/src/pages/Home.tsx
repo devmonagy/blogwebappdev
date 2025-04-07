@@ -145,7 +145,7 @@ const Home: React.FC = () => {
           <p className="text-gray-500">No posts available yet.</p>
         )}
         <div
-          className={`fixed bottom-0 left-0 right-0 bg-blue-500 text-white py-3 px-4 text-center transition-transform duration-1000 ease-in-out flex justify-between items-center ${
+          className={`fixed bottom-0 left-0 right-0 bg-blue-900 text-white py-3 px-4 text-center transition-transform duration-1000 ease-in-out flex justify-between items-center ${
             infoBarVisible ? "translate-y-0" : "translate-y-full"
           }`}
           style={{ transition: "transform 1s" }}
