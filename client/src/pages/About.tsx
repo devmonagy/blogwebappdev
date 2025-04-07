@@ -45,6 +45,20 @@ const About: React.FC = () => {
         </li>
       </ul>
 
+      <h2 className="text-2xl font-semibold mt-6 mb-2" id="backend-cold-starts">
+        ⚠️ About Backend Cold Starts
+      </h2>
+      <p className="mb-4">
+        Due to the use of free tier development and deployment tools in this
+        app, you may experience slight delays known as 'backend cold starts'.
+        This happens when the server needs to wake up from an inactive state,
+        common in free service tiers to conserve resources. I am using free
+        tiers across services like MongoDB Atlas for the database, Render for
+        backend deployment, and Vercel for frontend hosting. This efficient use
+        of resources helps keep the app accessible at no extra cost but may lead
+        to temporary latency. I appreciate your patience and understanding.
+      </p>
+
       <h2 className="text-2xl font-semibold mt-6 mb-2">⚠️ Note</h2>
       <p className="mb-4">
         This is an early production release. More features and refinements are

@@ -151,9 +151,16 @@ const Home: React.FC = () => {
           style={{ transition: "transform 1s" }}
         >
           <span className="info-text text-xs sm:text-sm md:text-base lg:text-lg">
-            Production v1.0.0 — under active development. Please be patient
-            during backend cold starts.
+            Production v1.0.0 — under active development.{" "}
+            <span style={{ color: "#00FFFF" }}>please be patient during </span>
+            <a
+              href="/about#backend-cold-starts"
+              style={{ color: "#FFDD00", textDecoration: "underline" }}
+            >
+              backend cold starts.
+            </a>
           </span>
+
           <button
             onClick={handleCloseInfoBar}
             className="text-white text-2xl ml-4"
