@@ -18,7 +18,7 @@ const About: React.FC = () => {
       <h1 className="text-3xl font-bold mb-4">🚀 App Release Information</h1>
       <p className="mb-4">
         I'm excited to officially launch <strong>Version 1.0.0</strong> of my
-        full-stack MERN blog web application! 🎉
+        full-stack <strong>MERN blog web application</strong>! 🎉
         <em> (Deployed April 4, 2025).</em>
       </p>
 
@@ -72,8 +72,8 @@ const About: React.FC = () => {
 
       <h2 className="text-2xl font-semibold mt-6 mb-2">⚠️ Note</h2>
       <p className="mb-4">
-        This is an early production release. More features and refinements are
-        actively being worked on — including:
+        This is an <strong>early production release</strong>. More features and
+        refinements are actively being worked on — including:
       </p>
       <ul className="list-disc list-inside mb-4">
         <li>✏️ Post editing</li>
