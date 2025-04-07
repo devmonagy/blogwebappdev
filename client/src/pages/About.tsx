@@ -1,7 +1,18 @@
-// client/src/pages/About.tsx
-import React from "react";
+import React, { useEffect } from "react";
 
 const About: React.FC = () => {
+  // Function to handle scrolling to the hash from the URL
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash) {
+      const id = hash.replace("#", "");
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView();
+      }
+    }
+  }, []);
+
   return (
     <div className="about container py-20 mx-auto p-7 flex flex-col gap-6 lg:max-w-screen-md">
       <h1 className="text-3xl font-bold mb-4">🚀 App Release Information</h1>
