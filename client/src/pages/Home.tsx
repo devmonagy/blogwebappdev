@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import "../styles/quill-custom.css"; // Ensure this file includes the CSS below
+import { useNavigate, Link } from "react-router-dom";
+import "../styles/quill-custom.css";
 
 interface Author {
   _id: string;
@@ -153,12 +153,12 @@ const Home: React.FC = () => {
           <span className="info-text text-xs sm:text-sm md:text-base lg:text-lg">
             Production v1.0.0 — under active development.{" "}
             <span style={{ color: "#00FFFF" }}>please be patient during </span>
-            <a
-              href="/about#backend-cold-starts"
+            <Link
+              to="/about#backend-cold-starts"
               style={{ color: "#FFDD00", textDecoration: "underline" }}
             >
               backend cold starts.
-            </a>
+            </Link>
           </span>
 
           <button
