@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import clapLightImage from "../assets/clapLight.png";
 import {
@@ -6,71 +6,161 @@ import {
   faBookmark,
   faShareSquare,
 } from "@fortawesome/free-regular-svg-icons";
+import PostOptionsMenu from "./PostOptionsMenu";
+import socket from "../socket";
+import axios from "axios";
 
 interface PostActionsProps {
   userId: string | null;
   postAuthorId: string;
-  userRole: string | null; // Added to track the role of the user
+  userRole: string | null;
+  postId: string;
   handleEdit: () => void;
   handlePinStory: () => void;
   handleStorySettings: () => void;
   handleDelete: () => void;
 }
 
+interface ClapUser {
+  _id: string;
+  firstName: string;
+  profilePicture?: string;
+  claps: number;
+}
+
 const PostActions: React.FC<PostActionsProps> = ({
   userId,
   postAuthorId,
-  userRole, // Added userRole prop
+  userRole,
+  postId,
   handleEdit,
   handlePinStory,
   handleStorySettings,
   handleDelete,
 }) => {
-  const [showOptions, setShowOptions] = useState<boolean>(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const iconRef = useRef<HTMLSpanElement>(null);
+  const [claps, setClaps] = useState<number>(0);
+  const [userClaps, setUserClaps] = useState<number>(0);
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [clapUsers, setClapUsers] = useState<ClapUser[]>([]);
+  const isAuthor = userId === postAuthorId;
+  const modalRef = useRef<HTMLDivElement | null>(null);
 
-  // Handles clicking outside the menu to close it
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        menuRef.current &&
-        !menuRef.current.contains(event.target as Node) &&
-        iconRef.current &&
-        !iconRef.current.contains(event.target as Node)
-      ) {
-        setShowOptions(false);
+    const fetchInitialClaps = async () => {
+      try {
+        const response = await axios.get<{ claps: number; userClaps: number }>(
+          `${process.env.REACT_APP_BACKEND_URL}/posts/${postId}/claps`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        setClaps(response.data.claps || 0);
+        setUserClaps(response.data.userClaps || 0);
+      } catch (error) {
+        console.error("Error fetching initial claps:", error);
       }
     };
 
-    // Add when the component is mounted
-    document.addEventListener("mousedown", handleClickOutside);
+    if (postId && userId) fetchInitialClaps();
 
-    // Return function to be called when unmounted
+    socket.on("clapUpdated", (data) => {
+      if (data.postId === postId) {
+        setClaps(data.claps);
+        console.log(`✅ Claps updated for post ${postId}: ${data.claps}`);
+      }
+    });
+
+    return () => {
+      socket.off("clapUpdated");
+    };
+  }, [postId, userId]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
+        setShowModal(false);
+      }
+    };
+    if (showModal) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [showModal]);
 
-  const isAdmin = userRole === "admin";
-  const isAuthor = userId === postAuthorId;
+  const handleClap = () => {
+    if (!userId) {
+      console.warn("⚠️ User not authenticated. Clap not emitted.");
+      return;
+    }
+
+    if (userClaps >= 50) {
+      console.warn("⚠️ Maximum claps reached for this post.");
+      return;
+    }
+
+    socket.emit("sendClap", { postId, userId });
+    setUserClaps(userClaps + 1);
+    setClaps(claps + 1);
+  };
+
+  const openClapUsersModal = async () => {
+    try {
+      const response = await axios.get<ClapUser[]>(
+        `${process.env.REACT_APP_BACKEND_URL}/posts/${postId}/clap-users`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      setClapUsers(response.data);
+      setShowModal(true);
+    } catch (error) {
+      console.error("Failed to load clap users:", error);
+    }
+  };
 
   return (
     <div className="flex justify-between items-center border-t border-b py-2 mb-6">
       <div className="flex items-center space-x-4">
-        <div className="flex items-center text-gray-600 cursor-pointer">
-          <img
-            src={clapLightImage}
-            alt="Clap"
-            className="mr-1 w-5 h-5 clapImg"
-          />
-          <span>0</span>
+        <div className="flex items-center gap-1">
+          <div
+            className={`flex items-center ${
+              isAuthor
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-gray-600 cursor-pointer"
+            }`}
+            onClick={!isAuthor ? handleClap : undefined}
+            title={isAuthor ? "You can't clap your own post" : "Clap"}
+          >
+            <img
+              src={clapLightImage}
+              alt="Clap"
+              className="w-5 h-5"
+              style={{ filter: isAuthor ? "grayscale(100%)" : "none" }}
+            />
+          </div>
+          <span
+            onClick={openClapUsersModal}
+            className="text-gray-700 cursor-pointer text-sm"
+          >
+            {claps}
+          </span>
         </div>
+
         <div className="flex items-center text-gray-600 cursor-pointer">
           <FontAwesomeIcon icon={faComment} className="mr-1" />
           <span>0</span>
         </div>
       </div>
+
       <div className="relative flex items-center space-x-4">
         <FontAwesomeIcon
           icon={faBookmark}
@@ -80,90 +170,63 @@ const PostActions: React.FC<PostActionsProps> = ({
           icon={faShareSquare}
           className="text-gray-600 cursor-pointer"
         />
-        {userId && (
-          <div>
-            <span
-              className="material-icons pt-1.5 text-gray-600 cursor-pointer"
-              ref={iconRef}
-              onClick={() => setShowOptions(!showOptions)}
-            >
-              more_vert
-            </span>
-            <div
-              ref={menuRef}
-              className={`absolute right-0 bg-white rounded-md shadow-xl z-20 w-[max-content] ${
-                !showOptions ? "hidden" : ""
-              }`}
-              style={{
-                top: `${
-                  iconRef.current ? iconRef.current.offsetHeight + 2 : 20
-                }px`,
-              }}
-            >
-              <ul className="text-gray-900">
-                {isAuthor && (
-                  <>
-                    <li
-                      className="cursor-pointer hover:bg-gray-100 px-4 py-2 text-sm"
-                      onClick={handleEdit}
-                    >
-                      Edit story
-                    </li>
-                    <li
-                      className="cursor-pointer hover:bg-gray-100 px-4 py-2 text-sm"
-                      onClick={handlePinStory}
-                    >
-                      Pin this story to your profile
-                    </li>
-                    <li
-                      className="cursor-pointer hover:bg-gray-100 px-4 py-2 text-sm"
-                      onClick={handleStorySettings}
-                    >
-                      Story settings
-                    </li>
-                    <li
-                      className="cursor-pointer hover:bg-red-100 text-red-600 rounded-b-lg px-4 py-2 text-sm"
-                      onClick={handleDelete}
-                    >
-                      Delete story
-                    </li>
-                  </>
-                )}
-                {!isAuthor && (
-                  <>
-                    <li className="cursor-pointer hover:bg-gray-100 px-4 py-2 text-sm">
-                      Show more
-                    </li>
-                    <li className="cursor-pointer hover:bg-gray-100 px-4 py-2 text-sm">
-                      Show less
-                    </li>
-                    <li className="cursor-pointer hover:bg-gray-100 px-4 py-2 mb-1 text-sm">
-                      Follow author
-                    </li>
-                  </>
-                )}
-                {isAdmin && !isAuthor && (
-                  <>
-                    <hr className="my-2" /> {/* Separator line */}
-                    <li
-                      className="cursor-pointer hover:bg-gray-100 px-4 py-2 text-sm"
-                      onClick={handleEdit}
-                    >
-                      Edit story
-                    </li>
-                    <li
-                      className="cursor-pointer hover:bg-red-100 text-red-600 rounded-b-lg px-4 py-2 text-sm"
-                      onClick={handleDelete}
-                    >
-                      Delete story
-                    </li>
-                  </>
-                )}
-              </ul>
+        <PostOptionsMenu
+          userId={userId}
+          postAuthorId={postAuthorId}
+          userRole={userRole}
+          handleEdit={handleEdit}
+          handlePinStory={handlePinStory}
+          handleStorySettings={handleStorySettings}
+          handleDelete={handleDelete}
+          isAdmin={userRole === "admin"}
+          isAuthor={isAuthor}
+          postId={postId}
+          userClaps={userClaps}
+          setUserClaps={setUserClaps}
+          setClaps={setClaps}
+        />
+      </div>
+
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div
+            ref={modalRef}
+            className="bg-white rounded-lg shadow-xl max-w-md w-full p-6"
+          >
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-bold">Users who clapped</h2>
+              <button
+                className="text-gray-600 hover:text-black"
+                onClick={() => setShowModal(false)}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="space-y-3 max-h-64 overflow-y-auto">
+              {clapUsers.map((user) => (
+                <div
+                  key={user._id}
+                  className="flex items-center space-x-3 border-b pb-2"
+                >
+                  <img
+                    src={user.profilePicture || "/default-profile-picture.jpg"}
+                    alt={user.firstName}
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
+                  <div className="flex flex-col">
+                    <span className="font-medium text-sm">
+                      {user.firstName}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      {user.claps} {user.claps === 1 ? "clap" : "claps"}
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

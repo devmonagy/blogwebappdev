@@ -18,6 +18,7 @@ interface Post {
   content: string;
   imagePath: string;
   author: Author;
+  claps: number; // added claps field
   createdAt: string;
 }
 
@@ -53,8 +54,6 @@ const SinglePost: React.FC = () => {
     const fetchPost = async () => {
       setLoading(true);
       try {
-        await fetch(`${process.env.REACT_APP_BACKEND_URL}/`);
-
         const response = await axios.get<Post>(
           `${process.env.REACT_APP_BACKEND_URL}/posts/${id}`
         );
@@ -177,6 +176,7 @@ const SinglePost: React.FC = () => {
               userId={userId}
               userRole={userRole}
               postAuthorId={post.author._id}
+              postId={post._id}
               handleEdit={handleEdit}
               handlePinStory={() => {}}
               handleStorySettings={() => {}}

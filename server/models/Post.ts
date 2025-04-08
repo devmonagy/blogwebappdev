@@ -1,5 +1,11 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
+// Define user-specific clap tracking structure
+interface IUserClap {
+  userId: mongoose.Types.ObjectId;
+  count: number;
+}
+
 // Define the Post interface that extends the Mongoose Document
 interface IPost extends Document {
   title: string;
@@ -7,8 +13,10 @@ interface IPost extends Document {
   content: string;
   imagePath?: string;
   author: mongoose.Types.ObjectId; // Reference to the User model
-  createdAt?: Date; // Automatically added by timestamps
-  updatedAt?: Date; // Automatically added by timestamps
+  claps: number; // Total clap count across all users
+  userClaps: IUserClap[]; // Individual user claps per post
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 // Define the Post schema
@@ -17,7 +25,7 @@ const PostSchema: Schema = new Schema<IPost>(
     title: {
       type: String,
       required: true,
-      trim: true, // Removes leading/trailing whitespace
+      trim: true,
     },
     category: {
       type: String,
@@ -28,16 +36,33 @@ const PostSchema: Schema = new Schema<IPost>(
       required: true,
     },
     imagePath: {
-      type: String, // Optional field for image paths
+      type: String,
     },
     author: {
-      type: mongoose.Schema.Types.ObjectId, // References the User model
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
+    claps: {
+      type: Number,
+      default: 0,
+    },
+    userClaps: [
+      {
+        userId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        count: {
+          type: Number,
+          default: 0,
+        },
+      },
+    ],
   },
   {
-    timestamps: true, // Automatically add `createdAt` and `updatedAt` fields
+    timestamps: true,
   }
 );
 

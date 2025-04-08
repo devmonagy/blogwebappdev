@@ -151,7 +151,7 @@ const Home: React.FC = () => {
           style={{ transition: "transform 1s" }}
         >
           <span className="info-text text-xs sm:text-sm md:text-base lg:text-lg">
-            Production v1.0.0 — under active development.{" "}
+            Production v1.1.0 — under active development.{" "}
             <span style={{ color: "#00FFFF" }}>please be patient during </span>
             <Link
               to="/about#backend-cold-starts"

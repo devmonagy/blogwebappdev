@@ -5,23 +5,25 @@ import {
   getPostById,
   deletePost,
   updatePost,
+  getPostClaps,
+  undoUserClaps,
+  getClapUsers, // ✅ Import added
 } from "../controllers/postController";
 import authenticate from "../middleware/authenticate";
 import { checkAdmin } from "../middleware/checkAdmin";
 import Post from "../models/Post";
-import { createUploadMiddleware } from "../middleware/upload"; // Import factory function
+import { createUploadMiddleware } from "../middleware/upload";
 
 // Create Cloudinary upload middleware specifically for blog post images
 const postImageUpload = createUploadMiddleware("BlogPostImages");
 
-// Optional: define AuthenticatedRequest for better typing
 interface AuthenticatedRequest extends Request {
   userId?: string;
 }
 
 const router = Router();
 
-// Route to get all posts created by the logged-in user
+// Get all posts created by the logged-in user
 router.get(
   "/user-posts",
   authenticate,
@@ -37,7 +39,7 @@ router.get(
   }
 );
 
-// Route to create a new post (Cloudinary handles image)
+// Create a new post (Cloudinary handles image)
 router.post(
   "/create",
   authenticate,
@@ -45,13 +47,22 @@ router.post(
   createPost
 );
 
-// Route to get all posts
+// Get all posts
 router.get("/", getPosts);
 
-// Route to get a single post by ID
+// Get a single post by ID
 router.get("/:id", getPostById);
 
-// Route to update a post by ID (admin + upload)
+// Fetch clap data for a post (total + user's claps)
+router.get("/:postId/claps", authenticate, getPostClaps);
+
+// 🔄 Undo claps for a post by the current user
+router.post("/:postId/undo-claps", authenticate, undoUserClaps);
+
+// ✅ NEW: Get list of users who clapped on a post
+router.get("/:postId/clap-users", authenticate, getClapUsers);
+
+// Update a post by ID (admin + upload)
 router.put(
   "/:id",
   authenticate,
@@ -60,7 +71,7 @@ router.put(
   updatePost
 );
 
-// Route to delete a post by ID (admin)
+// Delete a post by ID (admin)
 router.delete("/:id", authenticate, checkAdmin, deletePost);
 
 export default router;
