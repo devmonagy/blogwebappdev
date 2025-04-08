@@ -76,6 +76,15 @@ app.get("/ping", (req, res) => {
   res.status(200).send("pong");
 });
 
+// ✅ Ensure socket.io upgrade path works properly (important for Render)
+app.use("/socket.io", (req, res, next) => {
+  if (req.method === "OPTIONS") {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
+
 io.on("connection", (socket) => {
   console.log("New client connected:", socket.id);
 

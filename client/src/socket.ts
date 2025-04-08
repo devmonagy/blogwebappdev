@@ -3,18 +3,18 @@ import io, { Socket } from "socket.io-client";
 // Dynamically choose endpoint for local vs production
 const ENDPOINT: string =
   process.env.NODE_ENV === "production"
-    ? window.location.origin // ✅ resolves to your domain
+    ? window.location.origin // ✅ resolves to your domain like https://blogwebapp.monagy.com
     : process.env.REACT_APP_SOCKET_ENDPOINT || "http://localhost:5000";
 
-// Create the socket connection with polling fallback for Render
+// Create the socket connection with polling-only transport for Render
 const socket: Socket = io(ENDPOINT, {
+  transports: ["polling"], // ✅ Enforce long-polling (Render doesn't support WebSockets without upgrade)
   withCredentials: true,
-  transports: ["polling"], // ✅ Force long-polling transport (Render doesn't support WebSocket)
   reconnectionAttempts: 10,
   reconnectionDelay: 3000,
 });
 
-// Debug logs
+// Connection debug logs
 socket.on("connect", () => {
   console.log("✅ Connected to Socket.IO server:", socket.id);
 });
@@ -31,6 +31,6 @@ socket.on("connect_error", (error) => {
   console.error("❌ Socket.IO connection error:", error);
 });
 
-// Export the socket
+// Export socket instance and type
 export type AppSocket = typeof socket;
 export default socket;
