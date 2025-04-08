@@ -15,9 +15,9 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 
-// ✅ Enable both WebSocket and Polling (Render Starter Plan supports WebSocket now)
+// ✅ Use WebSocket only (polling removed)
 const io = new socketIo.Server(server, {
-  transports: ["websocket", "polling"],
+  transports: ["websocket"],
   cors: {
     origin: [
       "http://localhost:3000",
