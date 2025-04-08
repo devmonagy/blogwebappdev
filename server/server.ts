@@ -104,7 +104,16 @@ io.on("connection", (socket) => {
 
       await post.save();
 
-      io.emit("clapUpdated", { postId, claps: post.claps });
+      const updatedUserClapRecord = post.userClaps.find(
+        (uc: any) => uc.userId.toString() === userId
+      );
+
+      io.emit("clapUpdated", {
+        postId,
+        claps: post.claps,
+        userId,
+        userClaps: updatedUserClapRecord?.count || 0,
+      });
     } catch (error) {
       console.error("Error updating claps:", error);
     }
