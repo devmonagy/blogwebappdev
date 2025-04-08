@@ -14,7 +14,10 @@ dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
+
+// ✅ Enforce polling-only transport for Render compatibility
 const io = new socketIo.Server(server, {
+  transports: ["polling"],
   cors: {
     origin: [
       "http://localhost:3000",
@@ -89,6 +92,7 @@ io.on("connection", (socket) => {
       const userClapRecord = post.userClaps.find(
         (uc: any) => uc.userId.toString() === userId
       );
+
       if (userClapRecord) {
         if (userClapRecord.count < 50) {
           userClapRecord.count += 1;
