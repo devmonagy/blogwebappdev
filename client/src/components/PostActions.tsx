@@ -68,7 +68,6 @@ const PostActions: React.FC<PostActionsProps> = ({
     socket.on("clapUpdated", (data) => {
       if (data.postId === postId) {
         setClaps(data.claps);
-        console.log(`✅ Claps updated for post ${postId}: ${data.claps}`);
       }
     });
 
@@ -95,16 +94,7 @@ const PostActions: React.FC<PostActionsProps> = ({
   }, [showModal]);
 
   const handleClap = () => {
-    if (!userId) {
-      console.warn("⚠️ User not authenticated. Clap not emitted.");
-      return;
-    }
-
-    if (userClaps >= 50) {
-      console.warn("⚠️ Maximum claps reached for this post.");
-      return;
-    }
-
+    if (!userId || isAuthor || userClaps >= 50) return;
     socket.emit("sendClap", { postId, userId });
     setUserClaps(userClaps + 1);
     setClaps(claps + 1);
@@ -203,26 +193,34 @@ const PostActions: React.FC<PostActionsProps> = ({
               </button>
             </div>
             <div className="space-y-3 max-h-64 overflow-y-auto">
-              {clapUsers.map((user) => (
-                <div
-                  key={user._id}
-                  className="flex items-center space-x-3 border-b pb-2"
-                >
-                  <img
-                    src={user.profilePicture || "/default-profile-picture.jpg"}
-                    alt={user.firstName}
-                    className="w-8 h-8 rounded-full object-cover"
-                  />
-                  <div className="flex flex-col">
-                    <span className="font-medium text-sm">
-                      {user.firstName}
-                    </span>
-                    <span className="text-xs text-gray-500">
-                      {user.claps} {user.claps === 1 ? "clap" : "claps"}
-                    </span>
+              {clapUsers.length === 0 ? (
+                <p className="text-center text-gray-500 text-sm">
+                  This post is not yet clapped.
+                </p>
+              ) : (
+                clapUsers.map((user) => (
+                  <div
+                    key={user._id}
+                    className="flex items-center space-x-3 border-b pb-2"
+                  >
+                    <img
+                      src={
+                        user.profilePicture || "/default-profile-picture.jpg"
+                      }
+                      alt={user.firstName}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                    <div className="flex flex-col">
+                      <span className="font-medium text-sm">
+                        {user.firstName}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {user.claps} {user.claps === 1 ? "clap" : "claps"}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         </div>
