@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import Post from "../models/Post";
 import { AuthenticatedRequest } from "../middleware/authenticate";
+import jwt from "jsonwebtoken";
 
 // Create a new post
 export const createPost = async (
@@ -67,13 +68,12 @@ export const getPostById = async (
   }
 };
 
-// Get total claps and user claps
+// ✅ Updated: Get total claps (always) + user claps (only if logged in)
 export const getPostClaps = async (
-  req: AuthenticatedRequest,
+  req: Request,
   res: Response
 ): Promise<void> => {
   const { postId } = req.params;
-  const userId = req.userId;
 
   try {
     const post = await Post.findById(postId);
@@ -82,13 +82,23 @@ export const getPostClaps = async (
       return;
     }
 
-    const userClapRecord = post.userClaps.find(
-      (uc) => uc.userId.toString() === userId
-    );
+    let userClaps = 0;
+
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      const token = authHeader.split(" ")[1];
+      const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string);
+      if (decoded && decoded.userId) {
+        const userClapRecord = post.userClaps.find(
+          (uc) => uc.userId.toString() === decoded.userId
+        );
+        userClaps = userClapRecord ? userClapRecord.count : 0;
+      }
+    }
 
     res.status(200).json({
       claps: post.claps,
-      userClaps: userClapRecord ? userClapRecord.count : 0,
+      userClaps,
     });
   } catch (error) {
     console.error("Error fetching claps:", error);
@@ -108,9 +118,16 @@ export const getClapUsers = async (
       "userClaps.userId",
       "firstName profilePicture"
     );
+
     if (!post) {
       res.status(404).json({ message: "Post not found." });
       return;
+    }
+
+    // 🧼 Auto-clean if claps are zero but records remain
+    if (post.claps === 0 && post.userClaps.length > 0) {
+      post.userClaps = [];
+      await post.save();
     }
 
     const clapUsers = post.userClaps.map((entry) => {
@@ -160,10 +177,27 @@ export const undoUserClaps = async (
 
     await post.save();
 
+    const updatedPost = await Post.findById(postId).populate(
+      "userClaps.userId",
+      "firstName profilePicture"
+    );
+
+    const updatedClapUsers =
+      updatedPost?.userClaps.map((entry) => {
+        const user = entry.userId as any;
+        return {
+          _id: user._id,
+          firstName: user.firstName,
+          profilePicture: user.profilePicture,
+          claps: entry.count,
+        };
+      }) || [];
+
     res.status(200).json({
       message: "Claps undone successfully.",
       claps: post.claps,
       userClaps: 0,
+      clapUsers: updatedClapUsers,
     });
   } catch (error) {
     console.error("Error undoing claps:", error);

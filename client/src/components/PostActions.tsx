@@ -43,19 +43,25 @@ const PostActions: React.FC<PostActionsProps> = ({
   const [showModal, setShowModal] = useState<boolean>(false);
   const [clapUsers, setClapUsers] = useState<ClapUser[]>([]);
   const isAuthor = userId === postAuthorId;
+  const isAdmin = userRole === "admin";
   const modalRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const fetchInitialClaps = async () => {
       try {
-        const response = await axios.get<{ claps: number; userClaps: number }>(
+        const config = userId
+          ? {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+              },
+            }
+          : {};
+
+        const response = await axios.get<{ claps: number; userClaps?: number }>(
           `${process.env.REACT_APP_BACKEND_URL}/posts/${postId}/claps`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
+          config
         );
+
         setClaps(response.data.claps || 0);
         setUserClaps(response.data.userClaps || 0);
       } catch (error) {
@@ -63,7 +69,7 @@ const PostActions: React.FC<PostActionsProps> = ({
       }
     };
 
-    if (postId && userId) fetchInitialClaps();
+    if (postId) fetchInitialClaps();
 
     socket.on("clapUpdated", (data) => {
       if (data.postId === postId) {
@@ -123,23 +129,33 @@ const PostActions: React.FC<PostActionsProps> = ({
         <div className="flex items-center gap-1">
           <div
             className={`flex items-center ${
-              isAuthor
+              !userId || isAuthor
                 ? "text-gray-400 cursor-not-allowed"
                 : "text-gray-600 cursor-pointer"
             }`}
-            onClick={!isAuthor ? handleClap : undefined}
-            title={isAuthor ? "You can't clap your own post" : "Clap"}
+            onClick={userId && !isAuthor ? handleClap : undefined}
+            title={
+              !userId
+                ? "You must be logged in to clap"
+                : isAuthor
+                ? "You can't clap your own post"
+                : "Clap"
+            }
           >
             <img
               src={clapLightImage}
               alt="Clap"
               className="w-5 h-5"
-              style={{ filter: isAuthor ? "grayscale(100%)" : "none" }}
+              style={{
+                filter: !userId || isAuthor ? "grayscale(100%)" : "none",
+              }}
             />
           </div>
           <span
-            onClick={openClapUsersModal}
-            className="text-gray-700 cursor-pointer text-sm"
+            className={`text-sm ${
+              userId ? "cursor-pointer text-gray-700" : "text-gray-500"
+            }`}
+            onClick={userId ? openClapUsersModal : undefined}
           >
             {claps}
           </span>
@@ -168,7 +184,7 @@ const PostActions: React.FC<PostActionsProps> = ({
           handlePinStory={handlePinStory}
           handleStorySettings={handleStorySettings}
           handleDelete={handleDelete}
-          isAdmin={userRole === "admin"}
+          isAdmin={isAdmin}
           isAuthor={isAuthor}
           postId={postId}
           userClaps={userClaps}
