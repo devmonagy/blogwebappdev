@@ -176,21 +176,25 @@ const PostActions: React.FC<PostActionsProps> = ({
           icon={faShareSquare}
           className="text-gray-600 cursor-pointer"
         />
-        <PostOptionsMenu
-          userId={userId}
-          postAuthorId={postAuthorId}
-          userRole={userRole}
-          handleEdit={handleEdit}
-          handlePinStory={handlePinStory}
-          handleStorySettings={handleStorySettings}
-          handleDelete={handleDelete}
-          isAdmin={isAdmin}
-          isAuthor={isAuthor}
-          postId={postId}
-          userClaps={userClaps}
-          setUserClaps={setUserClaps}
-          setClaps={setClaps}
-        />
+
+        {/* ✅ Show 3-dot menu only if user is logged in */}
+        {userId && (
+          <PostOptionsMenu
+            userId={userId}
+            postAuthorId={postAuthorId}
+            userRole={userRole}
+            handleEdit={handleEdit}
+            handlePinStory={handlePinStory}
+            handleStorySettings={handleStorySettings}
+            handleDelete={handleDelete}
+            isAdmin={isAdmin}
+            isAuthor={isAuthor}
+            postId={postId}
+            userClaps={userClaps}
+            setUserClaps={setUserClaps}
+            setClaps={setClaps}
+          />
+        )}
       </div>
 
       {showModal && (
