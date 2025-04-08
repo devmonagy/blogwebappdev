@@ -15,7 +15,7 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 
-// ✅ Enable both websocket and polling (starter plan supports websocket)
+// ✅ Enable both WebSocket and Polling (Render Starter Plan supports WebSocket now)
 const io = new socketIo.Server(server, {
   transports: ["websocket", "polling"],
   cors: {
@@ -32,14 +32,12 @@ const io = new socketIo.Server(server, {
 
 const PORT = process.env.PORT || 5000;
 
+// ✅ Connect to MongoDB
 connectDB()
-  .then(() => {
-    console.log("✅ MongoDB connected successfully");
-  })
-  .catch((err) => {
-    console.error("❌ MongoDB connection error:", err);
-  });
+  .then(() => console.log("✅ MongoDB connected successfully"))
+  .catch((err) => console.error("❌ MongoDB connection error:", err));
 
+// ✅ Global CORS middleware
 const allowedOrigins = [
   "http://localhost:3000",
   "http://192.168.1.204:3000",
@@ -48,25 +46,25 @@ const allowedOrigins = [
   "https://blogwebapp-dev.onrender.com",
 ];
 
-app.use((req, res, next) => {
-  if (req.path === "/ping") {
-    cors({ origin: "*" })(req, res, next);
-  } else {
-    cors({
-      origin: function (origin, callback) {
-        if (!origin || allowedOrigins.includes(origin)) {
-          callback(null, true);
-        } else {
-          callback(new Error("Not allowed by CORS"));
-        }
-      },
-      credentials: true,
-    })(req, res, next);
-  }
-});
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 
+// ✅ Preflight support for Socket.IO
+app.options("/socket.io/*", cors());
+
+// ✅ Basic health check
 app.get("/", (req, res) => {
   res.send("Hello, MongoDB is connected!");
 });
@@ -76,25 +74,16 @@ app.get("/ping", (req, res) => {
   res.status(200).send("pong");
 });
 
-// ✅ Ensure socket.io upgrade path works properly (important for Render)
-app.use("/socket.io", (req, res, next) => {
-  if (req.method === "OPTIONS") {
-    res.sendStatus(200);
-  } else {
-    next();
-  }
-});
-
+// ✅ Socket.IO connection
 io.on("connection", (socket) => {
-  console.log("New client connected:", socket.id);
+  console.log("⚡ New client connected:", socket.id);
 
   socket.on("sendClap", async ({ postId, userId }) => {
-    console.log(`Clap from user ${userId} for post ${postId}`);
-
+    console.log(`👏 Clap from user ${userId} on post ${postId}`);
     try {
       const post = await Post.findById(postId);
       if (!post) {
-        console.error("Post not found for clapping");
+        console.error("❌ Post not found");
         return;
       }
 
@@ -107,7 +96,7 @@ io.on("connection", (socket) => {
           userClapRecord.count += 1;
           post.claps += 1;
         } else {
-          console.warn("User reached max claps for this post");
+          console.warn("⚠️ Max claps reached");
           return;
         }
       } else {
@@ -117,7 +106,7 @@ io.on("connection", (socket) => {
 
       await post.save();
 
-      const updatedUserClapRecord = post.userClaps.find(
+      const updatedUserClap = post.userClaps.find(
         (uc: any) => uc.userId.toString() === userId
       );
 
@@ -125,22 +114,24 @@ io.on("connection", (socket) => {
         postId,
         claps: post.claps,
         userId,
-        userClaps: updatedUserClapRecord?.count || 0,
+        userClaps: updatedUserClap?.count || 0,
       });
-    } catch (error) {
-      console.error("Error updating claps:", error);
+    } catch (err) {
+      console.error("❌ Error handling clap:", err);
     }
   });
 
   socket.on("disconnect", () => {
-    console.log("Client disconnected", socket.id);
+    console.log("👋 Client disconnected:", socket.id);
   });
 });
 
+// ✅ Routes
 app.use("/auth", authRoutes);
 app.use("/posts", postRoutes);
 app.use("/admin", adminRoutes);
 
+// ✅ Start server
 server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });

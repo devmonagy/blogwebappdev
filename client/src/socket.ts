@@ -1,20 +1,16 @@
 import io, { Socket } from "socket.io-client";
 
-// Dynamically choose endpoint for local vs production
+// Use REACT_APP_BACKEND_URL explicitly
 const ENDPOINT: string =
-  process.env.NODE_ENV === "production"
-    ? window.location.origin // ✅ resolves to https://blogwebapp.monagy.com
-    : process.env.REACT_APP_SOCKET_ENDPOINT || "http://localhost:5000";
+  process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
 
-// Create the socket connection (supports both websocket and polling)
 const socket: Socket = io(ENDPOINT, {
-  transports: ["websocket", "polling"], // ✅ Allow fallback if WebSocket fails
+  transports: ["polling"], // Stick to polling unless you're 100% sure WebSocket works
   withCredentials: true,
   reconnectionAttempts: 10,
   reconnectionDelay: 3000,
 });
 
-// Connection debug logs
 socket.on("connect", () => {
   console.log("✅ Connected to Socket.IO server:", socket.id);
 });
@@ -31,6 +27,5 @@ socket.on("connect_error", (error) => {
   console.error("❌ Socket.IO connection error:", error);
 });
 
-// Export socket instance and type
 export type AppSocket = typeof socket;
 export default socket;
