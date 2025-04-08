@@ -15,9 +15,9 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 
-// ✅ Enforce polling-only transport for Render compatibility
+// ✅ Enable both websocket and polling (starter plan supports websocket)
 const io = new socketIo.Server(server, {
-  transports: ["polling"],
+  transports: ["websocket", "polling"],
   cors: {
     origin: [
       "http://localhost:3000",
