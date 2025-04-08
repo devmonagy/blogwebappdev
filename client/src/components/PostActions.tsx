@@ -204,7 +204,7 @@ const PostActions: React.FC<PostActionsProps> = ({
             className="bg-white rounded-lg shadow-xl w-full max-w-sm sm:max-w-md p-6"
           >
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-bold">Users who clappeds</h2>
+              <h2 className="text-lg font-bold">Users who clapped</h2>
               <button
                 className="text-gray-600 hover:text-black"
                 onClick={() => setShowModal(false)}
