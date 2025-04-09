@@ -2,7 +2,8 @@ import io, { Socket } from "socket.io-client";
 
 // ✅ Separate WebSocket endpoint for real-time updates
 const ENDPOINT: string =
-  process.env.REACT_APP_SOCKET_ENDPOINT || "https://blogwebapp.monagy.com";
+  process.env.REACT_APP_SOCKET_ENDPOINT ||
+  "https://blogwebapp-dev.onrender.com";
 
 // ✅ Use WebSocket only (no fallback to polling)
 const socket: Socket = io(ENDPOINT, {
@@ -25,10 +26,10 @@ socket.on("reconnect_attempt", (attempt) => {
   console.log(`♻️ Reconnect attempt ${attempt}`);
 });
 
-// ⛔️ Removed error logging to avoid PageSpeed console warning
-socket.on("connect_error", () => {
-  // Silenced to avoid flagging in Google PageSpeed
+socket.on("connect_error", (error) => {
+  console.error("❌ Socket.IO connection error:", error);
 });
 
+// ✅ Export
 export type AppSocket = typeof socket;
 export default socket;
