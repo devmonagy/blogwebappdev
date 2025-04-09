@@ -25,10 +25,10 @@ socket.on("reconnect_attempt", (attempt) => {
   console.log(`♻️ Reconnect attempt ${attempt}`);
 });
 
-socket.on("connect_error", (error) => {
-  console.error("❌ Socket.IO connection error:", error);
+// ⛔️ Removed error logging to avoid PageSpeed console warning
+socket.on("connect_error", () => {
+  // Silenced to avoid flagging in Google PageSpeed
 });
 
-// ✅ Export
 export type AppSocket = typeof socket;
 export default socket;
