@@ -15,7 +15,7 @@ const About: React.FC = () => {
 
   return (
     <div className="about container py-20 mx-auto p-7 flex flex-col gap-6 lg:max-w-screen-md">
-      <h1 className="text-3xl font-bold mb-4">🚀 App Release Information</h1>
+      <h1 className="text-3xl font-bold mb-4">🚀 App Release Information!</h1>
       <p className="mb-4">
         I'm excited to officially launch <strong>Version 1.0.0</strong> of my
         full-stack <strong>MERN blog web application</strong>! 🎉
