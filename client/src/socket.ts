@@ -4,6 +4,7 @@ import io, { Socket } from "socket.io-client";
 const ENDPOINT: string =
   process.env.REACT_APP_SOCKET_ENDPOINT || "http://localhost:5000";
 
+// ✅ Use WebSocket only (no fallback to polling)
 const socket: Socket = io(ENDPOINT, {
   transports: ["websocket"],
   withCredentials: true,
@@ -11,6 +12,7 @@ const socket: Socket = io(ENDPOINT, {
   reconnectionDelay: 3000,
 });
 
+// ✅ Debug logging
 socket.on("connect", () => {
   console.log("✅ Connected to Socket.IO server:", socket.id);
 });
@@ -27,5 +29,6 @@ socket.on("connect_error", (error) => {
   console.error("❌ Socket.IO connection error:", error);
 });
 
+// ✅ Export
 export type AppSocket = typeof socket;
 export default socket;
