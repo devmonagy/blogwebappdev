@@ -1,18 +1,16 @@
 import io, { Socket } from "socket.io-client";
 
-// ✅ Use REACT_APP_BACKEND_URL from .env or fallback to localhost
+// ✅ Separate WebSocket endpoint for real-time updates
 const ENDPOINT: string =
-  process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
+  process.env.REACT_APP_SOCKET_ENDPOINT || "http://localhost:5000";
 
-// ✅ Use WebSocket only (Render Starter Plan supports it)
 const socket: Socket = io(ENDPOINT, {
-  transports: ["websocket"], // ⛔️ No more polling
+  transports: ["websocket"],
   withCredentials: true,
   reconnectionAttempts: 10,
   reconnectionDelay: 3000,
 });
 
-// ✅ Debug logging
 socket.on("connect", () => {
   console.log("✅ Connected to Socket.IO server:", socket.id);
 });
@@ -29,6 +27,5 @@ socket.on("connect_error", (error) => {
   console.error("❌ Socket.IO connection error:", error);
 });
 
-// ✅ Export
 export type AppSocket = typeof socket;
 export default socket;
