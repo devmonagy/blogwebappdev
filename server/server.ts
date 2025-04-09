@@ -23,6 +23,7 @@ const io = new SocketIoServer(server, {
       "http://172.16.109.61:3000",
       "https://blogwebapp.monagy.com",
       "https://blogwebapp-dev.onrender.com",
+      "wss://blogwebapp-dev.onrender.com",
     ],
     credentials: true,
   },
@@ -45,6 +46,7 @@ app.use(
           "http://172.16.109.61:3000",
           "https://blogwebapp.monagy.com",
           "https://blogwebapp-dev.onrender.com",
+          "wss://blogwebapp-dev.onrender.com",
         ].includes(origin)
       ) {
         callback(null, true);
