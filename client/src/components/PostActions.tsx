@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import clapLightImage from "../assets/clapLight.png";
+import clapSolidImage from "../assets/clapSolid.png"; // Ensure this path is correct
 import {
   faComment,
   faBookmark,
@@ -9,7 +10,7 @@ import {
 import PostOptionsMenu from "./PostOptionsMenu";
 import socket from "../socket";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; // Ensure useNavigate is properly imported
+import { useNavigate } from "react-router-dom";
 
 interface PostActionsProps {
   userId: string | null;
@@ -42,6 +43,8 @@ const PostActions: React.FC<PostActionsProps> = ({
   const [claps, setClaps] = useState<number>(0);
   const [userClaps, setUserClaps] = useState<number>(0);
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [showClapBubble, setShowClapBubble] = useState(false);
+  const [clapIncrement, setClapIncrement] = useState(0);
   const [clapUsers, setClapUsers] = useState<ClapUser[]>([]);
   const isAuthor = userId === postAuthorId;
   const isAdmin = userRole === "admin";
@@ -107,10 +110,17 @@ const PostActions: React.FC<PostActionsProps> = ({
     if (!userId) {
       navigate("/login");
     } else if (!isAuthor && userClaps < 50) {
+      const increment = 1; // Adjust as necessary for larger increments
       socket.emit("sendClap", { postId, userId });
-      setUserClaps(userClaps + 1);
-      setClaps(claps + 1);
+      setUserClaps(userClaps + increment);
+      setClaps(claps + increment);
+      setClapIncrement(increment);
+      setShowClapBubble(true);
+      setTimeout(() => setShowClapBubble(false), 2000); // Hide after 2 seconds
     }
+  };
+  const handleShowClapUsers = () => {
+    openClapUsersModal(); // Always attempt to open the modal.
   };
 
   const openClapUsersModal = async () => {
@@ -128,7 +138,10 @@ const PostActions: React.FC<PostActionsProps> = ({
   return (
     <div className="flex justify-between items-center border-t border-b py-2 mb-6">
       <div className="flex items-center space-x-4">
-        <div className="flex items-center gap-1">
+        <div
+          className="flex items-center gap-1"
+          style={{ position: "relative" }}
+        >
           <div
             className={`flex items-center ${
               isAuthor
@@ -145,15 +158,18 @@ const PostActions: React.FC<PostActionsProps> = ({
             }
           >
             <img
-              src={clapLightImage}
+              src={userClaps > 0 ? clapSolidImage : clapLightImage}
               alt="Clap"
               className="w-5 h-5"
               style={{ filter: isAuthor ? "grayscale(100%)" : "none" }}
             />
+            {showClapBubble && (
+              <div className="clap-bubble">{`+${clapIncrement}`}</div>
+            )}
           </div>
           <span
             className="text-sm cursor-pointer text-gray-700"
-            onClick={openClapUsersModal}
+            onClick={handleShowClapUsers}
           >
             {claps}
           </span>
@@ -212,7 +228,7 @@ const PostActions: React.FC<PostActionsProps> = ({
             <div className="space-y-3 max-h-64 overflow-y-auto">
               {clapUsers.length === 0 ? (
                 <p className="text-center text-gray-500 text-sm">
-                  This post is not yet clapped.
+                  This post has not been clapped yet.
                 </p>
               ) : (
                 clapUsers.map((user) => (

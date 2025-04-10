@@ -41,3 +41,46 @@ h6 {
   flex-grow: 1;
   text-align: center;
 }
+
+.clap-bubble {
+  position: absolute;
+  bottom: 30px; /* Adjust based on your icon's position */
+  right: 0; /* Adjust as needed to position correctly next to the icon */
+  background-color: black;
+  color: white;
+  border-radius: 50%;
+  width: 30px; /* Set a fixed width */
+  height: 30px; /* Set a fixed height to match the width */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.75rem;
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+  animation: bubble-animation 0.5s linear; /* Faster animation */
+}
+
+@keyframes bubble-animation {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes fireworks {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
