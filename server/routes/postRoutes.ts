@@ -59,8 +59,8 @@ router.get("/:postId/claps", getPostClaps);
 // 🔄 Undo claps for a post by the current user
 router.post("/:postId/undo-claps", authenticate, undoUserClaps);
 
-// ✅ Authenticated: Get list of users who clapped on a post
-router.get("/:postId/clap-users", authenticate, getClapUsers);
+// ✅ PUBLIC: Get list of users who clapped on a post
+router.get("/:postId/clap-users", getClapUsers); // Removed authentication requirement
 
 // Update a post by ID (admin + upload)
 router.put(

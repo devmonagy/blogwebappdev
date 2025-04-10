@@ -9,6 +9,7 @@ import {
 import PostOptionsMenu from "./PostOptionsMenu";
 import socket from "../socket";
 import axios from "axios";
+import { useNavigate } from "react-router-dom"; // Ensure useNavigate is properly imported
 
 interface PostActionsProps {
   userId: string | null;
@@ -45,6 +46,7 @@ const PostActions: React.FC<PostActionsProps> = ({
   const isAuthor = userId === postAuthorId;
   const isAdmin = userRole === "admin";
   const modalRef = useRef<HTMLDivElement | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchInitialClaps = async () => {
@@ -91,30 +93,30 @@ const PostActions: React.FC<PostActionsProps> = ({
         setShowModal(false);
       }
     };
+
     if (showModal) {
       document.addEventListener("mousedown", handleClickOutside);
     }
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showModal]);
 
   const handleClap = () => {
-    if (!userId || isAuthor || userClaps >= 50) return;
-    socket.emit("sendClap", { postId, userId });
-    setUserClaps(userClaps + 1);
-    setClaps(claps + 1);
+    if (!userId) {
+      navigate("/login");
+    } else if (!isAuthor && userClaps < 50) {
+      socket.emit("sendClap", { postId, userId });
+      setUserClaps(userClaps + 1);
+      setClaps(claps + 1);
+    }
   };
 
   const openClapUsersModal = async () => {
     try {
       const response = await axios.get<ClapUser[]>(
-        `${process.env.REACT_APP_BACKEND_URL}/posts/${postId}/clap-users`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
+        `${process.env.REACT_APP_BACKEND_URL}/posts/${postId}/clap-users`
       );
       setClapUsers(response.data);
       setShowModal(true);
@@ -129,11 +131,11 @@ const PostActions: React.FC<PostActionsProps> = ({
         <div className="flex items-center gap-1">
           <div
             className={`flex items-center ${
-              !userId || isAuthor
+              isAuthor
                 ? "text-gray-400 cursor-not-allowed"
                 : "text-gray-600 cursor-pointer"
             }`}
-            onClick={userId && !isAuthor ? handleClap : undefined}
+            onClick={handleClap}
             title={
               !userId
                 ? "You must be logged in to clap"
@@ -146,16 +148,12 @@ const PostActions: React.FC<PostActionsProps> = ({
               src={clapLightImage}
               alt="Clap"
               className="w-5 h-5"
-              style={{
-                filter: !userId || isAuthor ? "grayscale(100%)" : "none",
-              }}
+              style={{ filter: isAuthor ? "grayscale(100%)" : "none" }}
             />
           </div>
           <span
-            className={`text-sm ${
-              userId ? "cursor-pointer text-gray-700" : "text-gray-500"
-            }`}
-            onClick={userId ? openClapUsersModal : undefined}
+            className="text-sm cursor-pointer text-gray-700"
+            onClick={openClapUsersModal}
           >
             {claps}
           </span>
@@ -177,7 +175,6 @@ const PostActions: React.FC<PostActionsProps> = ({
           className="text-gray-600 cursor-pointer"
         />
 
-        {/* ✅ Show 3-dot menu only if user is logged in */}
         {userId && (
           <PostOptionsMenu
             userId={userId}
