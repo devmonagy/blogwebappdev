@@ -110,15 +110,17 @@ const PostActions: React.FC<PostActionsProps> = ({
     if (!userId) {
       navigate("/login");
     } else if (!isAuthor && userClaps < 50) {
-      const increment = 1; // Adjust as necessary for larger increments
-      socket.emit("sendClap", { postId, userId });
-      setUserClaps(userClaps + increment);
+      const newIncrement = userClaps + 1; // Increment the user's clap count by 1
+      const increment = newIncrement - userClaps; // This should always be 1, but it's here for clarity
+      socket.emit("sendClap", { postId, userId, increment: 1 }); // Always send an increment of 1 to the server
+      setUserClaps(newIncrement);
       setClaps(claps + increment);
-      setClapIncrement(increment);
+      setClapIncrement(newIncrement); // Set the increment display to the total claps by the user
       setShowClapBubble(true);
       setTimeout(() => setShowClapBubble(false), 2000); // Hide after 2 seconds
     }
   };
+
   const handleShowClapUsers = () => {
     openClapUsersModal(); // Always attempt to open the modal.
   };
