@@ -73,6 +73,7 @@ const PostOptionsMenu: React.FC<PostOptionsMenuProps> = ({
 
       if (setUserClaps) setUserClaps(updatedUserClaps);
       if (setClaps) setClaps(updatedClaps);
+
       socket.emit("clapUpdated", { postId, claps: updatedClaps });
       setShowOptions(false);
     } catch (error) {

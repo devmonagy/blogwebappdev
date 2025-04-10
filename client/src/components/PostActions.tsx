@@ -1,16 +1,12 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import clapLightImage from "../assets/clapLight.png";
-import clapSolidImage from "../assets/clapSolid.png"; // Ensure this path is correct
-import {
-  faComment,
-  faBookmark,
-  faShareSquare,
-} from "@fortawesome/free-regular-svg-icons";
+import { faBookmark, faShareSquare } from "@fortawesome/free-regular-svg-icons";
+import ClapControl from "./ClapControl";
+import CommentControl from "./CommentControl";
 import PostOptionsMenu from "./PostOptionsMenu";
+import ClapUsersModal from "./ClapUsersModal";
 import socket from "../socket";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
 interface PostActionsProps {
   userId: string | null;
@@ -40,16 +36,14 @@ const PostActions: React.FC<PostActionsProps> = ({
   handleStorySettings,
   handleDelete,
 }) => {
-  const [claps, setClaps] = useState<number>(0);
-  const [userClaps, setUserClaps] = useState<number>(0);
-  const [showModal, setShowModal] = useState<boolean>(false);
-  const [showClapBubble, setShowClapBubble] = useState(false);
-  const [clapIncrement, setClapIncrement] = useState(0);
-  const [clapUsers, setClapUsers] = useState<ClapUser[]>([]);
   const isAuthor = userId === postAuthorId;
   const isAdmin = userRole === "admin";
+
+  const [claps, setClaps] = useState<number>(0);
+  const [userClaps, setUserClaps] = useState<number>(0);
+  const [showModal, setShowModal] = useState(false);
+  const [clapUsers, setClapUsers] = useState<ClapUser[]>([]);
   const modalRef = useRef<HTMLDivElement | null>(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchInitialClaps = async () => {
@@ -106,161 +100,56 @@ const PostActions: React.FC<PostActionsProps> = ({
     };
   }, [showModal]);
 
-  const handleClap = () => {
-    if (!userId) {
-      navigate("/login");
-    } else if (!isAuthor && userClaps < 50) {
-      const newIncrement = userClaps + 1; // Increment the user's clap count by 1
-      const increment = newIncrement - userClaps; // This should always be 1, but it's here for clarity
-      socket.emit("sendClap", { postId, userId, increment: 1 }); // Always send an increment of 1 to the server
-      setUserClaps(newIncrement);
-      setClaps(claps + increment);
-      setClapIncrement(newIncrement); // Set the increment display to the total claps by the user
-      setShowClapBubble(true);
-      setTimeout(() => setShowClapBubble(false), 2000); // Hide after 2 seconds
-    }
-  };
-
-  const handleShowClapUsers = () => {
-    openClapUsersModal(); // Always attempt to open the modal.
-  };
-
-  const openClapUsersModal = async () => {
-    try {
-      const response = await axios.get<ClapUser[]>(
-        `${process.env.REACT_APP_BACKEND_URL}/posts/${postId}/clap-users`
-      );
-      setClapUsers(response.data);
-      setShowModal(true);
-    } catch (error) {
-      console.error("Failed to load clap users:", error);
-    }
-  };
-
   return (
-    <div className="flex justify-between items-center border-t border-b py-2 mb-6">
-      <div className="flex items-center space-x-4">
-        <div
-          className="flex items-center gap-1"
-          style={{ position: "relative" }}
-        >
-          <div
-            className={`flex items-center ${
-              isAuthor
-                ? "text-gray-400 cursor-not-allowed"
-                : "text-gray-600 cursor-pointer"
-            }`}
-            onClick={handleClap}
-            title={
-              !userId
-                ? "You must be logged in to clap"
-                : isAuthor
-                ? "You can't clap your own post"
-                : "Clap"
-            }
-          >
-            <img
-              src={userClaps > 0 ? clapSolidImage : clapLightImage}
-              alt="Clap"
-              className="w-5 h-5"
-              style={{ filter: isAuthor ? "grayscale(100%)" : "none" }}
-            />
-            {showClapBubble && (
-              <div className="clap-bubble">{`+${clapIncrement}`}</div>
-            )}
-          </div>
-          <span
-            className="text-sm cursor-pointer text-gray-700"
-            onClick={handleShowClapUsers}
-          >
-            {claps}
-          </span>
-        </div>
-
-        <div className="flex items-center text-gray-600 cursor-pointer">
-          <FontAwesomeIcon icon={faComment} className="mr-1" />
-          <span>0</span>
-        </div>
-      </div>
-
-      <div className="relative flex items-center space-x-4">
-        <FontAwesomeIcon
-          icon={faBookmark}
-          className="text-gray-600 cursor-pointer"
-        />
-        <FontAwesomeIcon
-          icon={faShareSquare}
-          className="text-gray-600 cursor-pointer"
-        />
-
-        {userId && (
-          <PostOptionsMenu
-            userId={userId}
-            postAuthorId={postAuthorId}
-            userRole={userRole}
-            handleEdit={handleEdit}
-            handlePinStory={handlePinStory}
-            handleStorySettings={handleStorySettings}
-            handleDelete={handleDelete}
-            isAdmin={isAdmin}
-            isAuthor={isAuthor}
+    <>
+      <div className="flex justify-between items-center border-t border-b py-2 mb-6">
+        <div className="flex items-center space-x-4">
+          <ClapControl
             postId={postId}
+            userId={userId}
+            isAuthor={isAuthor}
+            claps={claps}
             userClaps={userClaps}
-            setUserClaps={setUserClaps}
             setClaps={setClaps}
+            setUserClaps={setUserClaps}
+            setClapUsers={setClapUsers}
+            setShowModal={setShowModal}
           />
-        )}
+          <CommentControl />
+        </div>
+        <div className="relative flex items-center space-x-4">
+          <FontAwesomeIcon
+            icon={faBookmark}
+            className="text-gray-600 cursor-pointer"
+          />
+          <FontAwesomeIcon
+            icon={faShareSquare}
+            className="text-gray-600 cursor-pointer"
+          />
+          {userId && (
+            <PostOptionsMenu
+              userId={userId}
+              postAuthorId={postAuthorId}
+              userRole={userRole}
+              handleEdit={handleEdit}
+              handlePinStory={handlePinStory}
+              handleStorySettings={handleStorySettings}
+              handleDelete={handleDelete}
+              isAdmin={isAdmin}
+              isAuthor={isAuthor}
+              postId={postId}
+              userClaps={userClaps}
+              setUserClaps={setUserClaps}
+              setClaps={setClaps}
+            />
+          )}
+        </div>
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div
-            ref={modalRef}
-            className="bg-white rounded-lg shadow-xl w-full max-w-sm sm:max-w-md p-6"
-          >
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-bold">Users who clapped</h2>
-              <button
-                className="text-gray-600 hover:text-black"
-                onClick={() => setShowModal(false)}
-              >
-                ✕
-              </button>
-            </div>
-            <div className="space-y-3 max-h-64 overflow-y-auto">
-              {clapUsers.length === 0 ? (
-                <p className="text-center text-gray-500 text-sm">
-                  This post has not been clapped yet.
-                </p>
-              ) : (
-                clapUsers.map((user) => (
-                  <div
-                    key={user._id}
-                    className="flex items-center space-x-3 border-b pb-2"
-                  >
-                    <img
-                      src={
-                        user.profilePicture || "/default-profile-picture.jpg"
-                      }
-                      alt={user.firstName}
-                      className="w-8 h-8 rounded-full object-cover"
-                    />
-                    <div className="flex flex-col">
-                      <span className="font-medium text-sm">
-                        {user.firstName}
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        {user.claps} {user.claps === 1 ? "clap" : "claps"}
-                      </span>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
+        <ClapUsersModal users={clapUsers} onClose={() => setShowModal(false)} />
       )}
-    </div>
+    </>
   );
 };
 
