@@ -1,11 +1,14 @@
 import React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faComment } from "@fortawesome/free-regular-svg-icons";
+import commentIcon from "../assets/commentsLight.png";
 
 const CommentControl: React.FC = () => {
   return (
     <div className="flex items-center text-gray-600 cursor-pointer">
-      <FontAwesomeIcon icon={faComment} className="mr-1" />
+      <img
+        src={commentIcon}
+        alt="Comments"
+        className="w-4 h-4 mr-1 object-contain"
+      />
       <span>0</span>
     </div>
   );
