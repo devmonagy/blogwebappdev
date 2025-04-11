@@ -69,23 +69,21 @@ const ClapControl: React.FC<ClapControlProps> = ({
     <div className="flex items-center gap-1" style={{ position: "relative" }}>
       <div
         className={`flex items-center ${
-          isAuthor
-            ? "text-gray-400 cursor-not-allowed"
-            : "text-gray-600 cursor-pointer"
+          isAuthor ? "cursor-default" : "cursor-pointer"
         }`}
         onClick={handleClap}
         title={
           !userId
             ? "You must be logged in to clap"
             : isAuthor
-            ? "You can't clap your own post"
+            ? "" // No tooltip for authors
             : "Clap"
         }
       >
         <img
           src={userClaps > 0 ? clapSolidImage : clapLightImage}
           alt="Clap"
-          className="w-5 h-5"
+          className={`w-5 h-5 ${isAuthor ? "opacity-50" : ""}`}
           style={{ filter: isAuthor ? "grayscale(100%)" : "none" }}
         />
         {showClapBubble && (
