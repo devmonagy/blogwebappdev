@@ -9,7 +9,7 @@ const CommentControl: React.FC = () => {
         alt="Comments"
         className="w-4 h-4 mr-1 object-contain"
       />
-      <span>0</span>
+      <span className="ml-0.5 sm:ml-0">0</span>
     </div>
   );
 };
