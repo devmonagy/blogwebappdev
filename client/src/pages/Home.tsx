@@ -149,11 +149,11 @@ const Home: React.FC = () => {
                 <div className="flex items-center gap-4 text-xs text-gray-500">
                   <span>{formatDate(post.createdAt)}</span>
                   {post.clapsCount && post.clapsCount > 0 && (
-                    <div className="flex items-center gap-1 mb-1">
+                    <div className="flex items-center gap-1">
                       <img
                         src={clapSolidImage}
                         alt="Claps"
-                        className="w-3.5 h-3.5 opacity-50"
+                        className="w-3.5 h-3.5 opacity-35"
                       />
                       <span>{post.clapsCount}</span>
                     </div>

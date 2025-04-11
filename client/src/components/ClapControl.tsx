@@ -83,7 +83,7 @@ const ClapControl: React.FC<ClapControlProps> = ({
         <img
           src={userClaps > 0 ? clapSolidImage : clapLightImage}
           alt="Clap"
-          className={`w-5 h-5 ${isAuthor ? "opacity-50" : ""}`}
+          className={`w-5 h-5 ${isAuthor ? "opacity-25" : ""}`}
           style={{ filter: isAuthor ? "grayscale(100%)" : "none" }}
         />
         {showClapBubble && (
