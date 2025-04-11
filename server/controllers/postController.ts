@@ -34,15 +34,24 @@ export const createPost = async (
   }
 };
 
-// Get all posts
+// ✅ Get all posts with claps count (exclude clapsCount if zero)
 export const getPosts = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
-    const posts = await Post.find().populate("author");
-    res.status(200).json(posts);
+    const posts = await Post.find().populate("author").lean();
+
+    const postsWithClaps = posts.map((post) => {
+      const basePost = { ...post } as any;
+      if (post.claps && post.claps > 0) {
+        basePost.clapsCount = post.claps;
+      }
+      return basePost;
+    });
+
+    res.status(200).json(postsWithClaps);
   } catch (error) {
     next(error);
   }
@@ -124,7 +133,6 @@ export const getClapUsers = async (
       return;
     }
 
-    // 🧼 Auto-clean if claps are zero but records remain
     if (post.claps === 0 && post.userClaps.length > 0) {
       post.userClaps = [];
       await post.save();

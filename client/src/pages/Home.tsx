@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
+import clapSolidImage from "../assets/clapSolid.png";
+import commentBubbleImage from "../assets/CommentBubble.png";
 import "../styles/quill-custom.css";
 
 interface Author {
   _id: string;
   firstName: string;
+  lastName: string;
+  profilePicture?: string;
 }
 
 interface Post {
@@ -16,13 +20,15 @@ interface Post {
   imagePath: string;
   author: Author;
   createdAt: string;
+  clapsCount?: number;
+  commentsCount?: number;
 }
 
 const Home: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [infoBarVisible, setInfoBarVisible] = useState<boolean>(false); // Initially false
+  const [infoBarVisible, setInfoBarVisible] = useState<boolean>(false);
   const navigate = useNavigate();
 
   const fetchPosts = async () => {
@@ -47,9 +53,7 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     fetchPosts();
-    const timer = setTimeout(() => {
-      setInfoBarVisible(true); // Enable the bar after initial render
-    }, 100); // Small delay to ensure transition
+    const timer = setTimeout(() => setInfoBarVisible(true), 100);
     return () => clearTimeout(timer);
   }, []);
 
@@ -74,9 +78,8 @@ const Home: React.FC = () => {
   const getValidImageUrl = (url: string) => {
     return url.startsWith("http")
       ? url
-      : `${process.env.REACT_APP_BACKEND_URL}${
-          url.startsWith("/") ? "" : "/"
-        }${url}`;
+      : `${process.env.REACT_APP_BACKEND_URL}$
+          {url.startsWith("/") ? "" : "/"}${url}`;
   };
 
   const renderSkeleton = () => (
@@ -97,9 +100,7 @@ const Home: React.FC = () => {
     </div>
   );
 
-  const handleCloseInfoBar = () => {
-    setInfoBarVisible(false);
-  };
+  const handleCloseInfoBar = () => setInfoBarVisible(false);
 
   return (
     <div className="bg-background min-h-screen relative">
@@ -116,21 +117,48 @@ const Home: React.FC = () => {
               className="flex flex-row items-center p-4 rounded shadow-sm bg-white cursor-pointer hover:shadow-lg transition-shadow opacity-0 animate-fade-in"
             >
               <div className="flex-1">
-                <h2 className="text-sm sm:text-lg font-semibold">
+                {/* AUTHOR + PROFILE PIC */}
+                <div className="flex items-center gap-2 mb-4">
+                  <img
+                    src={getValidImageUrl(
+                      post.author.profilePicture ||
+                        "/default-profile-picture.jpg"
+                    )}
+                    alt={post.author.firstName}
+                    className="w-6 h-6 rounded-full object-cover"
+                  />
+                  <span className="text-sm font-medium">
+                    {post.author.firstName} {post.author.lastName}
+                  </span>
+                </div>
+
+                {/* TITLE */}
+                <h2 className="text-sm sm:text-lg font-semibold mb-2">
                   {post.title}
                 </h2>
-                <p className="text-xs sm:text-sm text-gray-500 mb-2">
-                  Category: {post.category} | Author: {post.author.firstName}
-                </p>
+
+                {/* EXCERPT */}
                 <div
-                  className="text-xs sm:text-sm mb-4"
+                  className="text-xs sm:text-sm mb-4 text-gray-700"
                   dangerouslySetInnerHTML={{
                     __html: truncateContent(post.content, 100),
                   }}
                 />
-                <p className="text-xs sm:text-sm text-gray-500">
-                  {formatDate(post.createdAt)}
-                </p>
+
+                {/* DATE + ICONS */}
+                <div className="flex items-center gap-4 text-xs text-gray-500">
+                  <span>{formatDate(post.createdAt)}</span>
+                  {post.clapsCount && post.clapsCount > 0 && (
+                    <div className="flex items-center gap-1 mb-1">
+                      <img
+                        src={clapSolidImage}
+                        alt="Claps"
+                        className="w-3.5 h-3.5 opacity-50"
+                      />
+                      <span>{post.clapsCount}</span>
+                    </div>
+                  )}
+                </div>
               </div>
               {post.imagePath && (
                 <img
@@ -144,11 +172,11 @@ const Home: React.FC = () => {
         ) : (
           <p className="text-gray-500">No posts available yet.</p>
         )}
+
         <div
           className={`fixed bottom-0 left-0 right-0 bg-blue-900 text-white py-3 px-4 text-center transition-transform duration-1000 ease-in-out flex justify-between items-center ${
             infoBarVisible ? "translate-y-0" : "translate-y-full"
           }`}
-          style={{ transition: "transform 1s" }}
         >
           <span className="info-text text-xs sm:text-sm md:text-base lg:text-lg">
             Production v1.1.0 — under active development.{" "}
