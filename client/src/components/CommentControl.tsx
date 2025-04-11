@@ -3,7 +3,7 @@ import commentIcon from "../assets/commentsLight.png";
 
 const CommentControl: React.FC = () => {
   return (
-    <div className="flex items-center text-gray-600 cursor-pointer">
+    <div className="flex items-center cursor-pointer text-sm text-black">
       <img
         src={commentIcon}
         alt="Comments"

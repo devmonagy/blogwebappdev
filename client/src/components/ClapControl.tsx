@@ -91,7 +91,7 @@ const ClapControl: React.FC<ClapControlProps> = ({
         )}
       </div>
       <span
-        className="text-sm cursor-pointer text-gray-700"
+        className="text-sm cursor-pointer text-primaryText"
         onClick={handleShowClapUsers}
       >
         {claps}
