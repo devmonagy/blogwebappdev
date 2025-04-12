@@ -39,7 +39,7 @@ const ClapUsersModal: React.FC<ClapUsersModalProps> = ({ users, onClose }) => {
         className="bg-white rounded-lg shadow-xl w-full max-w-sm sm:max-w-md p-6"
       >
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-bold">Users who clapped</h2>
+          <h2 className="text-lg font-bold">Clapped for by:</h2>
           <button className="text-gray-600 hover:text-black" onClick={onClose}>
             ✕
           </button>
