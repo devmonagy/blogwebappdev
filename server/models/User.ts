@@ -16,7 +16,7 @@ interface IUser extends Document {
 
 // ✅ Set your Cloudinary-hosted default image here
 const getDefaultProfilePictureUrl = (): string => {
-  return "https://res.cloudinary.com/dqdix32m5/image/upload/v1743881926/UserProfilePics/1743881923775-mo.png";
+  return "https://res.cloudinary.com/dqdix32m5/image/upload/v1744493775/memberDefault_zjdgre.jpg";
   // You can use the public image link or asset URL — just make sure it's direct-access.
 };
 
