@@ -4,13 +4,13 @@ import Navbar from "./Navbar";
 
 interface HeaderProps {
   isAuthenticated: boolean;
+  onLogout: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ isAuthenticated }) => {
+const Header: React.FC<HeaderProps> = ({ isAuthenticated, onLogout }) => {
   return (
     <div className="bg-header">
-      <header className="px-7 py-2 mx-auto flex items-center justify-between  text-primaryText">
-        {/* Clickable Logo (wrapped in h1) and Caption */}
+      <header className="px-7 py-2 mx-auto flex items-center justify-between text-primaryText">
         <div className="flex flex-col">
           <h1 className="text-3xl font-bold">
             <Link to="/" className="text-href">
@@ -30,9 +30,8 @@ const Header: React.FC<HeaderProps> = ({ isAuthenticated }) => {
           </p>
         </div>
 
-        {/* Navbar aligned to the right */}
-        <div className="ml-auto">
-          <Navbar isAuthenticated={isAuthenticated} />
+        <div className="ml-auto flex items-center gap-4">
+          <Navbar isAuthenticated={isAuthenticated} onLogout={onLogout} />
         </div>
       </header>
     </div>

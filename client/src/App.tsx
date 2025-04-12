@@ -68,7 +68,7 @@ const App: React.FC = () => {
   return (
     <Router>
       <div className="bg-background min-h-screen text-primaryText flex flex-col">
-        <Header isAuthenticated={isAuthenticated} />
+        <Header isAuthenticated={isAuthenticated} onLogout={handleLogout} />
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<Home />} />
