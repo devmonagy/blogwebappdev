@@ -76,7 +76,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     <div className="container p-7 p-2 h-full py-10 flex items-center justify-center bg-background">
       <div className="bg-background p-6 rounded-md shadow-lg max-w-md w-full mx-0">
         <h2 className="text-2xl font-bold mb-4 text-center text-black">
-          Login
+          Welcome Back
         </h2>
         {error && <p className="text-red-500 mb-4">{error}</p>}
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -133,9 +133,8 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         <p className="mt-4 text-center text-secondaryText">
           Don't have an account?{" "}
           <Link to="/register" className="text-blue-400 hover:underline">
-            Register here
+            Create One
           </Link>
-          .
         </p>
       </div>
     </div>

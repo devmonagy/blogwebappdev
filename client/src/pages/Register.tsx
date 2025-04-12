@@ -119,7 +119,7 @@ const Register: React.FC = () => {
     <div className="container p-7 h-full py-10 flex items-center justify-center bg-background">
       <div className="bg-background p-6 rounded-md shadow-lg  max-w-md w-full">
         <h2 className="text-2xl font-bold mb-4 text-center text-black">
-          Register
+          Join Blogwebapp
         </h2>
         {error && <p className="text-red-500 mb-4">{error}</p>}
         {success && <p className="text-green-500 mb-4">{success}</p>}
@@ -233,9 +233,8 @@ const Register: React.FC = () => {
         <p className="mt-4 text-center text-secondaryText">
           Already a member?{" "}
           <Link to="/login" className="text-blue-400 hover:underline">
-            Login here
+            Sign in
           </Link>
-          .
         </p>
       </div>
     </div>
