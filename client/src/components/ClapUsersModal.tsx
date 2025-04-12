@@ -36,7 +36,7 @@ const ClapUsersModal: React.FC<ClapUsersModalProps> = ({ users, onClose }) => {
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
       <div
         ref={modalRef}
-        className="bg-white rounded-lg shadow-xl w-full max-w-sm sm:max-w-md p-6"
+        className="bg-white rounded-lg shadow-xl w-[90%] max-w-sm sm:max-w-md p-6"
       >
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-bold">Clapped for by:</h2>
