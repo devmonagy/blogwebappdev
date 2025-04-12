@@ -57,7 +57,7 @@ export const getPosts = async (
   }
 };
 
-// Get a single post by ID
+// ✅ Get a single post by ID (with full author info)
 export const getPostById = async (
   req: Request,
   res: Response,
@@ -66,7 +66,10 @@ export const getPostById = async (
   const { id } = req.params;
 
   try {
-    const post = await Post.findById(id).populate("author");
+    const post = await Post.findById(id).populate(
+      "author",
+      "firstName lastName profilePicture"
+    );
     if (!post) {
       res.status(404).json({ message: "Post not found" });
       return;
@@ -125,7 +128,7 @@ export const getClapUsers = async (
   try {
     const post = await Post.findById(postId).populate(
       "userClaps.userId",
-      "firstName lastName profilePicture" // ✅ include lastName
+      "firstName lastName profilePicture"
     );
 
     if (!post) {
@@ -143,7 +146,7 @@ export const getClapUsers = async (
       return {
         _id: user._id,
         firstName: user.firstName,
-        lastName: user.lastName, // ✅ include lastName
+        lastName: user.lastName,
         profilePicture: user.profilePicture,
         claps: entry.count,
       };
@@ -188,7 +191,7 @@ export const undoUserClaps = async (
 
     const updatedPost = await Post.findById(postId).populate(
       "userClaps.userId",
-      "firstName lastName profilePicture" // ✅ updated
+      "firstName lastName profilePicture"
     );
 
     const updatedClapUsers =
@@ -197,7 +200,7 @@ export const undoUserClaps = async (
         return {
           _id: user._id,
           firstName: user.firstName,
-          lastName: user.lastName, // ✅ include lastName
+          lastName: user.lastName,
           profilePicture: user.profilePicture,
           claps: entry.count,
         };

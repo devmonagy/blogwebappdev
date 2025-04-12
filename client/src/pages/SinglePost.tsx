@@ -8,6 +8,7 @@ import PostActions from "../components/PostActions";
 interface Author {
   _id: string;
   firstName: string;
+  lastName: string; // ✅ Added
   profilePicture?: string;
 }
 
@@ -18,7 +19,7 @@ interface Post {
   content: string;
   imagePath: string;
   author: Author;
-  claps: number; // added claps field
+  claps: number;
   createdAt: string;
 }
 
@@ -160,11 +161,13 @@ const SinglePost: React.FC = () => {
                     ? getValidImageUrl(post.author.profilePicture)
                     : "/default-profile-picture.jpg"
                 }
-                alt={`${post.author.firstName}'s profile`}
+                alt={`${post.author.firstName} ${post.author.lastName}'s profile`}
                 className="w-12 h-12 rounded-full object-cover shadow-md mr-4"
               />
               <div>
-                <p className="text-lg font-medium">{post.author.firstName}</p>
+                <p className="text-lg font-medium">
+                  {post.author.firstName} {post.author.lastName}
+                </p>
                 <p className="text-sm text-gray-500">
                   Published in:{" "}
                   <span className="font-semibold">{post.category}</span> ·{" "}
