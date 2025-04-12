@@ -86,7 +86,7 @@ const PostOptionsMenu: React.FC<PostOptionsMenuProps> = ({
   return (
     <>
       <span
-        className="material-icons pt-1.5 text-gray-600 cursor-pointer"
+        className="material-icons text-gray-600 cursor-pointer"
         ref={iconRef}
         onClick={() => setShowOptions(!showOptions)}
       >
