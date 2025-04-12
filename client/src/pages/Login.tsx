@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 
 interface LoginProps {
@@ -18,7 +18,7 @@ interface LoginResponse {
     username: string;
     email: string;
     firstName: string;
-    role: string; // Added role here
+    role: string;
   };
   token: string;
 }
@@ -30,7 +30,11 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   });
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState<boolean>(false);
+
   const navigate = useNavigate();
+  const location = useLocation();
+  const from =
+    (location.state as { from?: Location })?.from?.pathname || "/dashboard";
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -56,11 +60,13 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         formData
       );
 
-      const { username, email, firstName, role } = response.data.user; // Extract role from the response
+      const { username, email, firstName, role } = response.data.user;
       const { token } = response.data;
 
-      onLogin(username, email, firstName, role, token); // Pass role as well
-      navigate("/dashboard"); // Always redirect to the regular dashboard
+      onLogin(username, email, firstName, role, token);
+
+      // Redirect to original page or fallback
+      navigate(from, { replace: true });
     } catch (err: any) {
       setError(err.response?.data?.error || "Login failed");
     }

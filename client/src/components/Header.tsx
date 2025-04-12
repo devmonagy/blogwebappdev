@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
 
 interface HeaderProps {
@@ -8,6 +8,8 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ isAuthenticated, onLogout }) => {
+  const location = useLocation();
+
   return (
     <div className="bg-header">
       <header className="px-7 py-2 mx-auto flex items-center justify-between text-primaryText">
@@ -31,7 +33,11 @@ const Header: React.FC<HeaderProps> = ({ isAuthenticated, onLogout }) => {
         </div>
 
         <div className="ml-auto flex items-center gap-4">
-          <Navbar isAuthenticated={isAuthenticated} onLogout={onLogout} />
+          <Navbar
+            isAuthenticated={isAuthenticated}
+            onLogout={onLogout}
+            currentLocation={location} // ✅ passing current path
+          />
         </div>
       </header>
     </div>

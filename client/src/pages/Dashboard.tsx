@@ -115,6 +115,11 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
     };
   }, []);
 
+  const handleLogoutClick = () => {
+    onLogout();
+    navigate("/"); // ✅ Go to home page after logout
+  };
+
   const renderSkeleton = () => (
     <div className="space-y-4 animate-pulse">
       <div className="flex items-center">
@@ -171,7 +176,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
                   </div>
                   <div
                     className="flex items-center text-black text-sm cursor-pointer hover:text-red-500 transition-transform transform hover:scale-110"
-                    onClick={onLogout}
+                    onClick={handleLogoutClick}
                   >
                     <FaSignOutAlt className="w-4 h-4 sm:w-3 sm:h-3" />
                     <span className="ml-1 sm:ml-2">Logout</span>

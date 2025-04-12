@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import DOMPurify from "dompurify";
 import "../styles/quill-custom.css";
@@ -8,7 +8,7 @@ import PostActions from "../components/PostActions";
 interface Author {
   _id: string;
   firstName: string;
-  lastName: string; // ✅ Added
+  lastName: string;
   profilePicture?: string;
 }
 
@@ -31,7 +31,9 @@ const SinglePost: React.FC = () => {
   const [userRole, setUserRole] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -111,11 +113,14 @@ const SinglePost: React.FC = () => {
             __html: DOMPurify.sanitize(post.content.substring(0, 500)),
           }}
         />
-        <div className="text-center my-4">
-          <span className="text-gray-700">Continue reading this post by </span>
-          <a href="/login" className="text-blue-500 underline">
+        <div className="text-center my-4 text-gray-700">
+          <span>Continue reading this post by </span>
+          <span
+            className="text-blue-500 underline cursor-pointer"
+            onClick={() => navigate("/login", { state: { from: location } })}
+          >
             logging in
-          </a>
+          </span>
           . Not a member?{" "}
           <a href="/register" className="text-blue-500 underline">
             Register now!

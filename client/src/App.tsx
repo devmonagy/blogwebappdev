@@ -4,6 +4,7 @@ import {
   Route,
   Routes,
   Navigate,
+  useLocation,
 } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -32,6 +33,112 @@ interface TokenValidationResponse {
   valid: boolean;
   user: User;
 }
+
+const AppRoutes: React.FC<{
+  isAuthenticated: boolean;
+  user: User | null;
+  handleLogin: (
+    username: string,
+    email: string,
+    firstName: string,
+    role: string,
+    token: string
+  ) => void;
+  handleLogout: () => void;
+}> = ({ isAuthenticated, user, handleLogin, handleLogout }) => {
+  const location = useLocation();
+
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/about" element={<About />} />
+      <Route
+        path="/login"
+        element={
+          isAuthenticated ? (
+            <Navigate to="/dashboard" />
+          ) : (
+            <Login
+              onLogin={(username, email, firstName, role, token) =>
+                handleLogin(username, email, firstName, role, token)
+              }
+            />
+          )
+        }
+      />
+      <Route path="/register" element={<Register />} />
+      <Route
+        path="/dashboard"
+        element={
+          isAuthenticated ? (
+            <Dashboard onLogout={handleLogout} />
+          ) : (
+            <Navigate to="/login" state={{ from: location }} replace />
+          )
+        }
+      />
+      <Route
+        path="/edit-profile"
+        element={
+          isAuthenticated ? (
+            <EditProfile />
+          ) : (
+            <Navigate to="/login" state={{ from: location }} replace />
+          )
+        }
+      />
+      <Route
+        path="/write-post"
+        element={
+          isAuthenticated ? (
+            <WritePost />
+          ) : (
+            <Navigate to="/login" state={{ from: location }} replace />
+          )
+        }
+      />
+      <Route
+        path="/edit-post/:id"
+        element={
+          isAuthenticated ? (
+            <EditPost />
+          ) : (
+            <Navigate to="/login" state={{ from: location }} replace />
+          )
+        }
+      />
+      <Route
+        path="/all-user-posts"
+        element={
+          isAuthenticated ? (
+            <AllUserPosts />
+          ) : (
+            <Navigate to="/login" state={{ from: location }} replace />
+          )
+        }
+      />
+      <Route path="/post/:id" element={<SinglePost />} />
+      <Route
+        path="/admin-dashboard"
+        element={
+          isAuthenticated && user?.role === "admin" ? (
+            <AdminDashboard />
+          ) : (
+            <Navigate
+              to={isAuthenticated ? "/dashboard" : "/login"}
+              state={{ from: location }}
+              replace
+            />
+          )
+        }
+      />
+      <Route
+        path="*"
+        element={<div>404 - Page not found. Please check your URL.</div>}
+      />
+    </Routes>
+  );
+};
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
@@ -70,77 +177,12 @@ const App: React.FC = () => {
       <div className="bg-background min-h-screen text-primaryText flex flex-col">
         <Header isAuthenticated={isAuthenticated} onLogout={handleLogout} />
         <main className="flex-grow">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route
-              path="/login"
-              element={
-                isAuthenticated ? (
-                  <Navigate to="/dashboard" />
-                ) : (
-                  <Login
-                    onLogin={(username, email, firstName, role, token) =>
-                      handleLogin(username, email, firstName, role, token)
-                    }
-                  />
-                )
-              }
-            />
-            <Route path="/register" element={<Register />} />
-            <Route
-              path="/dashboard"
-              element={
-                isAuthenticated ? (
-                  <Dashboard onLogout={handleLogout} />
-                ) : (
-                  <Navigate to="/login" />
-                )
-              }
-            />
-            <Route
-              path="/edit-profile"
-              element={
-                isAuthenticated ? <EditProfile /> : <Navigate to="/login" />
-              }
-            />
-            <Route
-              path="/write-post"
-              element={
-                isAuthenticated ? <WritePost /> : <Navigate to="/login" />
-              }
-            />
-            <Route
-              path="/edit-post/:id"
-              element={
-                isAuthenticated ? <EditPost /> : <Navigate to="/login" />
-              }
-            />
-            <Route
-              path="/all-user-posts"
-              element={
-                isAuthenticated ? <AllUserPosts /> : <Navigate to="/login" />
-              }
-            />
-            <Route path="/post/:id" element={<SinglePost />} />
-            <Route
-              path="/admin-dashboard"
-              element={
-                isAuthenticated && user?.role === "admin" ? (
-                  <AdminDashboard />
-                ) : (
-                  <Navigate
-                    to={isAuthenticated ? "/dashboard" : "/login"}
-                    replace
-                  />
-                )
-              }
-            />
-            <Route
-              path="*"
-              element={<div>404 - Page not found. Please check your URL.</div>}
-            />
-          </Routes>
+          <AppRoutes
+            isAuthenticated={isAuthenticated}
+            user={user}
+            handleLogin={handleLogin}
+            handleLogout={handleLogout}
+          />
         </main>
         <Footer />
       </div>

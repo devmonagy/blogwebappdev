@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, Location } from "react-router-dom";
 import writeIcon from "../assets/Write.png";
 import bellIcon from "../assets/bell.png";
 import axios from "axios";
@@ -7,25 +7,29 @@ import axios from "axios";
 interface NavbarProps {
   isAuthenticated: boolean;
   onLogout: () => void;
+  currentLocation: Location;
 }
 
 interface UserProfileResponse {
   profilePicture: string;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ isAuthenticated, onLogout }) => {
+const Navbar: React.FC<NavbarProps> = ({
+  isAuthenticated,
+  onLogout,
+  currentLocation,
+}) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
-  // Reset profile picture if user logs out
   useEffect(() => {
     if (!isAuthenticated) {
       setProfilePicture(null);
     }
   }, [isAuthenticated]);
 
-  // Fetch profile image on login
   useEffect(() => {
     const fetchProfileImage = async () => {
       try {
@@ -77,6 +81,17 @@ const Navbar: React.FC<NavbarProps> = ({ isAuthenticated, onLogout }) => {
     };
   }, [dropdownOpen]);
 
+  const handleLogoutClick = () => {
+    setDropdownOpen(false);
+    onLogout();
+    navigate("/");
+  };
+
+  const handleLoginRedirect = () => {
+    setDropdownOpen(false);
+    navigate("/login", { state: { from: currentLocation } });
+  };
+
   return (
     <div className="flex items-center gap-4 relative" ref={dropdownRef}>
       {/* Write: Desktop only */}
@@ -97,12 +112,12 @@ const Navbar: React.FC<NavbarProps> = ({ isAuthenticated, onLogout }) => {
           >
             Sign up
           </Link>
-          <Link
-            to="/login"
-            className="hidden md:block text-sm hover:text-buttonBackground"
+          <span
+            className="hidden md:block text-sm hover:text-buttonBackground cursor-pointer"
+            onClick={handleLoginRedirect}
           >
             Sign in
-          </Link>
+          </span>
         </>
       )}
 
@@ -135,18 +150,17 @@ const Navbar: React.FC<NavbarProps> = ({ isAuthenticated, onLogout }) => {
                 </p>
                 <Link
                   to="/register"
-                  className="block px-4 py-2 font-semibold text-green-700 hover:bg-gray-100"
+                  className="block px-4 py-2 font-semibold text-href hover:bg-gray-100"
                   onClick={() => setDropdownOpen(false)}
                 >
                   Sign up
                 </Link>
-                <Link
-                  to="/login"
-                  className="block px-4 py-2 hover:bg-gray-100"
-                  onClick={() => setDropdownOpen(false)}
+                <span
+                  className="block px-4 py-2 text-slate-500 hover:bg-gray-100 cursor-pointer"
+                  onClick={handleLoginRedirect}
                 >
                   Sign in
-                </Link>
+                </span>
                 <hr className="my-2 border-t border-gray-200 md:hidden" />
                 <Link
                   to="/write-post"
@@ -192,10 +206,7 @@ const Navbar: React.FC<NavbarProps> = ({ isAuthenticated, onLogout }) => {
                   Stories
                 </Link>
                 <button
-                  onClick={() => {
-                    setDropdownOpen(false);
-                    onLogout();
-                  }}
+                  onClick={handleLogoutClick}
                   className="block px-4 py-2 text-red-600 hover:bg-gray-100 w-full text-left"
                 >
                   Logout
