@@ -1,9 +1,9 @@
-// client/src/components/ClapUsersModal.tsx
 import React, { useEffect, useRef } from "react";
 
 interface ClapUser {
   _id: string;
   firstName: string;
+  lastName: string; // ✅ Required
   profilePicture?: string;
   claps: number;
 }
@@ -57,11 +57,13 @@ const ClapUsersModal: React.FC<ClapUsersModalProps> = ({ users, onClose }) => {
               >
                 <img
                   src={user.profilePicture || "/default-profile-picture.jpg"}
-                  alt={user.firstName}
+                  alt={`${user.firstName} ${user.lastName}`}
                   className="w-8 h-8 rounded-full object-cover"
                 />
                 <div className="flex flex-col">
-                  <span className="font-medium text-sm">{user.firstName}</span>
+                  <span className="font-medium text-sm">
+                    {user.firstName} {user.lastName}
+                  </span>
                   <span className="text-xs text-gray-500">
                     {user.claps} {user.claps === 1 ? "clap" : "claps"}
                   </span>

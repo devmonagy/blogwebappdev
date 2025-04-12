@@ -8,6 +8,7 @@ import clapSolidImage from "../assets/clapSolid.png";
 interface ClapUser {
   _id: string;
   firstName: string;
+  lastName: string; // ✅ Added lastName
   profilePicture?: string;
   claps: number;
 }
@@ -58,7 +59,7 @@ const ClapControl: React.FC<ClapControlProps> = ({
       const response = await axios.get<ClapUser[]>(
         `${process.env.REACT_APP_BACKEND_URL}/posts/${postId}/clap-users`
       );
-      setClapUsers(response.data);
+      setClapUsers(response.data); // ✅ Now includes firstName + lastName
       setShowModal(true);
     } catch (error) {
       console.error("Failed to load clap users:", error);

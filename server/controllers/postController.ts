@@ -34,7 +34,7 @@ export const createPost = async (
   }
 };
 
-// ✅ Get all posts with claps count (exclude clapsCount if zero)
+// ✅ Get all posts with claps count
 export const getPosts = async (
   req: Request,
   res: Response,
@@ -77,7 +77,7 @@ export const getPostById = async (
   }
 };
 
-// ✅ Updated: Get total claps (always) + user claps (only if logged in)
+// ✅ Get total claps + user claps
 export const getPostClaps = async (
   req: Request,
   res: Response
@@ -115,7 +115,7 @@ export const getPostClaps = async (
   }
 };
 
-// Get list of users who clapped on a post
+// ✅ Get users who clapped on a post (with full name)
 export const getClapUsers = async (
   req: AuthenticatedRequest,
   res: Response
@@ -125,7 +125,7 @@ export const getClapUsers = async (
   try {
     const post = await Post.findById(postId).populate(
       "userClaps.userId",
-      "firstName profilePicture"
+      "firstName lastName profilePicture" // ✅ include lastName
     );
 
     if (!post) {
@@ -143,6 +143,7 @@ export const getClapUsers = async (
       return {
         _id: user._id,
         firstName: user.firstName,
+        lastName: user.lastName, // ✅ include lastName
         profilePicture: user.profilePicture,
         claps: entry.count,
       };
@@ -155,7 +156,7 @@ export const getClapUsers = async (
   }
 };
 
-// Undo all user claps on a post
+// ✅ Undo all user claps on a post (return full names)
 export const undoUserClaps = async (
   req: AuthenticatedRequest,
   res: Response
@@ -187,7 +188,7 @@ export const undoUserClaps = async (
 
     const updatedPost = await Post.findById(postId).populate(
       "userClaps.userId",
-      "firstName profilePicture"
+      "firstName lastName profilePicture" // ✅ updated
     );
 
     const updatedClapUsers =
@@ -196,6 +197,7 @@ export const undoUserClaps = async (
         return {
           _id: user._id,
           firstName: user.firstName,
+          lastName: user.lastName, // ✅ include lastName
           profilePicture: user.profilePicture,
           claps: entry.count,
         };

@@ -22,6 +22,7 @@ interface PostActionsProps {
 interface ClapUser {
   _id: string;
   firstName: string;
+  lastName: string; // ✅ Added lastName
   profilePicture?: string;
   claps: number;
 }
