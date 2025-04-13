@@ -75,7 +75,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   return (
     <div className="container p-7 p-2 h-full py-10 flex items-center justify-center bg-background">
       <div className="bg-background p-6 rounded-md shadow-lg max-w-md w-full mx-0">
-        <h2 className="text-2xl font-bold mb-4 text-center text-black">
+        <h2 className="text-lg font-bold mb-4 text-center text-primaryText">
           Welcome Back
         </h2>
         {error && <p className="text-red-500 mb-4">{error}</p>}
