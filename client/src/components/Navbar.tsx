@@ -135,7 +135,7 @@ const Navbar: React.FC<NavbarProps> = ({
         <img
           src={
             profilePicture ||
-            "https://res.cloudinary.com/dqdix32m5/image/upload/v1743881926/UserProfilePics/1743881923775-mo.png"
+            "https://res.cloudinary.com/dqdix32m5/image/upload/v1744561630/user_v0drnu_loggedoutdefault_z25o5l.png"
           }
           alt="User"
           className="w-8 h-8 rounded-full object-cover cursor-pointer"
