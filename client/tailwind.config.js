@@ -3,13 +3,18 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        background: "#fff",
-        header: "#f9f9f9",
-        footer: "#f9f9f9",
-        primaryText: "#000",
-        secondaryText: "#818589",
-        buttonBackground: "#1E88E5",
-        href: "#1E3A8A",
+        background: "#ffffff",
+        header: "#f3f4f6",
+        footer: "#f3f4f6",
+        primaryText: "#111827",
+        secondaryText: "#6B7280",
+        href: "#1f2937",
+        primaryButton: "#1f2937",
+        buttonHover: "#374151",
+        primaryButtonText: "#ffffff",
+        secondaryButton: "#1f2937",
+        secondaryHover: "#f3f4f6",
+        secondaryButtonText: "#1f2937",
       },
       fontFamily: {
         sans: ["Inter", "Arial", "sans-serif"],

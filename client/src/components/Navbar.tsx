@@ -101,7 +101,7 @@ const Navbar: React.FC<NavbarProps> = ({
       {/* Write: Desktop only */}
       <Link
         to="/write-post"
-        className="hidden md:flex items-center gap-1 hover:text-buttonBackground"
+        className="hidden md:flex items-center gap-1 hover:text-primaryButton"
       >
         <img src={writeIcon} alt="Write new post" className="w-4 h-4" />
         <span className="text-sm">Write</span>
@@ -112,12 +112,12 @@ const Navbar: React.FC<NavbarProps> = ({
         <>
           <Link
             to="/register"
-            className="hidden md:block bg-[#1E3A8A] text-white rounded-full px-4 py-1 font-medium hover:bg-[#172c66] transition"
+            className="hidden md:block bg-primaryButton text-primaryButtonText rounded-full px-4 py-1 font-medium hover:bg-buttonHover transition"
           >
             Sign up
           </Link>
           <span
-            className="hidden md:block text-sm hover:text-buttonBackground cursor-pointer"
+            className="hidden md:block text-sm text-secondaryButtonText hover:text-primaryButton cursor-pointer"
             onClick={handleLoginRedirect}
           >
             Sign in
@@ -155,13 +155,13 @@ const Navbar: React.FC<NavbarProps> = ({
                 <Link
                   to="/register"
                   onClick={() => setDropdownOpen(false)}
-                  className="block w-full text-center bg-[#1E3A8A] text-white rounded-full py-2 mb-2 font-semibold hover:bg-[#172c66] transition"
+                  className="block w-full text-center bg-primaryButton text-primaryButtonText rounded-full py-2 mb-2 font-semibold hover:bg-buttonHover transition"
                 >
                   Sign up
                 </Link>
                 <button
                   onClick={handleLoginRedirect}
-                  className="block w-full text-center bg-white text-[#6F8FAF] border border-[#6F8FAF] rounded-full py-2 font-semibold hover:bg-[#f3f4f6] hover:text-[#5d7e9b] transition"
+                  className="block w-full text-center bg-white text-secondaryButtonText border border-secondaryButton rounded-full py-2 font-semibold hover:bg-secondaryHover transition"
                 >
                   Sign in
                 </button>

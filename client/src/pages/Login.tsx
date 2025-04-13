@@ -125,7 +125,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           </div>
           <button
             type="submit"
-            className="w-full bg-black text-white py-2 rounded-md hover:bg-blue-600"
+            className="w-full bg-primaryButton text-primaryButtonText py-2 rounded-md font-medium hover:bg-buttonHover transition"
           >
             Login
           </button>

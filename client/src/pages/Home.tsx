@@ -133,20 +133,20 @@ const Home: React.FC = () => {
                 </div>
 
                 {/* TITLE */}
-                <h2 className="text-sm sm:text-lg font-semibold mb-2">
+                <h2 className="text-sm text-primaryText sm:text-lg font-semibold mb-2">
                   {post.title}
                 </h2>
 
                 {/* EXCERPT */}
                 <div
-                  className="text-xs sm:text-sm mb-4 text-gray-700"
+                  className="text-xs sm:text-sm mb-4 text-secondaryText"
                   dangerouslySetInnerHTML={{
                     __html: truncateContent(post.content, 100),
                   }}
                 />
 
                 {/* DATE + ICONS */}
-                <div className="flex items-center gap-4 text-xs text-gray-500">
+                <div className="flex items-center gap-4 text-xs text-secondaryText">
                   <span>{formatDate(post.createdAt)}</span>
                   {post.clapsCount && post.clapsCount > 0 && (
                     <div className="flex items-center gap-1">
@@ -170,11 +170,11 @@ const Home: React.FC = () => {
             </div>
           ))
         ) : (
-          <p className="text-gray-500">No posts available yet.</p>
+          <p className="text-secondaryText">No posts available yet.</p>
         )}
 
         <div
-          className={`fixed bottom-0 left-0 right-0 bg-blue-900 text-white py-3 px-4 text-center transition-transform duration-1000 ease-in-out flex justify-between items-center ${
+          className={`fixed bottom-0 left-0 right-0 bg-primaryButton text-white py-3 px-4 text-center transition-transform duration-1000 ease-in-out flex justify-between items-center ${
             infoBarVisible ? "translate-y-0" : "translate-y-full"
           }`}
         >
