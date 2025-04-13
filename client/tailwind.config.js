@@ -9,7 +9,7 @@ module.exports = {
         primaryText: "#000",
         secondaryText: "#818589",
         buttonBackground: "#1E88E5",
-        href: "#6F8FAF",
+        href: "#1E3A8A",
       },
       fontFamily: {
         sans: ["Inter", "Arial", "sans-serif"],

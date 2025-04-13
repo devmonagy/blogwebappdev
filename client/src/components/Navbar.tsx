@@ -112,7 +112,7 @@ const Navbar: React.FC<NavbarProps> = ({
         <>
           <Link
             to="/register"
-            className="hidden md:block bg-[#6F8FAF] text-gray-100 shadow-sm rounded-full px-4 py-1 font-medium hover:bg-[#5d7e9b] transition"
+            className="hidden md:block bg-[#1E3A8A] text-white rounded-full px-4 py-1 font-medium hover:bg-[#172c66] transition"
           >
             Sign up
           </Link>
@@ -155,7 +155,7 @@ const Navbar: React.FC<NavbarProps> = ({
                 <Link
                   to="/register"
                   onClick={() => setDropdownOpen(false)}
-                  className="block w-full text-center bg-[#6F8FAF] text-gray-100 shadow-sm rounded-full py-2 mb-2 font-semibold hover:bg-[#5d7e9b] transition"
+                  className="block w-full text-center bg-[#1E3A8A] text-white rounded-full py-2 mb-2 font-semibold hover:bg-[#172c66] transition"
                 >
                   Sign up
                 </Link>
