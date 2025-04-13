@@ -2,6 +2,7 @@ import express, { Request, Response, Application } from "express";
 import http from "http";
 import dotenv from "dotenv";
 import cors from "cors";
+import helmet from "helmet";
 import { Server as SocketIoServer } from "socket.io";
 import connectDB from "./config/db";
 import authRoutes from "./routes/authRoutes";
@@ -13,6 +14,33 @@ dotenv.config();
 
 const app: Application = express();
 const server = http.createServer(app);
+
+// Apply security headers via Helmet
+app.use(helmet());
+app.use(helmet.noSniff()); // X-Content-Type-Options
+app.use(helmet.frameguard({ action: "deny" })); // X-Frame-Options
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "https://res.cloudinary.com"],
+      imgSrc: ["'self'", "data:", "https://res.cloudinary.com"],
+      connectSrc: [
+        "'self'",
+        "https://blogwebapp.monagy.com",
+        "https://api.cloudinary.com",
+      ],
+      objectSrc: ["'none'"],
+      baseUri: ["'self'"],
+    },
+  })
+);
+
+// Additional security header (Cross-Origin-Resource-Policy)
+app.use((req, res, next) => {
+  res.setHeader("Cross-Origin-Resource-Policy", "same-origin");
+  next();
+});
 
 const io = new SocketIoServer(server, {
   transports: ["websocket"],
