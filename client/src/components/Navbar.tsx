@@ -2,6 +2,10 @@ import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate, Location } from "react-router-dom";
 import writeIcon from "../assets/Write.png";
 import bellIcon from "../assets/bell.png";
+import profileIcon from "../assets/ProfileDropIcon.png";
+import libraryIcon from "../assets/LibraryDropIcon.png";
+import storiesIcon from "../assets/StoriesDropIcon.png";
+import logoutIcon from "../assets/LogoutDropIcon.png";
 import axios from "axios";
 
 interface NavbarProps {
@@ -99,7 +103,7 @@ const Navbar: React.FC<NavbarProps> = ({
         to="/write-post"
         className="hidden md:flex items-center gap-1 hover:text-buttonBackground"
       >
-        <img src={writeIcon} alt="Write" className="w-4 h-4" />
+        <img src={writeIcon} alt="Write new post" className="w-4 h-4" />
         <span className="text-sm">Write</span>
       </Link>
 
@@ -166,10 +170,14 @@ const Navbar: React.FC<NavbarProps> = ({
 
                 <Link
                   to="/write-post"
-                  className="md:hidden flex items-center gap-2 hover:bg-gray-100 px-2 py-2 rounded"
+                  className="md:hidden flex items-center gap-2 hover:bg-gray-100 px-4 py-2 rounded"
                   onClick={() => setDropdownOpen(false)}
                 >
-                  <img src={writeIcon} alt="Write" className="w-4 h-4" />
+                  <img
+                    src={writeIcon}
+                    alt="Write new post"
+                    className="w-4 h-4"
+                  />
                   <span className="text-sm">Write</span>
                 </Link>
               </>
@@ -177,10 +185,14 @@ const Navbar: React.FC<NavbarProps> = ({
               <>
                 <Link
                   to="/write-post"
-                  className="md:hidden flex items-center gap-2 hover:bg-gray-100 px-2 py-2 rounded"
+                  className="md:hidden flex items-center gap-2 hover:bg-gray-100 px-4 py-2 rounded"
                   onClick={() => setDropdownOpen(false)}
                 >
-                  <img src={writeIcon} alt="Write" className="w-4 h-4" />
+                  <img
+                    src={writeIcon}
+                    alt="Write new post"
+                    className="w-4 h-4"
+                  />
                   <span className="text-sm">Write</span>
                 </Link>
 
@@ -188,30 +200,46 @@ const Navbar: React.FC<NavbarProps> = ({
 
                 <Link
                   to="/dashboard"
-                  className="block px-4 py-2 hover:bg-gray-100"
+                  className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded"
                   onClick={() => setDropdownOpen(false)}
                 >
-                  Profile
+                  <img
+                    src={profileIcon}
+                    alt="Profile icon"
+                    className="w-4 h-4"
+                  />
+                  <span className="text-sm">Profile</span>
                 </Link>
                 <Link
-                  to="/library"
-                  className="block px-4 py-2 hover:bg-gray-100"
+                  to="/dashboard"
+                  className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded"
                   onClick={() => setDropdownOpen(false)}
                 >
-                  Library
+                  <img
+                    src={libraryIcon}
+                    alt="Library icon"
+                    className="w-4 h-4"
+                  />
+                  <span className="text-sm">Library</span>
                 </Link>
                 <Link
-                  to="/stories"
-                  className="block px-4 py-2 hover:bg-gray-100"
+                  to="/dashboard"
+                  className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded"
                   onClick={() => setDropdownOpen(false)}
                 >
-                  Stories
+                  <img
+                    src={storiesIcon}
+                    alt="Stories icon"
+                    className="w-4 h-4"
+                  />
+                  <span className="text-sm">Stories</span>
                 </Link>
                 <button
                   onClick={handleLogoutClick}
-                  className="block px-4 py-2 text-red-600 hover:bg-gray-100 w-full text-left"
+                  className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-gray-100 w-full text-left rounded"
                 >
-                  Logout
+                  <img src={logoutIcon} alt="Logout icon" className="w-4 h-4" />
+                  <span className="text-sm">Logout</span>
                 </button>
               </>
             )}
