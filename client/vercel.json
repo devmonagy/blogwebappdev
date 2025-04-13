@@ -14,7 +14,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' https://res.cloudinary.com; img-src 'self' data: https://res.cloudinary.com; connect-src 'self' https://blogwebapp-dev.onrender.com; object-src 'none'; base-uri 'self';"
+          "value": "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://res.cloudinary.com; connect-src 'self' https://blogwebapp-dev.onrender.com; object-src 'none'; base-uri 'self';"
         },
         {
           "key": "X-Content-Type-Options",
