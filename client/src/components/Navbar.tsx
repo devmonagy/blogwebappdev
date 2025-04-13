@@ -108,7 +108,7 @@ const Navbar: React.FC<NavbarProps> = ({
         <>
           <Link
             to="/register"
-            className="hidden md:block text-sm hover:text-buttonBackground"
+            className="hidden md:block bg-[#6F8FAF] text-white rounded-full px-4 py-1 font-medium hover:bg-[#5d7e9b] transition"
           >
             Sign up
           </Link>
@@ -142,29 +142,31 @@ const Navbar: React.FC<NavbarProps> = ({
           onClick={toggleDropdown}
         />
         {dropdownOpen && (
-          <div className="absolute right-0 mt-2 w-52 bg-white text-gray-800 rounded-md shadow-lg py-2 z-50">
+          <div className="absolute right-0 mt-2 w-60 bg-white text-gray-800 rounded-md shadow-lg py-4 px-4 z-50">
             {!isAuthenticated ? (
               <>
-                <p className="px-4 text-sm text-gray-500 mb-1">
+                <p className="text-sm text-gray-600 font-medium mb-3">
                   Get started on Blogwebapp
                 </p>
                 <Link
                   to="/register"
-                  className="block px-4 py-2 font-semibold text-href hover:bg-gray-100"
                   onClick={() => setDropdownOpen(false)}
+                  className="block w-full text-center bg-[#6F8FAF] text-white rounded-full py-2 mb-2 font-semibold hover:bg-[#5d7e9b] transition"
                 >
                   Sign up
                 </Link>
-                <span
-                  className="block px-4 py-2 text-slate-500 hover:bg-gray-100 cursor-pointer"
+                <button
                   onClick={handleLoginRedirect}
+                  className="block w-full text-center bg-white text-[#6F8FAF] border border-[#6F8FAF] rounded-full py-2 font-semibold hover:bg-[#f3f4f6] hover:text-[#5d7e9b] transition"
                 >
                   Sign in
-                </span>
-                <hr className="my-2 border-t border-gray-200 md:hidden" />
+                </button>
+
+                <hr className="my-3 border-t border-gray-200 md:hidden" />
+
                 <Link
                   to="/write-post"
-                  className="md:hidden flex items-center gap-2 px-4 py-2 hover:bg-gray-100"
+                  className="md:hidden flex items-center gap-2 hover:bg-gray-100 px-2 py-2 rounded"
                   onClick={() => setDropdownOpen(false)}
                 >
                   <img src={writeIcon} alt="Write" className="w-4 h-4" />
@@ -175,7 +177,7 @@ const Navbar: React.FC<NavbarProps> = ({
               <>
                 <Link
                   to="/write-post"
-                  className="md:hidden flex items-center gap-2 px-4 py-2 hover:bg-gray-100"
+                  className="md:hidden flex items-center gap-2 hover:bg-gray-100 px-2 py-2 rounded"
                   onClick={() => setDropdownOpen(false)}
                 >
                   <img src={writeIcon} alt="Write" className="w-4 h-4" />
