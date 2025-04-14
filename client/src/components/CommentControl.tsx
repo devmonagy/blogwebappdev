@@ -1,9 +1,16 @@
 import React from "react";
 import commentIcon from "../assets/commentsLight.png";
 
-const CommentControl: React.FC = () => {
+interface CommentControlProps {
+  onClick: () => void;
+}
+
+const CommentControl: React.FC<CommentControlProps> = ({ onClick }) => {
   return (
-    <div className="flex items-center cursor-pointer text-sm text-black">
+    <div
+      className="flex items-center cursor-pointer text-sm text-black"
+      onClick={onClick}
+    >
       <img
         src={commentIcon}
         alt="Comments"

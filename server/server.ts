@@ -1,3 +1,4 @@
+// server.ts
 import express, { Request, Response, Application } from "express";
 import http from "http";
 import dotenv from "dotenv";
@@ -8,17 +9,19 @@ import connectDB from "./config/db";
 import authRoutes from "./routes/authRoutes";
 import postRoutes from "./routes/postRoutes";
 import adminRoutes from "./routes/adminRoutes";
+import commentRoutes from "./routes/commentRoutes";
 import Post from "./models/Post";
+import Comment from "./models/Comment";
+import User from "./models/User";
 
 dotenv.config();
 
 const app: Application = express();
 const server = http.createServer(app);
 
-// Apply security headers via Helmet
 app.use(helmet());
-app.use(helmet.noSniff()); // X-Content-Type-Options
-app.use(helmet.frameguard({ action: "deny" })); // X-Frame-Options
+app.use(helmet.noSniff());
+app.use(helmet.frameguard({ action: "deny" }));
 app.use(
   helmet.contentSecurityPolicy({
     directives: {
@@ -36,7 +39,6 @@ app.use(
   })
 );
 
-// Additional security header (Cross-Origin-Resource-Policy)
 app.use((req, res, next) => {
   res.setHeader("Cross-Origin-Resource-Policy", "same-origin");
   next();
@@ -85,7 +87,6 @@ app.use(
 );
 
 app.use(express.json());
-
 app.options("/socket.io/*", cors());
 
 app.get("/", (req: Request, res: Response) => {
@@ -139,6 +140,32 @@ io.on("connection", (socket) => {
     }
   });
 
+  // ✅ Real-time comment/reply with populated author
+  socket.on(
+    "newComment",
+    async ({ postId, content, parentComment, userId }) => {
+      try {
+        const newComment = await Comment.create({
+          post: postId,
+          content,
+          parentComment: parentComment || null,
+          author: userId,
+        });
+
+        const populatedComment = await Comment.findById(newComment._id)
+          .populate("author", "firstName lastName profilePicture")
+          .lean();
+
+        if (populatedComment) {
+          io.emit("commentAdded", populatedComment);
+        }
+      } catch (error) {
+        console.error("❌ Error posting comment:", error);
+        socket.emit("error", "Failed to post comment.");
+      }
+    }
+  );
+
   socket.on("disconnect", () => {
     console.log("👋 Client disconnected:", socket.id);
   });
@@ -147,6 +174,7 @@ io.on("connection", (socket) => {
 app.use("/auth", authRoutes);
 app.use("/posts", postRoutes);
 app.use("/admin", adminRoutes);
+app.use("/comments", commentRoutes);
 
 server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);

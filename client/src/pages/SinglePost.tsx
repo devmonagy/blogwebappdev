@@ -1,18 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import DOMPurify from "dompurify";
-import "../styles/quill-custom.css";
 import PostActions from "../components/PostActions";
+import PostHeader from "../components/PostHeader";
+import PostBody from "../components/PostBody";
+import CommentsDrawer from "../components/CommentsDrawer";
+import CommentInput from "../components/CommentInput";
+import CommentList from "../components/CommentList";
+import socket from "../socket";
 
-interface Author {
+export interface Author {
   _id: string;
   firstName: string;
   lastName: string;
   profilePicture?: string;
 }
 
-interface Post {
+export interface Post {
   _id: string;
   title: string;
   category: string;
@@ -23,186 +27,225 @@ interface Post {
   createdAt: string;
 }
 
+export interface CommentData {
+  _id: string;
+  postId: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+  author: Author;
+  replies?: CommentData[];
+  parentCommentId?: string;
+}
+
 const SinglePost: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+
   const [post, setPost] = useState<Post | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  const navigate = useNavigate();
-  const location = useLocation();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [comments, setComments] = useState<CommentData[]>([]);
+  const [editingComment, setEditingComment] = useState<CommentData | null>(
+    null
+  );
+  const [isCommentsOpen, setIsCommentsOpen] = useState(false);
+  const [activeReply, setActiveReply] = useState<string | null>(null);
+  const [replyTextMap, setReplyTextMap] = useState<{ [key: string]: string }>(
+    {}
+  );
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
       axios
-        .post<{ user: { _id: string; role: string } }>(
+        .post<{ user: Author & { role: string } }>(
           `${process.env.REACT_APP_BACKEND_URL}/auth/validate-token`,
           {},
           { headers: { Authorization: `Bearer ${token}` } }
         )
-        .then((response) => {
-          setUserId(response.data.user._id);
-          setUserRole(response.data.user.role);
+        .then(({ data }) => {
+          const user = data.user;
+          setUserId(user._id);
+          setUserRole(user.role);
           setIsAuthenticated(true);
         })
-        .catch(() => {
-          setError("Authentication failed");
-        });
+        .catch(() => {});
     }
 
-    const fetchPost = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get<Post>(
-          `${process.env.REACT_APP_BACKEND_URL}/posts/${id}`
-        );
-        setPost(response.data);
-      } catch {
-        setError("Failed to fetch the post.");
-      } finally {
-        setLoading(false);
+    if (id) {
+      axios
+        .get<Post>(`${process.env.REACT_APP_BACKEND_URL}/posts/${id}`)
+        .then((res) => setPost(res.data))
+        .catch(() => {});
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (!post?._id || !isCommentsOpen) return;
+    axios
+      .get<CommentData[]>(
+        `${process.env.REACT_APP_BACKEND_URL}/comments/${post._id}`
+      )
+      .then((res) => setComments(res.data))
+      .catch(() => {});
+  }, [isCommentsOpen, post]);
+
+  useEffect(() => {
+    const handleNewComment = (
+      comment: CommentData & { parentComment?: string }
+    ) => {
+      console.log("🧠 commentAdded received:", comment);
+
+      const parentId = comment.parentCommentId || comment.parentComment;
+      if (parentId) {
+        const insertReply = (list: CommentData[]): CommentData[] =>
+          list.map((c) => {
+            if (c._id === parentId) {
+              const alreadyExists = (c.replies || []).some(
+                (r) => r._id === comment._id
+              );
+              if (alreadyExists) return c;
+              return {
+                ...c,
+                replies: [...(c.replies || []), comment],
+              };
+            }
+            return {
+              ...c,
+              replies: c.replies ? insertReply(c.replies) : [],
+            };
+          });
+
+        setComments((prev) => insertReply(prev));
+      } else {
+        const exists = comments.some((c) => c._id === comment._id);
+        if (!exists) {
+          setComments((prev) => [...prev, { ...comment, replies: [] }]);
+        }
       }
     };
 
-    if (id) fetchPost();
-  }, [id]);
+    const bindSocket = () => {
+      console.log("📡 Binding commentAdded listener");
+      socket.on("commentAdded", handleNewComment);
+    };
 
-  const handleEdit = () => navigate(`/edit-post/${id}`);
+    if (socket.connected) {
+      bindSocket();
+    } else {
+      socket.once("connect", bindSocket);
+    }
 
-  const handleDelete = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-    try {
-      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/posts/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      alert("Post deleted successfully.");
-      navigate("/");
-    } catch {
-      setError("Failed to delete the post.");
+    return () => {
+      socket.off("commentAdded", handleNewComment);
+    };
+  }, [post, comments]);
+
+  const handleCommentSubmit = (newComment: CommentData) => {
+    if (editingComment) {
+      const updateInTree = (list: CommentData[]): CommentData[] =>
+        list.map((c) => {
+          if (c._id === newComment._id) {
+            return { ...c, content: newComment.content };
+          }
+          return {
+            ...c,
+            replies: c.replies ? updateInTree(c.replies) : [],
+          };
+        });
+      setComments(updateInTree);
+      setEditingComment(null);
+    } else {
+      setComments((prev) => [...prev, { ...newComment, replies: [] }]);
     }
   };
 
-  const getValidImageUrl = (url: string) => {
-    return url.startsWith("http")
-      ? url
-      : `${process.env.REACT_APP_BACKEND_URL}${url}`;
+  const handleReplySubmit = (parentId: string) => {
+    const content = replyTextMap[parentId];
+    if (!content?.trim() || !userId || !post?._id) return;
+
+    socket.emit("newComment", {
+      postId: post._id,
+      content: content.trim(),
+      userId,
+      parentComment: parentId,
+    });
+
+    setReplyTextMap((prev) => ({ ...prev, [parentId]: "" }));
+    setActiveReply(null);
   };
 
-  const contentForAuthenticated = () => {
-    if (!post) return null;
-    return (
-      <div
-        className="ql-editor text-base leading-relaxed"
-        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
-      />
-    );
+  const handleCommentEdit = (comment: CommentData) => {
+    setEditingComment(comment);
+    setIsCommentsOpen(true);
   };
 
-  const contentForUnauthenticated = () => {
-    if (!post) return null;
-    return (
-      <>
-        <div
-          className="ql-editor text-base leading-relaxed fade-out-overlay"
-          dangerouslySetInnerHTML={{
-            __html: DOMPurify.sanitize(post.content.substring(0, 500)),
-          }}
-        />
-        <div className="text-center my-4 text-gray-700">
-          <span>Continue reading this post by </span>
-          <span
-            className="text-blue-500 underline cursor-pointer"
-            onClick={() => navigate("/login", { state: { from: location } })}
-          >
-            logging in
-          </span>
-          . Not a member?{" "}
-          <a href="/register" className="text-blue-500 underline">
-            Register now!
-          </a>
-        </div>
-      </>
-    );
+  const handleCommentDelete = async (id: string) => {
+    const token = localStorage.getItem("token");
+    await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/comments/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const deleteFromTree = (list: CommentData[]): CommentData[] =>
+      list
+        .map((c) =>
+          c._id === id
+            ? null
+            : { ...c, replies: deleteFromTree(c.replies || []) }
+        )
+        .filter(Boolean) as CommentData[];
+
+    setComments(deleteFromTree);
   };
 
-  const renderSkeleton = () => (
-    <div className="animate-pulse space-y-6">
-      <div className="h-8 bg-gray-300 rounded w-3/4" />
-      <div className="flex items-center space-x-4">
-        <div className="w-12 h-12 rounded-full bg-gray-300" />
-        <div className="flex-1 space-y-2">
-          <div className="h-4 w-32 bg-gray-200 rounded" />
-          <div className="h-3 w-24 bg-gray-100 rounded" />
-        </div>
-      </div>
-      <div className="w-full h-64 bg-gray-200 rounded-md" />
-      <div className="space-y-3">
-        <div className="h-4 bg-gray-100 rounded w-full" />
-        <div className="h-4 bg-gray-100 rounded w-5/6" />
-        <div className="h-4 bg-gray-100 rounded w-4/6" />
-      </div>
-    </div>
-  );
+  if (!post) return <div className="p-4">Loading...</div>;
 
   return (
     <div className="container p-7 bg-background min-h-screen py-8 lg:max-w-screen-md">
       <div className="mx-auto p-3 text-primaryText shadow-lg rounded-lg bg-white animate-fade-in">
-        {loading ? (
-          renderSkeleton()
-        ) : error ? (
-          <p className="text-red-500">{error}</p>
-        ) : post ? (
-          <>
-            <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
-            <div className="flex items-center mb-6">
-              <img
-                src={
-                  post.author.profilePicture
-                    ? getValidImageUrl(post.author.profilePicture)
-                    : "/default-profile-picture.jpg"
-                }
-                alt={`${post.author.firstName} ${post.author.lastName}'s profile`}
-                className="w-12 h-12 rounded-full object-cover shadow-md mr-4"
-              />
-              <div>
-                <p className="text-lg font-medium">
-                  {post.author.firstName} {post.author.lastName}
-                </p>
-                <p className="text-sm text-gray-500">
-                  Published in:{" "}
-                  <span className="font-semibold">{post.category}</span> ·{" "}
-                  {new Date(post.createdAt).toLocaleDateString()}
-                </p>
-              </div>
-            </div>
-            <PostActions
-              userId={userId}
-              userRole={userRole}
-              postAuthorId={post.author._id}
-              postId={post._id}
-              handleEdit={handleEdit}
-              handlePinStory={() => {}}
-              handleStorySettings={() => {}}
-              handleDelete={handleDelete}
-            />
-            {post.imagePath && (
-              <img
-                src={getValidImageUrl(post.imagePath)}
-                alt={`Image for post: ${post.title}`}
-                className="w-full h-80 object-cover rounded-md mb-6 shadow-md"
-              />
-            )}
-            {isAuthenticated
-              ? contentForAuthenticated()
-              : contentForUnauthenticated()}
-          </>
-        ) : null}
+        <PostHeader post={post} />
+        <PostActions
+          userId={userId}
+          userRole={userRole}
+          postAuthorId={post.author._id}
+          postId={post._id}
+          handleEdit={() => navigate(`/edit-post/${id}`)}
+          handlePinStory={() => {}}
+          handleStorySettings={() => {}}
+          handleDelete={() => {}}
+          onCommentsClick={() => setIsCommentsOpen(true)}
+        />
+        <PostBody content={post.content} />
       </div>
+
+      <CommentsDrawer
+        isOpen={isCommentsOpen}
+        onClose={() => setIsCommentsOpen(false)}
+      >
+        <div className="flex flex-col gap-4 overflow-y-auto h-full">
+          <h2 className="text-lg font-semibold mb-2">Responses</h2>
+          <CommentInput
+            postId={post._id}
+            onCommentSubmit={handleCommentSubmit}
+            editingComment={editingComment}
+            onCancelEdit={() => setEditingComment(null)}
+          />
+          <CommentList
+            comments={comments}
+            onEdit={handleCommentEdit}
+            onDelete={handleCommentDelete}
+            userId={userId}
+            isAuthenticated={isAuthenticated}
+            activeReply={activeReply}
+            setActiveReply={setActiveReply}
+            replyTextMap={replyTextMap}
+            setReplyTextMap={setReplyTextMap}
+            onReplySubmit={handleReplySubmit}
+          />
+        </div>
+      </CommentsDrawer>
     </div>
   );
 };

@@ -17,12 +17,13 @@ interface PostActionsProps {
   handlePinStory: () => void;
   handleStorySettings: () => void;
   handleDelete: () => void;
+  onCommentsClick: () => void; // ✅ Added
 }
 
 interface ClapUser {
   _id: string;
   firstName: string;
-  lastName: string; // ✅ Added lastName
+  lastName: string;
   profilePicture?: string;
   claps: number;
 }
@@ -36,6 +37,7 @@ const PostActions: React.FC<PostActionsProps> = ({
   handlePinStory,
   handleStorySettings,
   handleDelete,
+  onCommentsClick, // ✅ New prop
 }) => {
   const isAuthor = userId === postAuthorId;
   const isAdmin = userRole === "admin";
@@ -116,7 +118,7 @@ const PostActions: React.FC<PostActionsProps> = ({
             setClapUsers={setClapUsers}
             setShowModal={setShowModal}
           />
-          <CommentControl />
+          <CommentControl onClick={onCommentsClick} /> {/* ✅ Hooked up */}
         </div>
         <div className="relative flex items-center space-x-4">
           <FontAwesomeIcon
