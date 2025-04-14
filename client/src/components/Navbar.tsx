@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate, Location } from "react-router-dom";
 import writeIcon from "../assets/Write.png";
 import bellIcon from "../assets/bell.png";
+import appInfoIcon from "../assets/AppInfo.png";
 import profileIcon from "../assets/ProfileDropIcon.png";
 import libraryIcon from "../assets/LibraryDropIcon.png";
 import storiesIcon from "../assets/StoriesDropIcon.png";
@@ -166,8 +167,21 @@ const Navbar: React.FC<NavbarProps> = ({
                   Sign in
                 </button>
 
-                <hr className="my-3 border-t border-gray-200 md:hidden" />
+                {/* App Info: desktop view */}
+                <div className="hidden md:block">
+                  <hr className="my-3 border-t border-gray-200" />
+                  <Link
+                    to="/about"
+                    className="flex items-center gap-2 px-1 py-2 hover:text-primaryButton"
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    <img src={appInfoIcon} alt="App info" className="w-4 h-4" />
+                    <span className="text-sm">App info</span>
+                  </Link>
+                </div>
 
+                {/* App Info: mobile view */}
+                <hr className="my-3 border-t border-gray-200 md:hidden" />
                 <Link
                   to="/write-post"
                   className="md:hidden flex items-center gap-2 hover:bg-gray-100 px-4 py-2 rounded"
@@ -179,10 +193,19 @@ const Navbar: React.FC<NavbarProps> = ({
                     className="w-4 h-4"
                   />
                   <span className="text-sm">Write</span>
+                </Link>
+                <Link
+                  to="/about"
+                  className="md:hidden flex items-center gap-2 hover:bg-gray-100 px-4 py-2 rounded"
+                  onClick={() => setDropdownOpen(false)}
+                >
+                  <img src={appInfoIcon} alt="App info" className="w-4 h-4" />
+                  <span className="text-sm">App info</span>
                 </Link>
               </>
             ) : (
               <>
+                {/* Write (Mobile only) */}
                 <Link
                   to="/write-post"
                   className="md:hidden flex items-center gap-2 hover:bg-gray-100 px-4 py-2 rounded"
@@ -196,7 +219,17 @@ const Navbar: React.FC<NavbarProps> = ({
                   <span className="text-sm">Write</span>
                 </Link>
 
-                <hr className="my-2 border-t border-gray-200 md:hidden" />
+                {/* App Info (Before Divider) */}
+                <Link
+                  to="/about"
+                  className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded"
+                  onClick={() => setDropdownOpen(false)}
+                >
+                  <img src={appInfoIcon} alt="App info" className="w-4 h-4" />
+                  <span className="text-sm">App info</span>
+                </Link>
+
+                <hr className="my-2 border-t border-gray-200" />
 
                 <Link
                   to="/dashboard"
