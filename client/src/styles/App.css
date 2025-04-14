@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Merriweather:wght@700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Space+Grotesk:wght@600&display=swap");
 
 /* Global styles */
 * {
@@ -15,7 +15,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: "Merriweather", serif;
+  font-family: "Space Grotesk", sans-serif;
 }
 
 .home {
@@ -28,15 +28,18 @@ h6 {
 .login h2 {
   text-align: center;
 }
+
 .eyecomp {
   background: #e5e7eb;
 }
+
 .round-skeleton {
-  width: 24px; /* adjust size as needed */
-  height: 24px; /* same as width */
-  background-color: #e0e0e0; /* your choice of skeleton color */
+  width: 24px;
+  height: 24px;
+  background-color: #e0e0e0;
   border-radius: 50%;
 }
+
 .info-text {
   flex-grow: 1;
   text-align: center;
@@ -44,19 +47,19 @@ h6 {
 
 .clap-bubble {
   position: absolute;
-  bottom: 30px; /* Adjust based on your icon's position */
-  right: 0; /* Adjust as needed to position correctly next to the icon */
+  bottom: 30px;
+  right: 0;
   background-color: black;
   color: white;
   border-radius: 50%;
-  width: 30px; /* Set a fixed width */
-  height: 30px; /* Set a fixed height to match the width */
+  width: 30px;
+  height: 30px;
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 0.75rem;
   box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
-  animation: bubble-animation 0.5s linear; /* Faster animation */
+  animation: bubble-animation 0.5s linear;
 }
 
 @keyframes bubble-animation {

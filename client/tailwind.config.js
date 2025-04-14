@@ -18,7 +18,7 @@ module.exports = {
       },
       fontFamily: {
         sans: ["Inter", "Arial", "sans-serif"],
-        serif: ["Merriweather", "serif"],
+        serif: ["Space Grotesk", "sans-serif"],
       },
       fontSize: {
         xxs: "0.65rem",
