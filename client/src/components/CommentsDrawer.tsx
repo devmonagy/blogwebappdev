@@ -12,9 +12,7 @@ const CommentsDrawer: React.FC<CommentsDrawerProps> = ({
   onClose,
   children,
 }) => {
-  const [isMobile, setIsMobile] = useState<boolean>(
-    window.innerWidth < 640 // Tailwind sm breakpoint
-  );
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
 
   useEffect(() => {
     const handleResize = () => {
@@ -42,17 +40,18 @@ const CommentsDrawer: React.FC<CommentsDrawerProps> = ({
       {/* Drawer */}
       <div
         className={classNames(
-          "fixed bg-white shadow-xl transition-all duration-300 ease-in-out z-50",
+          "fixed bg-white shadow-xl transition-transform duration-300 ease-in-out z-50",
           "w-full sm:w-[420px] bottom-0 sm:bottom-auto right-0 sm:right-0 overflow-hidden",
           {
             // Desktop
             "sm:top-0 sm:h-full sm:translate-x-0 sm:rounded-none":
               isOpen && !isMobile,
-            "sm:translate-x-full": !isOpen && !isMobile,
+            "sm:translate-x-full sm:top-0 sm:h-full sm:rounded-none":
+              !isOpen && !isMobile,
 
             // Mobile
             "translate-y-0 h-3/4 rounded-t-xl px-4": isOpen && isMobile,
-            "translate-y-full": !isOpen && isMobile,
+            "translate-y-full h-3/4 rounded-t-xl px-4": !isOpen && isMobile,
           }
         )}
       >

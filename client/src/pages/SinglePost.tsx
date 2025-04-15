@@ -56,6 +56,20 @@ const SinglePost: React.FC = () => {
     {}
   );
 
+  // Count total comments and replies recursively
+  const getTotalCommentCount = (list: CommentData[]): number => {
+    let count = 0;
+    for (const comment of list) {
+      count += 1;
+      if (comment.replies?.length) {
+        count += getTotalCommentCount(comment.replies);
+      }
+    }
+    return count;
+  };
+
+  const totalComments = getTotalCommentCount(comments);
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -82,22 +96,21 @@ const SinglePost: React.FC = () => {
     }
   }, [id]);
 
+  // ✅ Fetch comments immediately when post is available (not just on drawer open)
   useEffect(() => {
-    if (!post?._id || !isCommentsOpen) return;
+    if (!post?._id) return;
     axios
       .get<CommentData[]>(
         `${process.env.REACT_APP_BACKEND_URL}/comments/${post._id}`
       )
       .then((res) => setComments(res.data))
       .catch(() => {});
-  }, [isCommentsOpen, post]);
+  }, [post?._id]);
 
   useEffect(() => {
     const handleNewComment = (
       comment: CommentData & { parentComment?: string }
     ) => {
-      console.log("🧠 commentAdded received:", comment);
-
       const parentId = comment.parentCommentId || comment.parentComment;
       if (parentId) {
         const insertReply = (list: CommentData[]): CommentData[] =>
@@ -128,7 +141,6 @@ const SinglePost: React.FC = () => {
     };
 
     const bindSocket = () => {
-      console.log("📡 Binding commentAdded listener");
       socket.on("commentAdded", handleNewComment);
     };
 
@@ -141,7 +153,7 @@ const SinglePost: React.FC = () => {
     return () => {
       socket.off("commentAdded", handleNewComment);
     };
-  }, [post, comments]);
+  }, [comments]);
 
   const handleCommentSubmit = (newComment: CommentData) => {
     if (editingComment) {
@@ -216,6 +228,7 @@ const SinglePost: React.FC = () => {
           handleStorySettings={() => {}}
           handleDelete={() => {}}
           onCommentsClick={() => setIsCommentsOpen(true)}
+          commentCount={totalComments}
         />
         <PostBody content={post.content} />
       </div>
@@ -225,7 +238,9 @@ const SinglePost: React.FC = () => {
         onClose={() => setIsCommentsOpen(false)}
       >
         <div className="flex flex-col gap-4 overflow-y-auto h-full">
-          <h2 className="text-lg font-semibold mb-2">Responses</h2>
+          <h2 className="text-lg font-semibold mb-2">
+            Responses {totalComments > 0 && <span>({totalComments})</span>}
+          </h2>
           <CommentInput
             postId={post._id}
             onCommentSubmit={handleCommentSubmit}
@@ -237,6 +252,7 @@ const SinglePost: React.FC = () => {
             onEdit={handleCommentEdit}
             onDelete={handleCommentDelete}
             userId={userId}
+            userRole={userRole}
             isAuthenticated={isAuthenticated}
             activeReply={activeReply}
             setActiveReply={setActiveReply}

@@ -24,6 +24,7 @@ interface Props {
   onEdit: (comment: CommentData) => void;
   onDelete: (id: string) => void;
   userId: string | null;
+  userRole: string | null; // ✅ Add userRole here
   isAuthenticated: boolean;
   activeReply: string | null;
   setActiveReply: (id: string | null) => void;
@@ -39,6 +40,7 @@ const CommentList: React.FC<Props> = ({
   onEdit,
   onDelete,
   userId,
+  userRole, // ✅ Destructure userRole
   isAuthenticated,
   activeReply,
   setActiveReply,
@@ -55,6 +57,7 @@ const CommentList: React.FC<Props> = ({
           onEdit={onEdit}
           onDelete={onDelete}
           userId={userId}
+          userRole={userRole} // ✅ Pass userRole to CommentThread
           isAuthenticated={isAuthenticated}
           activeReply={activeReply}
           setActiveReply={setActiveReply}
