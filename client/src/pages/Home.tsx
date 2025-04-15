@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import clapSolidImage from "../assets/clapSolid.png";
-import commentBubbleImage from "../assets/CommentBubble.png";
+import commentSolidImage from "../assets/commentsSolid.png"; // ✅ Updated icon
 import "../styles/quill-custom.css";
 
 interface Author {
@@ -78,8 +78,9 @@ const Home: React.FC = () => {
   const getValidImageUrl = (url: string) => {
     return url.startsWith("http")
       ? url
-      : `${process.env.REACT_APP_BACKEND_URL}$
-          {url.startsWith("/") ? "" : "/"}${url}`;
+      : `${process.env.REACT_APP_BACKEND_URL}${
+          url.startsWith("/") ? "" : "/"
+        }${url}`;
   };
 
   const renderSkeleton = () => (
@@ -110,69 +111,89 @@ const Home: React.FC = () => {
         ) : error ? (
           <p className="text-red-500">{error}</p>
         ) : posts.length > 0 ? (
-          posts.map((post) => (
-            <div
-              key={post._id}
-              onClick={() => navigate(`/post/${post._id}`)}
-              className="flex flex-row items-center p-4 rounded shadow-sm bg-white cursor-pointer hover:shadow-lg transition-shadow opacity-0 animate-fade-in"
-            >
-              <div className="flex-1">
-                {/* AUTHOR + PROFILE PIC */}
-                <div className="flex items-center gap-2 mb-4">
-                  <img
-                    src={getValidImageUrl(
-                      post.author.profilePicture ||
-                        "/default-profile-picture.jpg"
-                    )}
-                    alt={post.author.firstName}
-                    className="w-6 h-6 rounded-full object-cover"
+          posts.map((post) => {
+            const hasClaps = (post.clapsCount ?? 0) > 0;
+            const hasComments = (post.commentsCount ?? 0) > 0;
+
+            return (
+              <div
+                key={post._id}
+                onClick={() => navigate(`/post/${post._id}`)}
+                className="flex flex-row items-center p-4 rounded shadow-sm bg-white cursor-pointer hover:shadow-lg transition-shadow opacity-0 animate-fade-in"
+              >
+                <div className="flex-1">
+                  {/* AUTHOR */}
+                  <div className="flex items-center gap-2 mb-4">
+                    <img
+                      src={getValidImageUrl(
+                        post.author.profilePicture ||
+                          "/default-profile-picture.jpg"
+                      )}
+                      alt={post.author.firstName}
+                      className="w-6 h-6 rounded-full object-cover"
+                    />
+                    <span className="text-sm font-medium">
+                      {post.author.firstName} {post.author.lastName}
+                    </span>
+                  </div>
+
+                  {/* TITLE */}
+                  <h2 className="text-sm text-primaryText sm:text-lg font-semibold mb-2">
+                    {post.title}
+                  </h2>
+
+                  {/* EXCERPT */}
+                  <div
+                    className="text-xs sm:text-sm mb-4 text-secondaryText"
+                    dangerouslySetInnerHTML={{
+                      __html: truncateContent(post.content, 100),
+                    }}
                   />
-                  <span className="text-sm font-medium">
-                    {post.author.firstName} {post.author.lastName}
-                  </span>
-                </div>
 
-                {/* TITLE */}
-                <h2 className="text-sm text-primaryText sm:text-lg font-semibold mb-2">
-                  {post.title}
-                </h2>
-
-                {/* EXCERPT */}
-                <div
-                  className="text-xs sm:text-sm mb-4 text-secondaryText"
-                  dangerouslySetInnerHTML={{
-                    __html: truncateContent(post.content, 100),
-                  }}
-                />
-
-                {/* DATE + ICONS */}
-                <div className="flex items-center gap-4 text-xs text-secondaryText">
-                  <span>{formatDate(post.createdAt)}</span>
-                  {post.clapsCount && post.clapsCount > 0 && (
-                    <div className="flex items-center gap-1">
-                      <img
-                        src={clapSolidImage}
-                        alt="Claps"
-                        className="w-3.5 h-3.5 opacity-35"
-                      />
-                      <span>{post.clapsCount}</span>
+                  {/* DATE + CLAPS + COMMENTS */}
+                  <div className="flex items-center gap-4 text-xs text-secondaryText">
+                    <span>{formatDate(post.createdAt)}</span>
+                    <div className="flex items-center gap-4">
+                      {hasClaps && (
+                        <div className="flex items-center gap-1">
+                          <img
+                            src={clapSolidImage}
+                            alt="Claps"
+                            className="w-3.5 h-3.5 opacity-35"
+                          />
+                          <span>{post.clapsCount}</span>
+                        </div>
+                      )}
+                      {hasComments && (
+                        <div className="flex items-center gap-1">
+                          <img
+                            src={commentSolidImage}
+                            alt="Comments"
+                            className="w-3 h-3 opacity-35"
+                          />
+                          <span>{post.commentsCount}</span>
+                        </div>
+                      )}
                     </div>
-                  )}
+                  </div>
                 </div>
+
+                {/* IMAGE */}
+                {post.imagePath && (
+                  <img
+                    src={getValidImageUrl(post.imagePath)}
+                    alt={post.title}
+                    className="w-24 h-24 object-cover rounded ml-4 sm:w-32 sm:h-32"
+                  />
+                )}
               </div>
-              {post.imagePath && (
-                <img
-                  src={getValidImageUrl(post.imagePath)}
-                  alt={post.title}
-                  className="w-24 h-24 object-cover rounded ml-4 sm:w-32 sm:h-32"
-                />
-              )}
-            </div>
-          ))
+            );
+          })
         ) : (
           <p className="text-secondaryText">No posts available yet.</p>
         )}
 
+        {/* INFO BAR */}
         <div
           className={`fixed bottom-0 left-0 right-0 bg-primaryButton text-white py-3 px-4 text-center transition-transform duration-1000 ease-in-out flex justify-between items-center ${
             infoBarVisible ? "translate-y-0" : "translate-y-full"

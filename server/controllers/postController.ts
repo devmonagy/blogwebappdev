@@ -3,7 +3,7 @@ import Post from "../models/Post";
 import { AuthenticatedRequest } from "../middleware/authenticate";
 import jwt from "jsonwebtoken";
 
-// Create a new post
+// ✅ Create a new post
 export const createPost = async (
   req: Request,
   res: Response,
@@ -34,25 +34,50 @@ export const createPost = async (
   }
 };
 
-// ✅ Get all posts with claps count
+// ✅ Get all posts with clapsCount and commentsCount
 export const getPosts = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
-    const posts = await Post.find().populate("author").lean();
+    const posts = await Post.aggregate([
+      {
+        $lookup: {
+          from: "comments", // ✅ correct collection name
+          localField: "_id",
+          foreignField: "post", // ✅ correct field from your Comment model
+          as: "comments",
+        },
+      },
+      {
+        $addFields: {
+          commentsCount: { $size: "$comments" },
+          clapsCount: "$claps",
+        },
+      },
+      {
+        $project: {
+          comments: 0,
+          claps: 0,
+          userClaps: 0,
+        },
+      },
+      {
+        $sort: {
+          createdAt: -1,
+        },
+      },
+    ]);
 
-    const postsWithClaps = posts.map((post) => {
-      const basePost = { ...post } as any;
-      if (post.claps && post.claps > 0) {
-        basePost.clapsCount = post.claps;
-      }
-      return basePost;
+    const populatedPosts = await Post.populate(posts, {
+      path: "author",
+      select: "firstName lastName profilePicture",
     });
 
-    res.status(200).json(postsWithClaps);
+    res.status(200).json(populatedPosts);
   } catch (error) {
+    console.error("Error fetching posts:", error);
     next(error);
   }
 };
@@ -118,7 +143,7 @@ export const getPostClaps = async (
   }
 };
 
-// ✅ Get users who clapped on a post (with full name)
+// ✅ Get users who clapped on a post
 export const getClapUsers = async (
   req: AuthenticatedRequest,
   res: Response
@@ -159,7 +184,7 @@ export const getClapUsers = async (
   }
 };
 
-// ✅ Undo all user claps on a post (return full names)
+// ✅ Undo all user claps
 export const undoUserClaps = async (
   req: AuthenticatedRequest,
   res: Response
@@ -218,7 +243,7 @@ export const undoUserClaps = async (
   }
 };
 
-// Update a post by ID
+// ✅ Update a post
 export const updatePost = async (
   req: Request,
   res: Response,
@@ -257,7 +282,7 @@ export const updatePost = async (
   }
 };
 
-// Delete a post by ID
+// ✅ Delete a post
 export const deletePost = async (
   req: Request,
   res: Response,
