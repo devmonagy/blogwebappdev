@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import DOMPurify from "dompurify";
 import PostActions from "../components/PostActions";
 import PostHeader from "../components/PostHeader";
-import PostBody from "../components/PostBody";
 import CommentsDrawer from "../components/CommentsDrawer";
 import CommentInput from "../components/CommentInput";
 import CommentList from "../components/CommentList";
@@ -56,7 +56,6 @@ const SinglePost: React.FC = () => {
     {}
   );
 
-  // Count total comments and replies recursively
   const getTotalCommentCount = (list: CommentData[]): number => {
     let count = 0;
     for (const comment of list) {
@@ -96,7 +95,6 @@ const SinglePost: React.FC = () => {
     }
   }, [id]);
 
-  // ✅ Fetch comments immediately when post is available (not just on drawer open)
   useEffect(() => {
     if (!post?._id) return;
     axios
@@ -130,7 +128,6 @@ const SinglePost: React.FC = () => {
               replies: c.replies ? insertReply(c.replies) : [],
             };
           });
-
         setComments((prev) => insertReply(prev));
       } else {
         const exists = comments.some((c) => c._id === comment._id);
@@ -212,6 +209,52 @@ const SinglePost: React.FC = () => {
     setComments(deleteFromTree);
   };
 
+  const handleDeletePost = async () => {
+    const token = localStorage.getItem("token");
+    if (!token || !id) return;
+    try {
+      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/posts/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      alert("Post deleted successfully.");
+      navigate("/");
+    } catch (err) {
+      alert("Failed to delete the post.");
+    }
+  };
+
+  const renderContent = () => {
+    if (!post) return null;
+    if (isAuthenticated) {
+      return (
+        <div
+          className="ql-editor text-base leading-relaxed"
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
+        />
+      );
+    }
+    return (
+      <>
+        <div
+          className="ql-editor text-base leading-relaxed fade-out-overlay"
+          dangerouslySetInnerHTML={{
+            __html: DOMPurify.sanitize(post.content.substring(0, 500)),
+          }}
+        />
+        <div className="text-center my-4">
+          <span className="text-gray-700">Continue reading this post by </span>
+          <a href="/login" className="text-blue-500 underline">
+            logging in
+          </a>
+          . Not a member?{" "}
+          <a href="/register" className="text-blue-500 underline">
+            Register now!
+          </a>
+        </div>
+      </>
+    );
+  };
+
   if (!post) return <div className="p-4">Loading...</div>;
 
   return (
@@ -226,11 +269,11 @@ const SinglePost: React.FC = () => {
           handleEdit={() => navigate(`/edit-post/${id}`)}
           handlePinStory={() => {}}
           handleStorySettings={() => {}}
-          handleDelete={() => {}}
+          handleDelete={handleDeletePost}
           onCommentsClick={() => setIsCommentsOpen(true)}
           commentCount={totalComments}
         />
-        <PostBody content={post.content} />
+        {renderContent()}
       </div>
 
       <CommentsDrawer
