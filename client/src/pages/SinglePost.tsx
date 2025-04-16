@@ -243,11 +243,17 @@ const SinglePost: React.FC = () => {
         />
         <div className="text-center my-4">
           <span className="text-gray-700">Continue reading this post by </span>
-          <a href="/login" className="text-blue-500 underline">
+          <a
+            href={`/login?redirect=/post/${id}`}
+            className="text-blue-500 underline"
+          >
             logging in
           </a>
           . Not a member?{" "}
-          <a href="/register" className="text-blue-500 underline">
+          <a
+            href={`/register?redirect=/post/${id}`}
+            className="text-blue-500 underline"
+          >
             Register now!
           </a>
         </div>
