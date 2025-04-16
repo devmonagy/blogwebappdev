@@ -200,7 +200,7 @@ const Home: React.FC = () => {
           }`}
         >
           <span className="info-text text-xs sm:text-sm md:text-base lg:text-lg">
-            Production v1.1.0 — under active development 🚀. Feedback and bug
+            Production v1.2.0 — under active development 🚀. Feedback and bug
             reports are always welcome! 🙌.
           </span>
           <button
