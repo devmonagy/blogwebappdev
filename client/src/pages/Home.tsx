@@ -200,14 +200,8 @@ const Home: React.FC = () => {
           }`}
         >
           <span className="info-text text-xs sm:text-sm md:text-base lg:text-lg">
-            Production v1.1.0 — under active development.{" "}
-            <span style={{ color: "#00FFFF" }}>please be patient during </span>
-            <Link
-              to="/about#backend-cold-starts"
-              style={{ color: "#FFDD00", textDecoration: "underline" }}
-            >
-              backend cold starts.
-            </Link>
+            Production v1.1.0 — under active development 🚀. Feedback and bug
+            reports are always welcome! 🙌.
           </span>
           <button
             onClick={handleCloseInfoBar}
