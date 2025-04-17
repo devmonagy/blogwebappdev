@@ -103,7 +103,9 @@ const CommentThread: React.FC<Props> = ({
           <div className="flex flex-col">
             <span className="font-medium text-sm">{fullName}</span>
             <span className="text-xs text-gray-400">
-              {format(comment.createdAt)}
+              {comment._id.startsWith("temp-")
+                ? "Just now"
+                : format(comment.createdAt)}
             </span>
           </div>
         </div>
