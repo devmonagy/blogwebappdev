@@ -1,5 +1,8 @@
 import React, { useRef, useState, useEffect } from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
+import { format } from "timeago.js";
+import ReplyInput from "./ReplyInput";
+import commentIcon from "../assets/commentsLight.png";
 
 interface Author {
   _id: string;
@@ -49,6 +52,8 @@ const CommentThread: React.FC<Props> = ({
   onReplySubmit,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [repliesOpen, setRepliesOpen] = useState(false);
+  const [tick, setTick] = useState(0); // triggers timestamp refresh
   const menuRef = useRef<HTMLDivElement | null>(null);
 
   const getValidImageUrl = (url?: string) => {
@@ -78,6 +83,14 @@ const CommentThread: React.FC<Props> = ({
     };
   }, [menuOpen]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTick((prev) => prev + 1);
+    }, 60000); // refresh every minute
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="mb-4 ml-0 sm:ml-6 relative">
       <div className="flex items-center justify-between mb-1">
@@ -87,7 +100,12 @@ const CommentThread: React.FC<Props> = ({
             alt={fullName}
             className="w-6 h-6 rounded-full object-cover"
           />
-          <span className="font-medium text-sm">{fullName}</span>
+          <div className="flex flex-col">
+            <span className="font-medium text-sm">{fullName}</span>
+            <span className="text-xs text-gray-400">
+              {format(comment.createdAt)}
+            </span>
+          </div>
         </div>
         {canEditDelete && (
           <div className="relative" ref={menuRef}>
@@ -127,68 +145,70 @@ const CommentThread: React.FC<Props> = ({
         {comment.content}
       </p>
 
-      {isAuthenticated && (
-        <div className="mb-1">
+      <div className="flex items-center gap-3 mb-2">
+        {comment.replies && comment.replies.length > 0 && (
+          <button
+            onClick={() => setRepliesOpen((prev) => !prev)}
+            className="flex items-center gap-1 text-xs text-gray-500 hover:text-black"
+          >
+            <img src={commentIcon} alt="Replies" className="w-4 h-4" />
+            <span>{comment.replies.length} Replies</span>
+          </button>
+        )}
+
+        {isAuthenticated && (
           <button
             onClick={() => setActiveReply(comment._id)}
             className="text-xs text-gray-500 hover:text-black"
           >
             Reply
           </button>
-        </div>
-      )}
+        )}
+      </div>
 
       {activeReply === comment._id && (
-        <div className="ml-4 mb-2">
-          <textarea
-            placeholder="Write a reply..."
-            value={replyTextMap[comment._id] || ""}
-            onChange={(e) =>
-              setReplyTextMap((prev) => ({
-                ...prev,
-                [comment._id]: e.target.value,
-              }))
+        <div className="ml-4 mb-3">
+          <ReplyInput
+            isAuthenticated={isAuthenticated}
+            replyingToName={fullName}
+            replyText={replyTextMap[comment._id] || ""}
+            setReplyText={(text: string) =>
+              setReplyTextMap((prev) => ({ ...prev, [comment._id]: text }))
             }
-            className="w-full border text-sm rounded p-2 mb-2"
-            rows={2}
+            onCancel={() => setActiveReply(null)}
+            onSubmit={() => onReplySubmit(comment._id)}
           />
-          <div className="flex gap-2">
-            <button
-              onClick={() => onReplySubmit(comment._id)}
-              className="text-xs text-white bg-black rounded px-3 py-1 hover:bg-gray-800"
-            >
-              Post Reply
-            </button>
-            <button
-              onClick={() => setActiveReply(null)}
-              className="text-xs text-gray-600 border border-gray-300 rounded px-3 py-1 hover:bg-gray-100"
-            >
-              Cancel
-            </button>
-          </div>
         </div>
       )}
 
-      {Array.isArray(comment.replies) && comment.replies.length > 0 && (
-        <div className="mt-2 ml-4 border-l pl-4">
-          {comment.replies.map((reply) => (
-            <CommentThread
-              key={reply._id}
-              comment={reply}
-              onEdit={onEdit}
-              onDelete={onDelete}
-              userId={userId}
-              userRole={userRole}
-              isAuthenticated={isAuthenticated}
-              activeReply={activeReply}
-              setActiveReply={setActiveReply}
-              replyTextMap={replyTextMap}
-              setReplyTextMap={setReplyTextMap}
-              onReplySubmit={onReplySubmit}
-            />
-          ))}
-        </div>
-      )}
+      <div
+        className={`transition-all duration-300 ease-in-out overflow-hidden ${
+          repliesOpen
+            ? "max-h-[1000px] opacity-100 scale-100"
+            : "max-h-0 opacity-0 scale-95"
+        }`}
+      >
+        {Array.isArray(comment.replies) && comment.replies.length > 0 && (
+          <div className="mt-2 ml-4 border-l pl-4">
+            {comment.replies.map((reply) => (
+              <CommentThread
+                key={reply._id}
+                comment={reply}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                userId={userId}
+                userRole={userRole}
+                isAuthenticated={isAuthenticated}
+                activeReply={activeReply}
+                setActiveReply={setActiveReply}
+                replyTextMap={replyTextMap}
+                setReplyTextMap={setReplyTextMap}
+                onReplySubmit={onReplySubmit}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

@@ -117,47 +117,50 @@ const SinglePost: React.FC = () => {
       comment: CommentData & { parentComment?: string }
     ) => {
       const parentId = comment.parentCommentId || comment.parentComment;
-      if (parentId) {
+
+      setComments((prev) => {
         const insertReply = (list: CommentData[]): CommentData[] =>
           list.map((c) => {
             if (c._id === parentId) {
-              const alreadyExists = (c.replies || []).some(
-                (r) => r._id === comment._id
-              );
-              if (alreadyExists) return c;
+              const replies = (c.replies || []).filter((r) => {
+                const isOptimistic =
+                  r._id.startsWith("temp-") &&
+                  r.content.trim() === comment.content.trim() &&
+                  r.author._id === comment.author._id;
+                return !isOptimistic;
+              });
+
               return {
                 ...c,
-                replies: [...(c.replies || []), comment],
+                replies: [...replies, comment],
               };
             }
+
             return {
               ...c,
               replies: c.replies ? insertReply(c.replies) : [],
             };
           });
-        setComments((prev) => insertReply(prev));
-      } else {
-        const exists = comments.some((c) => c._id === comment._id);
-        if (!exists) {
-          setComments((prev) => [...prev, { ...comment, replies: [] }]);
+
+        if (parentId) {
+          return insertReply([...prev]);
         }
-      }
+
+        const exists = prev.some((c) => c._id === comment._id);
+        if (!exists) {
+          return [...prev, { ...comment, replies: [] }];
+        }
+
+        return prev;
+      });
     };
 
-    const bindSocket = () => {
-      socket.on("commentAdded", handleNewComment);
-    };
-
-    if (socket.connected) {
-      bindSocket();
-    } else {
-      socket.once("connect", bindSocket);
-    }
+    socket.on("commentAdded", handleNewComment);
 
     return () => {
       socket.off("commentAdded", handleNewComment);
     };
-  }, [comments]);
+  }, []); // ✅ No `comments` dependency here
 
   const handleCommentSubmit = (newComment: CommentData) => {
     if (editingComment) {
@@ -181,6 +184,38 @@ const SinglePost: React.FC = () => {
   const handleReplySubmit = (parentId: string) => {
     const content = replyTextMap[parentId];
     if (!content?.trim() || !userId || !post?._id) return;
+
+    const optimisticReply: CommentData = {
+      _id: `temp-${Date.now()}`,
+      postId: post._id,
+      content: content.trim(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      author: {
+        _id: userId,
+        firstName: localStorage.getItem("firstName") || "You",
+        lastName: localStorage.getItem("lastName") || "",
+        profilePicture: localStorage.getItem("profilePicture") || "",
+      },
+      parentCommentId: parentId,
+      replies: [],
+    };
+
+    const insertOptimistic = (list: CommentData[]): CommentData[] =>
+      list.map((c) => {
+        if (c._id === parentId) {
+          return {
+            ...c,
+            replies: [...(c.replies || []), optimisticReply],
+          };
+        }
+        return {
+          ...c,
+          replies: c.replies ? insertOptimistic(c.replies) : [],
+        };
+      });
+
+    setComments((prev) => insertOptimistic([...prev]));
 
     socket.emit("newComment", {
       postId: post._id,
