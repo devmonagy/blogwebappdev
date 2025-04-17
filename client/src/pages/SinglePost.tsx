@@ -100,8 +100,9 @@ const SinglePost: React.FC = () => {
         .catch(() => {});
     }
 
+    // Use hardcoded working endpoint for server time
     axios
-      .get(`${process.env.REACT_APP_BACKEND_URL}/server-time`)
+      .get("https://blogwebapp-dev.onrender.com/server-time")
       .then((res: any) => {
         const serverTime = new Date(res.data.serverTime).getTime();
         const localTime = Date.now();
