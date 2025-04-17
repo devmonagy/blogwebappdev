@@ -24,7 +24,7 @@ interface Props {
   onEdit: (comment: CommentData) => void;
   onDelete: (id: string) => void;
   userId: string | null;
-  userRole: string | null; // ✅ Add userRole here
+  userRole: string | null;
   isAuthenticated: boolean;
   activeReply: string | null;
   setActiveReply: (id: string | null) => void;
@@ -33,6 +33,7 @@ interface Props {
     React.SetStateAction<{ [key: string]: string }>
   >;
   onReplySubmit: (parentId: string) => void;
+  timeDrift?: number; // ✅ New optional prop
 }
 
 const CommentList: React.FC<Props> = ({
@@ -40,13 +41,14 @@ const CommentList: React.FC<Props> = ({
   onEdit,
   onDelete,
   userId,
-  userRole, // ✅ Destructure userRole
+  userRole,
   isAuthenticated,
   activeReply,
   setActiveReply,
   replyTextMap,
   setReplyTextMap,
   onReplySubmit,
+  timeDrift = 0, // ✅ default to 0 if not provided
 }) => {
   return (
     <div>
@@ -57,13 +59,14 @@ const CommentList: React.FC<Props> = ({
           onEdit={onEdit}
           onDelete={onDelete}
           userId={userId}
-          userRole={userRole} // ✅ Pass userRole to CommentThread
+          userRole={userRole}
           isAuthenticated={isAuthenticated}
           activeReply={activeReply}
           setActiveReply={setActiveReply}
           replyTextMap={replyTextMap}
           setReplyTextMap={setReplyTextMap}
           onReplySubmit={onReplySubmit}
+          timeDrift={timeDrift} // ✅ Pass down the drift
         />
       ))}
     </div>
