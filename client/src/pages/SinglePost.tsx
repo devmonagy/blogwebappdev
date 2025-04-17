@@ -100,7 +100,7 @@ const SinglePost: React.FC = () => {
         .catch(() => {});
     }
 
-    // Use hardcoded working endpoint for server time
+    // ✅ Use hardcoded URL since Vercel env vars don't work in browser
     axios
       .get("https://blogwebapp-dev.onrender.com/server-time")
       .then((res: any) => {
@@ -108,12 +108,13 @@ const SinglePost: React.FC = () => {
         const localTime = Date.now();
         setTimeDrift(serverTime - localTime);
       })
-      .catch(() => {});
+      .catch(() => {
+        setTimeDrift(0); // fallback to no drift
+      });
   }, [id]);
 
   useEffect(() => {
     if (!post?._id) return;
-
     axios
       .get(`${process.env.REACT_APP_BACKEND_URL}/comments/${post._id}`)
       .then((res: any) => {
