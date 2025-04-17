@@ -98,6 +98,11 @@ app.get("/ping", (req: Request, res: Response) => {
   res.status(200).send("pong");
 });
 
+// ✅ Add this route to return the current server time
+app.get("/server-time", (req: Request, res: Response) => {
+  res.json({ serverTime: new Date().toISOString() });
+});
+
 io.on("connection", (socket) => {
   console.log("⚡ New client connected:", socket.id);
 
