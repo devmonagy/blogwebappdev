@@ -33,8 +33,8 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const from =
-    (location.state as { from?: Location })?.from?.pathname || "/dashboard";
+  const searchParams = new URLSearchParams(location.search);
+  const redirectPath = searchParams.get("redirect") || "/dashboard";
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -65,8 +65,8 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
       onLogin(username, email, firstName, role, token);
 
-      // Redirect to original page or fallback
-      navigate(from, { replace: true });
+      // Redirect to intended page or fallback
+      navigate(redirectPath, { replace: true });
     } catch (err: any) {
       setError(err.response?.data?.error || "Login failed");
     }
@@ -132,7 +132,10 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         </form>
         <p className="mt-4 text-center text-secondaryText">
           Don't have an account?{" "}
-          <Link to="/register" className="text-blue-400 hover:underline">
+          <Link
+            to={`/register?redirect=${encodeURIComponent(redirectPath)}`}
+            className="text-blue-400 hover:underline"
+          >
             Create One
           </Link>
         </p>

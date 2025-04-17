@@ -46,6 +46,7 @@ const SinglePost: React.FC = () => {
   const [userId, setUserId] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<Author | null>(null);
   const [comments, setComments] = useState<CommentData[]>([]);
   const [editingComment, setEditingComment] = useState<CommentData | null>(
     null
@@ -83,6 +84,12 @@ const SinglePost: React.FC = () => {
           setUserId(user._id);
           setUserRole(user.role);
           setIsAuthenticated(true);
+          setUser({
+            _id: user._id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            profilePicture: user.profilePicture,
+          });
         })
         .catch(() => {});
     }
@@ -308,7 +315,10 @@ const SinglePost: React.FC = () => {
             onCommentSubmit={handleCommentSubmit}
             editingComment={editingComment}
             onCancelEdit={() => setEditingComment(null)}
+            isAuthenticated={isAuthenticated}
+            user={user || undefined}
           />
+
           <CommentList
             comments={comments}
             onEdit={handleCommentEdit}

@@ -76,7 +76,8 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
         username: user.username,
         email: user.email,
         firstName: user.firstName,
-        role: user.role, // Include role
+        lastName: user.lastName, // ✅ now included
+        role: user.role, // ✅ already included
         profilePicture: user.profilePicture,
       },
     });
@@ -157,7 +158,7 @@ export const checkPassword = async (
   }
 };
 
-// Validate Token
+// ✅ Validate Token — FULLY FIXED
 export const validateToken = async (
   req: Request,
   res: Response
@@ -173,8 +174,9 @@ export const validateToken = async (
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
       userId: string;
     };
+
     const user = await User.findById(decoded.userId).select(
-      "username email firstName role"
+      "username email firstName lastName profilePicture role"
     );
 
     if (!user) {
@@ -189,7 +191,9 @@ export const validateToken = async (
         username: user.username,
         email: user.email,
         firstName: user.firstName,
-        role: user.role, // Include role
+        lastName: user.lastName,
+        profilePicture: user.profilePicture,
+        role: user.role,
       },
     });
   } catch (error) {
