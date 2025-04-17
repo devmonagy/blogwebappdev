@@ -53,7 +53,7 @@ const CommentThread: React.FC<Props> = ({
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [repliesOpen, setRepliesOpen] = useState(false);
-  const [tick, setTick] = useState(0); // refresh timeago every 60s
+  const [tick, setTick] = useState(0);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
   const getValidImageUrl = (url?: string) => {
@@ -72,7 +72,11 @@ const CommentThread: React.FC<Props> = ({
   const displayTime = () => {
     const createdTime = new Date(comment.createdAt).getTime();
     const now = Date.now();
-    return createdTime > now ? "Just now" : format(createdTime);
+
+    // Show "Just now" if difference is under 10 seconds
+    if (Math.abs(now - createdTime) < 10000) return "Just now";
+
+    return format(createdTime);
   };
 
   useEffect(() => {
@@ -92,7 +96,7 @@ const CommentThread: React.FC<Props> = ({
   useEffect(() => {
     const interval = setInterval(() => {
       setTick((prev) => prev + 1);
-    }, 60000); // refresh every 60 seconds
+    }, 60000);
     return () => clearInterval(interval);
   }, []);
 

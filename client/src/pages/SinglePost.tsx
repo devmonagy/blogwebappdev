@@ -56,31 +56,30 @@ const SinglePost: React.FC = () => {
   const [replyTextMap, setReplyTextMap] = useState<{ [key: string]: string }>(
     {}
   );
+  const [timeDrift, setTimeDrift] = useState<number>(0);
 
-  const getTotalCommentCount = (list: CommentData[]): number => {
-    let count = 0;
-    for (const comment of list) {
-      count += 1;
-      if (comment.replies?.length) {
-        count += getTotalCommentCount(comment.replies);
-      }
-    }
-    return count;
-  };
+  const getTotalCommentCount = (list: CommentData[]): number =>
+    list.reduce(
+      (acc, comment) => acc + 1 + getTotalCommentCount(comment.replies || []),
+      0
+    );
 
   const totalComments = getTotalCommentCount(comments);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+
     if (token) {
       axios
-        .post<{ user: Author & { role: string } }>(
+        .post(
           `${process.env.REACT_APP_BACKEND_URL}/auth/validate-token`,
           {},
-          { headers: { Authorization: `Bearer ${token}` } }
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
         )
-        .then(({ data }) => {
-          const user = data.user;
+        .then((res: any) => {
+          const user = res.data.user;
           setUserId(user._id);
           setUserRole(user.role);
           setIsAuthenticated(true);
@@ -96,27 +95,54 @@ const SinglePost: React.FC = () => {
 
     if (id) {
       axios
-        .get<Post>(`${process.env.REACT_APP_BACKEND_URL}/posts/${id}`)
-        .then((res) => setPost(res.data))
+        .get(`${process.env.REACT_APP_BACKEND_URL}/posts/${id}`)
+        .then((res: any) => setPost(res.data))
         .catch(() => {});
     }
+
+    axios
+      .get(`${process.env.REACT_APP_BACKEND_URL}/server-time`)
+      .then((res: any) => {
+        const serverTime = new Date(res.data.serverTime).getTime();
+        const localTime = Date.now();
+        setTimeDrift(serverTime - localTime);
+      })
+      .catch(() => {});
   }, [id]);
 
   useEffect(() => {
     if (!post?._id) return;
+
     axios
-      .get<CommentData[]>(
-        `${process.env.REACT_APP_BACKEND_URL}/comments/${post._id}`
-      )
-      .then((res) => setComments(res.data))
+      .get(`${process.env.REACT_APP_BACKEND_URL}/comments/${post._id}`)
+      .then((res: any) => {
+        const adjusted = applyTimeDrift(res.data, timeDrift);
+        setComments(adjusted);
+      })
       .catch(() => {});
-  }, [post?._id]);
+  }, [post?._id, timeDrift]);
+
+  const applyTimeDrift = (list: CommentData[], drift: number): CommentData[] =>
+    list.map((comment) => ({
+      ...comment,
+      createdAt: new Date(
+        new Date(comment.createdAt).getTime() + drift
+      ).toISOString(),
+      replies: comment.replies ? applyTimeDrift(comment.replies, drift) : [],
+    }));
 
   useEffect(() => {
     const handleNewComment = (
       comment: CommentData & { parentComment?: string }
     ) => {
       const parentId = comment.parentCommentId || comment.parentComment;
+
+      const adjustedComment: CommentData = {
+        ...comment,
+        createdAt: new Date(
+          new Date(comment.createdAt).getTime() + timeDrift
+        ).toISOString(),
+      };
 
       setComments((prev) => {
         const insertReply = (list: CommentData[]): CommentData[] =>
@@ -125,14 +151,14 @@ const SinglePost: React.FC = () => {
               const replies = (c.replies || []).filter((r) => {
                 const isOptimistic =
                   r._id.startsWith("temp-") &&
-                  r.content.trim() === comment.content.trim() &&
-                  r.author._id === comment.author._id;
+                  r.content.trim() === adjustedComment.content.trim() &&
+                  r.author._id === adjustedComment.author._id;
                 return !isOptimistic;
               });
 
               return {
                 ...c,
-                replies: [...replies, comment],
+                replies: [...replies, adjustedComment],
               };
             }
 
@@ -146,9 +172,9 @@ const SinglePost: React.FC = () => {
           return insertReply([...prev]);
         }
 
-        const exists = prev.some((c) => c._id === comment._id);
+        const exists = prev.some((c) => c._id === adjustedComment._id);
         if (!exists) {
-          return [...prev, { ...comment, replies: [] }];
+          return [...prev, { ...adjustedComment, replies: [] }];
         }
 
         return prev;
@@ -156,24 +182,19 @@ const SinglePost: React.FC = () => {
     };
 
     socket.on("commentAdded", handleNewComment);
-
     return () => {
       socket.off("commentAdded", handleNewComment);
     };
-  }, []); // ✅ No `comments` dependency here
+  }, [timeDrift]);
 
   const handleCommentSubmit = (newComment: CommentData) => {
     if (editingComment) {
       const updateInTree = (list: CommentData[]): CommentData[] =>
-        list.map((c) => {
-          if (c._id === newComment._id) {
-            return { ...c, content: newComment.content };
-          }
-          return {
-            ...c,
-            replies: c.replies ? updateInTree(c.replies) : [],
-          };
-        });
+        list.map((c) =>
+          c._id === newComment._id
+            ? { ...c, content: newComment.content }
+            : { ...c, replies: c.replies ? updateInTree(c.replies) : [] }
+        );
       setComments(updateInTree);
       setEditingComment(null);
     } else {
@@ -189,8 +210,8 @@ const SinglePost: React.FC = () => {
       _id: `temp-${Date.now()}`,
       postId: post._id,
       content: content.trim(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: new Date(Date.now() + timeDrift).toISOString(),
+      updatedAt: new Date(Date.now() + timeDrift).toISOString(),
       author: {
         _id: userId,
         firstName: localStorage.getItem("firstName") || "You",
@@ -202,18 +223,11 @@ const SinglePost: React.FC = () => {
     };
 
     const insertOptimistic = (list: CommentData[]): CommentData[] =>
-      list.map((c) => {
-        if (c._id === parentId) {
-          return {
-            ...c,
-            replies: [...(c.replies || []), optimisticReply],
-          };
-        }
-        return {
-          ...c,
-          replies: c.replies ? insertOptimistic(c.replies) : [],
-        };
-      });
+      list.map((c) =>
+        c._id === parentId
+          ? { ...c, replies: [...(c.replies || []), optimisticReply] }
+          : { ...c, replies: c.replies ? insertOptimistic(c.replies) : [] }
+      );
 
     setComments((prev) => insertOptimistic([...prev]));
 
