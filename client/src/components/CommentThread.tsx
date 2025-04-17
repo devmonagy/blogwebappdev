@@ -53,7 +53,7 @@ const CommentThread: React.FC<Props> = ({
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [repliesOpen, setRepliesOpen] = useState(false);
-  const [tick, setTick] = useState(0); // triggers timestamp refresh
+  const [tick, setTick] = useState(0); // refresh timeago every 60s
   const menuRef = useRef<HTMLDivElement | null>(null);
 
   const getValidImageUrl = (url?: string) => {
@@ -68,6 +68,12 @@ const CommentThread: React.FC<Props> = ({
   const fullName = `${safeFirstName} ${safeLastName}`.trim();
   const profilePicture = getValidImageUrl(comment.author?.profilePicture);
   const canEditDelete = userId === comment.author._id || userRole === "admin";
+
+  const displayTime = () => {
+    const createdTime = new Date(comment.createdAt).getTime();
+    const now = Date.now();
+    return createdTime > now ? "Just now" : format(createdTime);
+  };
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -86,8 +92,7 @@ const CommentThread: React.FC<Props> = ({
   useEffect(() => {
     const interval = setInterval(() => {
       setTick((prev) => prev + 1);
-    }, 60000); // refresh every minute
-
+    }, 60000); // refresh every 60 seconds
     return () => clearInterval(interval);
   }, []);
 
@@ -102,11 +107,7 @@ const CommentThread: React.FC<Props> = ({
           />
           <div className="flex flex-col">
             <span className="font-medium text-sm">{fullName}</span>
-            <span className="text-xs text-gray-400">
-              {comment._id.startsWith("temp-")
-                ? "Just now"
-                : format(comment.createdAt)}
-            </span>
+            <span className="text-xs text-gray-400">{displayTime()}</span>
           </div>
         </div>
         {canEditDelete && (
