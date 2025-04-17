@@ -80,7 +80,16 @@ const About: React.FC = () => {
         👉 https://blogwebapp.monagy.com
       </a>
 
-      <p className="mt-4">Feedback and bug reports are always welcome! 🙌</p>
+      <p className="mt-4">
+        Feedback and bug reports are always welcome! 🙌{" "}
+        <a
+          href="mailto:contactmonagy@gmail.com"
+          className="text-blue-500 underline hover:text-blue-700"
+        >
+          contactmonagy@gmail.com
+        </a>
+        .
+      </p>
     </div>
   );
 };
