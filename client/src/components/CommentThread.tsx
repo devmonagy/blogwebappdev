@@ -36,7 +36,7 @@ interface Props {
     React.SetStateAction<{ [key: string]: string }>
   >;
   onReplySubmit: (parentId: string) => void;
-  timeDrift?: number; // ✅ Optional prop passed from SinglePost
+  timeDrift?: number;
 }
 
 const CommentThread: React.FC<Props> = ({
@@ -73,13 +73,11 @@ const CommentThread: React.FC<Props> = ({
 
   const displayTime = () => {
     const createdTime = new Date(comment.createdAt).getTime();
-    const adjustedTime = createdTime + timeDrift;
-    const now = Date.now();
+    const now = Date.now() + timeDrift;
+    const diff = Math.abs(now - createdTime);
 
-    // Show "Just now" if within 10 seconds
-    if (Math.abs(now - adjustedTime) < 10000) return "Just now";
-
-    return format(adjustedTime);
+    if (diff < 10000) return "Just now";
+    return format(createdTime);
   };
 
   useEffect(() => {
