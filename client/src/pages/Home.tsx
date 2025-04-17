@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
+import { format } from "timeago.js";
 import clapSolidImage from "../assets/clapSolid.png";
-import commentSolidImage from "../assets/commentsSolid.png"; // ✅ Updated icon
+import commentSolidImage from "../assets/commentsSolid.png";
 import "../styles/quill-custom.css";
 
 interface Author {
@@ -64,15 +65,6 @@ const Home: React.FC = () => {
     return htmlContent.length > maxLength
       ? `${htmlContent.slice(0, maxLength)}...`
       : htmlContent;
-  };
-
-  const formatDate = (dateString: string) => {
-    const options: Intl.DateTimeFormatOptions = {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    };
-    return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
   const getValidImageUrl = (url: string) => {
@@ -152,7 +144,7 @@ const Home: React.FC = () => {
 
                   {/* DATE + CLAPS + COMMENTS */}
                   <div className="flex items-center gap-4 text-xs text-secondaryText">
-                    <span>{formatDate(post.createdAt)}</span>
+                    <span>{format(post.createdAt)}</span>
                     <div className="flex items-center gap-4">
                       {hasClaps && (
                         <div className="flex items-center gap-1">
