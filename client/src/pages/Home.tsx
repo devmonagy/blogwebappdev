@@ -201,8 +201,16 @@ const Home: React.FC = () => {
         >
           <span className="info-text text-xs sm:text-sm md:text-base lg:text-lg">
             Production v1.2.0 — under active development 🚀. Feedback and bug
-            reports are always welcome! 🙌.
+            reports{" "}
+            <a
+              href="/about"
+              className="text-cyan-400 underline hover:text-cyan-300"
+            >
+              are always welcome!
+            </a>{" "}
+            🙌.
           </span>
+
           <button
             onClick={handleCloseInfoBar}
             className="text-white text-2xl ml-4"

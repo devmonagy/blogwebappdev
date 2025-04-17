@@ -75,7 +75,7 @@ const About: React.FC = () => {
         href="https://blogwebapp.monagy.com"
         target="_blank"
         rel="noopener noreferrer"
-        className="text-blue-500 underline"
+        className="text-blue-500 underline hover:text-blue-700"
       >
         👉 https://blogwebapp.monagy.com
       </a>
