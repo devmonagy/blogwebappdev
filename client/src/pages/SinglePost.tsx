@@ -100,16 +100,16 @@ const SinglePost: React.FC = () => {
         .catch(() => {});
     }
 
-    // ✅ Use hardcoded URL since Vercel env vars don't work in browser
+    // ✅ Use backend URL from env instead of hardcoded
     axios
-      .get("https://blogwebapp-dev.onrender.com/server-time")
+      .get(`${process.env.REACT_APP_BACKEND_URL}/server-time`)
       .then((res: any) => {
         const serverTime = new Date(res.data.serverTime).getTime();
         const localTime = Date.now();
         setTimeDrift(serverTime - localTime);
       })
       .catch(() => {
-        setTimeDrift(0); // fallback to no drift
+        setTimeDrift(0); // fallback
       });
   }, [id]);
 
@@ -369,7 +369,6 @@ const SinglePost: React.FC = () => {
             isAuthenticated={isAuthenticated}
             user={user || undefined}
           />
-
           <CommentList
             comments={comments}
             onEdit={handleCommentEdit}
@@ -382,6 +381,7 @@ const SinglePost: React.FC = () => {
             replyTextMap={replyTextMap}
             setReplyTextMap={setReplyTextMap}
             onReplySubmit={handleReplySubmit}
+            timeDrift={timeDrift}
           />
         </div>
       </CommentsDrawer>
