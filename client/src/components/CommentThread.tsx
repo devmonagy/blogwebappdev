@@ -72,11 +72,10 @@ const CommentThread: React.FC<Props> = ({
   const canEditDelete = userId === comment.author._id || userRole === "admin";
 
   const displayTime = () => {
-    const createdTime = new Date(comment.createdAt).getTime();
-    const now = Date.now() + timeDrift;
-    const diff = Math.abs(now - createdTime);
+    const createdTime = new Date(comment.createdAt).getTime() + timeDrift;
+    const currentTime = Date.now() + timeDrift;
 
-    if (diff < 10000) return "Just now";
+    if (Math.abs(currentTime - createdTime) < 10000) return "Just now";
     return format(createdTime);
   };
 
