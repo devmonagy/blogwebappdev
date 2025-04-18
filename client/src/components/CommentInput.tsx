@@ -6,6 +6,7 @@ interface Author {
   firstName: string;
   lastName: string;
   profilePicture?: string;
+  role?: string;
 }
 
 interface CommentData {
@@ -46,6 +47,10 @@ const CommentInput: React.FC<Props> = ({
   const profilePicture = user?.profilePicture || defaultProfile;
   const fullName = user ? `${user.firstName} ${user.lastName}`.trim() : "";
 
+  const isAdmin = user?.role === "admin";
+  const editingAnotherUser =
+    editingComment && user && editingComment.author._id !== user._id;
+
   useEffect(() => {
     if (editingComment) {
       setContent(editingComment.content);
@@ -61,7 +66,9 @@ const CommentInput: React.FC<Props> = ({
       const endpoint = editingComment
         ? `${process.env.REACT_APP_BACKEND_URL}/comments/${editingComment._id}`
         : `${process.env.REACT_APP_BACKEND_URL}/comments`;
-      const method = editingComment ? "put" : "post";
+      const method = editingComment ? "PUT" : "POST";
+
+      const body = editingComment ? { content } : { postId, content };
 
       const response = await fetch(endpoint, {
         method,
@@ -69,11 +76,14 @@ const CommentInput: React.FC<Props> = ({
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          postId,
-          content,
-        }),
+        body: JSON.stringify(body),
       });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Error submitting comment:", errorText);
+        return;
+      }
 
       const data = await response.json();
       onCommentSubmit(data as CommentData);
@@ -115,7 +125,14 @@ const CommentInput: React.FC<Props> = ({
           alt={fullName}
           className="w-8 h-8 rounded-full object-cover"
         />
-        <div className="text-sm font-medium">{fullName}</div>
+        <div className="text-sm font-medium">
+          {fullName}
+          {editingComment && editingAnotherUser && (
+            <span className="block text-xs text-gray-500">
+              Editing {editingComment.author.firstName}'s response
+            </span>
+          )}
+        </div>
       </div>
 
       {!isExpanded ? (
@@ -128,7 +145,7 @@ const CommentInput: React.FC<Props> = ({
       ) : (
         <div className="bg-gray-100 rounded-md p-3">
           <textarea
-            className="w-full bg-gray-100 resize-none text-sm p-2 rounded-md outline-none"
+            className="w-full bg-gray-100 resize-none text-base p-2 rounded-md outline-none"
             rows={3}
             value={content}
             onChange={(e) => setContent(e.target.value)}

@@ -112,3 +112,46 @@ export const deleteComment = async (
     res.status(500).json({ message: "Failed to delete comment", error: err });
   }
 };
+
+// ✅ Update a comment (author or admin)
+export const updateComment = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { content } = req.body;
+
+    const userId = req.userId;
+    const userRole = req.userRole;
+
+    if (!userId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    const comment = await Comment.findById(id);
+    if (!comment) {
+      res.status(404).json({ message: "Comment not found" });
+      return;
+    }
+
+    // ✅ Allow author or admin
+    const isAuthor = comment.author.toString() === userId;
+    const isAdmin = userRole === "admin";
+
+    if (!isAuthor && !isAdmin) {
+      res.status(403).json({ message: "Forbidden" });
+      return;
+    }
+
+    comment.content = content;
+    await comment.save();
+    await comment.populate("author", "firstName lastName profilePicture");
+
+    res.status(200).json(comment);
+  } catch (err) {
+    console.error("Error updating comment:", err);
+    res.status(500).json({ message: "Failed to update comment", error: err });
+  }
+};

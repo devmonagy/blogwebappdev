@@ -1,14 +1,22 @@
 // server/controllers/adminController.ts
-import { Request, Response } from "express";
+import { Response } from "express";
 import User from "../models/User";
+import { AuthenticatedRequest } from "../middleware/authenticate";
 
-// Fetch all users with their roles (exclude sensitive fields like passwords)
+// ✅ Fetch all users (admin only)
 export const getAllUsers = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
+  if (req.userRole !== "admin") {
+    res.status(403).json({ message: "Access denied." });
+    return;
+  }
+
   try {
-    const users = await User.find().select("username email firstName role"); // Include relevant fields
+    const users = await User.find().select(
+      "username email firstName lastName role profilePicture"
+    );
     res.json(users);
   } catch (error) {
     console.error("Error fetching users:", error);
@@ -16,11 +24,16 @@ export const getAllUsers = async (
   }
 };
 
-// Update the role of a specific user
+// ✅ Update user role (admin only)
 export const updateUserRole = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
+  if (req.userRole !== "admin") {
+    res.status(403).json({ message: "Access denied." });
+    return;
+  }
+
   try {
     const { userId, role } = req.body;
 
@@ -32,7 +45,7 @@ export const updateUserRole = async (
     const user = await User.findByIdAndUpdate(
       userId,
       { role },
-      { new: true, runValidators: true } // Return the updated user and validate the role
+      { new: true, runValidators: true }
     );
 
     if (!user) {

@@ -65,9 +65,12 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET!, {
-      expiresIn: TOKEN_EXPIRY,
-    });
+    // ✅ Include role in the token payload
+    const token = jwt.sign(
+      { userId: user._id, role: user.role },
+      process.env.JWT_SECRET!,
+      { expiresIn: TOKEN_EXPIRY }
+    );
 
     res.status(200).json({
       token,
@@ -76,8 +79,8 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
         username: user.username,
         email: user.email,
         firstName: user.firstName,
-        lastName: user.lastName, // ✅ now included
-        role: user.role, // ✅ already included
+        lastName: user.lastName,
+        role: user.role,
         profilePicture: user.profilePicture,
       },
     });

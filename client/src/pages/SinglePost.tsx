@@ -7,6 +7,7 @@ import PostHeader from "../components/PostHeader";
 import CommentsDrawer from "../components/CommentsDrawer";
 import CommentInput from "../components/CommentInput";
 import CommentList from "../components/CommentList";
+import CommentThread from "../components/CommentThread";
 import socket from "../socket";
 
 export interface Author {
@@ -100,7 +101,6 @@ const SinglePost: React.FC = () => {
         .catch(() => {});
     }
 
-    // ✅ Use backend URL from env instead of hardcoded
     axios
       .get(`${process.env.REACT_APP_BACKEND_URL}/server-time`)
       .then((res: any) => {
@@ -109,7 +109,7 @@ const SinglePost: React.FC = () => {
         setTimeDrift(serverTime - localTime);
       })
       .catch(() => {
-        setTimeDrift(0); // fallback
+        setTimeDrift(0);
       });
   }, [id]);
 
@@ -351,6 +351,53 @@ const SinglePost: React.FC = () => {
           commentCount={totalComments}
         />
         {renderContent()}
+      </div>
+
+      {/* ✅ Preview comment section */}
+      <div className="mx-auto mt-10 p-4 bg-white shadow-sm rounded-lg text-primaryText">
+        <h2 className="text-lg font-semibold mb-4">
+          Responses {totalComments > 0 && <span>({totalComments})</span>}
+        </h2>
+
+        <CommentInput
+          postId={post._id}
+          onCommentSubmit={handleCommentSubmit}
+          editingComment={editingComment}
+          onCancelEdit={() => setEditingComment(null)}
+          isAuthenticated={isAuthenticated}
+          user={user || undefined}
+        />
+
+        <div className="mt-6 space-y-6">
+          {comments.slice(0, 3).map((comment) => (
+            <CommentThread
+              key={comment._id}
+              comment={comment}
+              onEdit={handleCommentEdit}
+              onDelete={handleCommentDelete}
+              userId={userId}
+              userRole={userRole}
+              isAuthenticated={isAuthenticated}
+              activeReply={activeReply}
+              setActiveReply={setActiveReply}
+              replyTextMap={replyTextMap}
+              setReplyTextMap={setReplyTextMap}
+              onReplySubmit={handleReplySubmit}
+              timeDrift={timeDrift}
+            />
+          ))}
+        </div>
+
+        {totalComments > 3 && (
+          <div className="text-center mt-6">
+            <button
+              onClick={() => setIsCommentsOpen(true)}
+              className="border border-gray-300 px-4 py-2 rounded-full text-sm hover:bg-gray-100 transition"
+            >
+              See all responses
+            </button>
+          </div>
+        )}
       </div>
 
       <CommentsDrawer

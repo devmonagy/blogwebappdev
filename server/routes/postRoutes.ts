@@ -10,7 +10,6 @@ import {
   getClapUsers,
 } from "../controllers/postController";
 import authenticate from "../middleware/authenticate";
-import { checkAdmin } from "../middleware/checkAdmin";
 import Post from "../models/Post";
 import { createUploadMiddleware } from "../middleware/upload";
 
@@ -39,7 +38,7 @@ router.get(
   }
 );
 
-// Create a new post (Cloudinary handles image)
+// Create a new post
 router.post(
   "/create",
   authenticate,
@@ -53,25 +52,18 @@ router.get("/", getPosts);
 // Get a single post by ID
 router.get("/:id", getPostById);
 
-// ✅ PUBLIC: Fetch clap data for a post (total claps, user claps if logged in)
+// PUBLIC: Get total/user claps
 router.get("/:postId/claps", getPostClaps);
 
-// 🔄 Undo claps for a post by the current user
+// Undo all claps by current user
 router.post("/:postId/undo-claps", authenticate, undoUserClaps);
 
-// ✅ PUBLIC: Get list of users who clapped on a post
-router.get("/:postId/clap-users", getClapUsers); // Removed authentication requirement
+// PUBLIC: Get list of users who clapped on a post
+router.get("/:postId/clap-users", getClapUsers);
 
-// Update a post by ID (admin + upload)
-router.put(
-  "/:id",
-  authenticate,
-  checkAdmin,
-  postImageUpload.single("image"),
-  updatePost
-);
+// ✅ Allow both authors and admins to update/delete posts (check is inside controller)
+router.put("/:id", authenticate, postImageUpload.single("image"), updatePost);
 
-// Delete a post by ID (admin)
-router.delete("/:id", authenticate, checkAdmin, deletePost);
+router.delete("/:id", authenticate, deletePost);
 
 export default router;

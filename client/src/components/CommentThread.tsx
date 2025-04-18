@@ -56,6 +56,7 @@ const CommentThread: React.FC<Props> = ({
   const [menuOpen, setMenuOpen] = useState(false);
   const [repliesOpen, setRepliesOpen] = useState(false);
   const [tick, setTick] = useState(0);
+  const [wasActive, setWasActive] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
   const getValidImageUrl = (url?: string) => {
@@ -99,6 +100,16 @@ const CommentThread: React.FC<Props> = ({
     }, 60000);
     return () => clearInterval(interval);
   }, []);
+
+  // ✅ Only auto-expand replies if *this comment* was just replied to
+  useEffect(() => {
+    if (activeReply === comment._id) {
+      setWasActive(true);
+    } else if (wasActive && activeReply === null) {
+      setRepliesOpen(true);
+      setWasActive(false);
+    }
+  }, [activeReply, comment._id, wasActive]);
 
   return (
     <div className="mb-4 ml-0 sm:ml-6 relative">
@@ -152,39 +163,58 @@ const CommentThread: React.FC<Props> = ({
         {comment.content}
       </p>
 
-      <div className="flex items-center gap-3 mb-2">
+      <div className="flex items-center gap-3 mb-2 text-xs text-gray-500">
         {comment.replies && comment.replies.length > 0 && (
           <button
             onClick={() => setRepliesOpen((prev) => !prev)}
-            className="flex items-center gap-1 text-xs text-gray-500 hover:text-black"
+            className="flex items-center gap-1 hover:text-black"
           >
             <img src={commentIcon} alt="Replies" className="w-4 h-4" />
-            <span>{comment.replies.length} Replies</span>
+            <span>
+              {repliesOpen
+                ? "Hide replies"
+                : `${comment.replies.length} ${
+                    comment.replies.length === 1 ? "Reply" : "Replies"
+                  }`}
+            </span>
           </button>
         )}
 
-        {isAuthenticated && (
-          <button
-            onClick={() => setActiveReply(comment._id)}
-            className="text-xs text-gray-500 hover:text-black"
-          >
-            Reply
-          </button>
-        )}
+        <button
+          onClick={() => {
+            if (isAuthenticated) {
+              setActiveReply(comment._id);
+            } else {
+              window.location.href = "/login";
+            }
+          }}
+          className="hover:text-black"
+        >
+          Reply
+        </button>
       </div>
 
       {activeReply === comment._id && (
         <div className="ml-4 mb-3">
-          <ReplyInput
-            isAuthenticated={isAuthenticated}
-            replyingToName={fullName}
-            replyText={replyTextMap[comment._id] || ""}
-            setReplyText={(text: string) =>
-              setReplyTextMap((prev) => ({ ...prev, [comment._id]: text }))
-            }
-            onCancel={() => setActiveReply(null)}
-            onSubmit={() => onReplySubmit(comment._id)}
-          />
+          {isAuthenticated ? (
+            <ReplyInput
+              isAuthenticated={isAuthenticated}
+              replyingToName={fullName}
+              replyText={replyTextMap[comment._id] || ""}
+              setReplyText={(text: string) =>
+                setReplyTextMap((prev) => ({ ...prev, [comment._id]: text }))
+              }
+              onCancel={() => setActiveReply(null)}
+              onSubmit={() => onReplySubmit(comment._id)}
+            />
+          ) : (
+            <div
+              onClick={() => (window.location.href = "/login")}
+              className="bg-gray-100 rounded-md px-4 py-3 text-gray-400 text-sm cursor-pointer"
+            >
+              What are your thoughts?
+            </div>
+          )}
         </div>
       )}
 

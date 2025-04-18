@@ -1,11 +1,11 @@
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
 import Post from "../models/Post";
 import { AuthenticatedRequest } from "../middleware/authenticate";
-import jwt from "jsonwebtoken";
 
 // ✅ Create a new post
 export const createPost = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
@@ -13,8 +13,7 @@ export const createPost = async (
   const imagePath = req.file ? req.file.path : "";
 
   try {
-    const userId = (req as any).userId;
-    if (!userId) {
+    if (!req.userId) {
       res.status(401).json({ message: "Unauthorized" });
       return;
     }
@@ -24,7 +23,7 @@ export const createPost = async (
       category,
       content,
       imagePath,
-      author: userId,
+      author: req.userId,
     });
 
     await newPost.save();
@@ -36,7 +35,7 @@ export const createPost = async (
 
 // ✅ Get all posts with clapsCount and commentsCount
 export const getPosts = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
@@ -44,9 +43,9 @@ export const getPosts = async (
     const posts = await Post.aggregate([
       {
         $lookup: {
-          from: "comments", // ✅ correct collection name
+          from: "comments",
           localField: "_id",
-          foreignField: "post", // ✅ correct field from your Comment model
+          foreignField: "post",
           as: "comments",
         },
       },
@@ -64,9 +63,7 @@ export const getPosts = async (
         },
       },
       {
-        $sort: {
-          createdAt: -1,
-        },
+        $sort: { createdAt: -1 },
       },
     ]);
 
@@ -82,9 +79,9 @@ export const getPosts = async (
   }
 };
 
-// ✅ Get a single post by ID (with full author info)
+// ✅ Get a single post by ID
 export const getPostById = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
@@ -99,6 +96,7 @@ export const getPostById = async (
       res.status(404).json({ message: "Post not found" });
       return;
     }
+
     res.status(200).json(post);
   } catch (error) {
     next(error);
@@ -107,7 +105,7 @@ export const getPostById = async (
 
 // ✅ Get total claps + user claps
 export const getPostClaps = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const { postId } = req.params;
@@ -125,7 +123,7 @@ export const getPostClaps = async (
     if (authHeader && authHeader.startsWith("Bearer ")) {
       const token = authHeader.split(" ")[1];
       const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string);
-      if (decoded && decoded.userId) {
+      if (decoded?.userId) {
         const userClapRecord = post.userClaps.find(
           (uc) => uc.userId.toString() === decoded.userId
         );
@@ -143,7 +141,7 @@ export const getPostClaps = async (
   }
 };
 
-// ✅ Get users who clapped on a post
+// ✅ Get users who clapped
 export const getClapUsers = async (
   req: AuthenticatedRequest,
   res: Response
@@ -245,7 +243,7 @@ export const undoUserClaps = async (
 
 // ✅ Update a post
 export const updatePost = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
@@ -260,10 +258,9 @@ export const updatePost = async (
       return;
     }
 
-    if (
-      post.author.toString() !== (req as any).userId &&
-      !(req as any).isAdmin
-    ) {
+    const isAdmin = req.userRole === "admin";
+
+    if (post.author.toString() !== req.userId && !isAdmin) {
       res
         .status(403)
         .json({ message: "You are not authorized to update this post" });
@@ -284,7 +281,7 @@ export const updatePost = async (
 
 // ✅ Delete a post
 export const deletePost = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
@@ -297,10 +294,9 @@ export const deletePost = async (
       return;
     }
 
-    if (
-      post.author.toString() !== (req as any).userId &&
-      !(req as any).isAdmin
-    ) {
+    const isAdmin = req.userRole === "admin";
+
+    if (post.author.toString() !== req.userId && !isAdmin) {
       res
         .status(403)
         .json({ message: "You are not authorized to delete this post." });
