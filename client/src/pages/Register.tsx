@@ -180,13 +180,17 @@ const Register: React.FC = () => {
 
           {!showPasswordField ? (
             <>
+              <span className="text-sm text-secondaryText">
+                Want to set a password now?{" "}
+              </span>
               <button
                 type="button"
                 onClick={() => setShowPasswordField(true)}
                 className="text-blue-400 text-sm hover:underline"
               >
-                Want to set a password now? Click here.
+                Click here
               </button>
+              <span className="text-sm text-secondaryText">.</span>
               <button
                 type="button"
                 onClick={handleMagicLinkRegister}
@@ -254,7 +258,7 @@ const Register: React.FC = () => {
         </p>
 
         <p className="text-xxs text-center text-gray-500 mt-2">
-          This site is in soft launch mode 🚀.
+          This site is in soft launch mode 🚀
           <br /> By continuing, you agree to our{" "}
           <Link
             to="/terms"

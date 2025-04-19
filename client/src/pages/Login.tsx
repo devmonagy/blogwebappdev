@@ -141,13 +141,18 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
           {!showPasswordField ? (
             <>
+              {" "}
+              <span className="text-sm text-secondaryText">
+                Want to sign in with your password?{" "}
+              </span>
               <button
                 type="button"
                 onClick={() => setShowPasswordField(true)}
                 className="text-blue-400 text-sm hover:underline"
               >
-                Want to sign in with your password? Click here.
+                Click here
               </button>
+              <span className="text-sm text-secondaryText">.</span>
               <button
                 type="button"
                 onClick={handleMagicLinkLogin}
@@ -208,7 +213,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         </p>
 
         <p className="text-xxs text-center text-gray-500 mt-2">
-          This site is in soft launch mode 🚀.
+          This site is in soft launch mode 🚀
           <br /> By continuing, you agree to our{" "}
           <Link
             to="/terms"
