@@ -57,12 +57,12 @@ export const magicRegister = async (
   try {
     let user = await User.findOne({ email });
 
-    // Create user if not found
     if (!user) {
       user = new User({
         email,
         firstName: "New",
         lastName: "User",
+        username: `user_${Date.now()}`, // ✅ fallback username
         role: "user",
         profilePicture:
           "https://res.cloudinary.com/dqdix32m5/image/upload/v1744499838/user_v0drnu.png",
@@ -108,9 +108,9 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
     }
 
     if (!user.password) {
-      res
-        .status(400)
-        .json({ error: "Password login not available for this account." });
+      res.status(400).json({
+        error: "Password login not available for this account.",
+      });
       return;
     }
 
@@ -144,7 +144,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-// MAGIC LINK LOGIN (send)
+// SEND MAGIC LINK
 export const sendMagicLink = async (
   req: Request,
   res: Response

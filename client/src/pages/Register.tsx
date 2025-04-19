@@ -98,7 +98,13 @@ const Register: React.FC = () => {
       setSuccess(res.data.message || "Magic link sent! Check your email.");
       setFormData({ email: "", password: "" });
     } catch (err: any) {
-      setError(err.response?.data?.error || "Failed to send magic link.");
+      if (err.response?.data?.error) {
+        setError(err.response.data.error);
+      } else if (err.message) {
+        setError(err.message);
+      } else {
+        setError("Something went wrong. Please try again later.");
+      }
     }
   };
 

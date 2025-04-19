@@ -67,7 +67,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       onLogin(username, email, firstName, role, token);
       navigate(redirectPath, { replace: true });
     } catch (err: any) {
-      setError(err.response?.data?.error || "Login failed");
+      setError(err.response?.data?.error || "Login failed. Please try again.");
     }
   };
 
@@ -87,16 +87,24 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       );
       setSuccess("Magic link sent! Check your email.");
     } catch (err: any) {
-      setError(err.response?.data?.error || "Failed to send magic link.");
+      if (err.response?.data?.error) {
+        setError(err.response.data.error);
+      } else if (err.message) {
+        setError(err.message);
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
     }
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = `${process.env.REACT_APP_BACKEND_URL}/auth/google`;
+    const redirect = encodeURIComponent(redirectPath);
+    window.location.href = `${process.env.REACT_APP_BACKEND_URL}/auth/google?redirect=${redirect}`;
   };
 
   const handleFacebookLogin = () => {
-    window.location.href = `${process.env.REACT_APP_BACKEND_URL}/auth/facebook`;
+    const redirect = encodeURIComponent(redirectPath);
+    window.location.href = `${process.env.REACT_APP_BACKEND_URL}/auth/facebook?redirect=${redirect}`;
   };
 
   return (
@@ -200,7 +208,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         )}
 
         <p className="mt-4 text-center text-secondaryText">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link
             to={`/register?redirect=${encodeURIComponent(redirectPath)}`}
             className="text-blue-400 hover:underline"
