@@ -59,7 +59,14 @@ export const magicRegister = async (
 
     // Create user if not found
     if (!user) {
-      user = new User({ email });
+      user = new User({
+        email,
+        firstName: "New",
+        lastName: "User",
+        role: "user",
+        profilePicture:
+          "https://res.cloudinary.com/dqdix32m5/image/upload/v1744499838/user_v0drnu.png",
+      });
       await user.save();
     }
 
