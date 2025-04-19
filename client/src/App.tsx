@@ -21,6 +21,8 @@ import AllUserPosts from "./pages/AllUserPosts";
 import AdminDashboard from "./pages/AdminDashboard";
 import MagicLogin from "./pages/MagicLogin";
 import OAuthSuccess from "./pages/OAuthSuccess";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
 import axios from "axios";
 
 interface User {
@@ -98,6 +100,8 @@ const AppRoutes: React.FC<{
         }
       />
       <Route path="/oauth-success" element={<OAuthSuccess />} />
+      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/terms" element={<Terms />} />
       <Route
         path="/dashboard"
         element={

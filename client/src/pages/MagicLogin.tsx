@@ -47,16 +47,16 @@ const MagicLogin: React.FC<LoginProps> = ({ onLogin }) => {
 
         const { token: authToken, user } = res.data;
 
-        // Store token and user details
+        // Store token and user info in localStorage
         localStorage.setItem("token", authToken);
         localStorage.setItem("firstName", user.firstName || "User");
         localStorage.setItem("email", user.email);
         localStorage.setItem("role", user.role);
         localStorage.setItem("profilePicture", user.profilePicture || "");
 
-        // ✅ Notify App of successful login
+        // Notify parent login handler
         onLogin(
-          user.username || "", // fallback if username is undefined
+          user.username || "",
           user.email,
           user.firstName || "",
           user.role,
@@ -66,10 +66,11 @@ const MagicLogin: React.FC<LoginProps> = ({ onLogin }) => {
         setStatus("Login successful! Redirecting...");
         setTimeout(() => navigate("/dashboard"), 500);
       } catch (err: any) {
-        console.error(err);
-        setStatus(
-          err.response?.data?.error || "Invalid or expired magic link."
-        );
+        console.error("Magic link login failed:", err);
+        const fallbackError =
+          err.response?.data?.error || "Invalid or expired magic link.";
+        setStatus(fallbackError);
+        setTimeout(() => navigate("/login"), 3000); // Optional: fallback redirect
       }
     };
 

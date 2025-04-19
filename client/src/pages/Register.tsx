@@ -10,7 +10,6 @@ interface RegisterResponse {
 
 const Register: React.FC = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
-  const [showForm, setShowForm] = useState(false);
   const [showPasswordField, setShowPasswordField] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -121,140 +120,130 @@ const Register: React.FC = () => {
     );
   };
 
-  const handleGoogleRegister = () => {
-    window.location.href = `${process.env.REACT_APP_BACKEND_URL}/auth/google`;
-  };
+  // ⚠️ Commented out social buttons temporarily
+  // const handleGoogleRegister = () => {
+  //   window.location.href = `${process.env.REACT_APP_BACKEND_URL}/auth/google`;
+  // };
 
-  const handleFacebookRegister = () => {
-    window.location.href = `${process.env.REACT_APP_BACKEND_URL}/auth/facebook`;
-  };
+  // const handleFacebookRegister = () => {
+  //   window.location.href = `${process.env.REACT_APP_BACKEND_URL}/auth/facebook`;
+  // };
 
   return (
-    <div className="container p-7 py-10 flex items-center justify-center bg-background min-h-screen">
-      <div className="bg-background p-8 rounded-lg shadow-xl max-w-md w-full space-y-6">
+    <div className="container px-4 pt-10 pb-8 flex items-center justify-center bg-background min-h-screen">
+      <div className="bg-background p-6 rounded-lg shadow-xl max-w-md w-full space-y-6">
         <h2 className="text-xl font-bold text-center text-primaryText">
           Join Blogwebapp
         </h2>
+
         {error && <p className="text-red-500 text-center">{error}</p>}
         {success && <p className="text-green-500 text-center">{success}</p>}
 
-        {!showForm && (
-          <div className="space-y-4">
-            <button
-              className="w-full border border-gray-500 rounded-full py-2 flex items-center justify-center text-secondaryText hover:bg-gray-800 hover:text-white transition"
-              onClick={handleGoogleRegister}
-            >
-              <FaGoogle className="mr-3" />
-              Continue with Google
-            </button>
-            <button
-              className="w-full border border-gray-500 rounded-full py-2 flex items-center justify-center text-secondaryText hover:bg-gray-800 hover:text-white transition"
-              onClick={handleFacebookRegister}
-            >
-              <FaFacebookF className="mr-3" />
-              Continue with Facebook
-            </button>
-            <button
-              className="w-full border border-gray-500 rounded-full py-2 flex items-center justify-center text-secondaryText hover:bg-gray-800 hover:text-white transition"
-              onClick={() => setShowForm(true)}
-            >
-              <FaEnvelope className="mr-3" />
-              Continue with Email
-            </button>
-          </div>
-        )}
-
-        {showForm && (
-          <form
-            onSubmit={
-              showPasswordField
-                ? handlePasswordSubmit
-                : (e) => e.preventDefault()
-            }
-            className="space-y-4"
+        {/* ⚠️ Commented out social login buttons for now */}
+        {/* <div className="space-y-4">
+          <button
+            className="w-full border border-gray-500 rounded-full py-2 flex items-center justify-center text-secondaryText hover:bg-gray-800 hover:text-white transition"
+            onClick={handleGoogleRegister}
           >
+            <FaGoogle className="mr-3" />
+            Continue with Google
+          </button>
+          <button
+            className="w-full border border-gray-500 rounded-full py-2 flex items-center justify-center text-secondaryText hover:bg-gray-800 hover:text-white transition"
+            onClick={handleFacebookRegister}
+          >
+            <FaFacebookF className="mr-3" />
+            Continue with Facebook
+          </button>
+        </div> */}
+
+        <form
+          onSubmit={
+            showPasswordField ? handlePasswordSubmit : (e) => e.preventDefault()
+          }
+          className="space-y-4"
+        >
+          <div>
+            <label htmlFor="email" className="block mb-1 text-secondaryText">
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded-md text-secondaryText"
+              required
+            />
+          </div>
+
+          {!showPasswordField ? (
+            <>
+              <button
+                type="button"
+                onClick={() => setShowPasswordField(true)}
+                className="text-blue-400 text-sm hover:underline"
+              >
+                Want to set a password now? Click here.
+              </button>
+              <button
+                type="button"
+                onClick={handleMagicLinkRegister}
+                className="w-full mt-2 bg-primaryButton text-primaryButtonText py-2 rounded-md font-medium hover:bg-buttonHover transition"
+              >
+                Register with Magic Link
+              </button>
+            </>
+          ) : (
             <div>
-              <label htmlFor="email" className="block mb-1 text-secondaryText">
-                Email
+              <label
+                htmlFor="password"
+                className="block mb-1 text-secondaryText"
+              >
+                Password
               </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border rounded-md text-secondaryText"
-                required
-              />
-            </div>
-
-            {!showPasswordField ? (
-              <>
-                <button
-                  type="button"
-                  onClick={() => setShowPasswordField(true)}
-                  className="text-blue-400 text-sm hover:underline"
+              <div className="eyecomp flex items-center border rounded-md overflow-hidden">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border-none text-secondaryText focus:outline-none"
+                  required
+                />
+                <div
+                  className="px-3 flex items-center cursor-pointer bg-gray-200"
+                  onClick={togglePasswordVisibility}
                 >
-                  Want to set a password now? Click here.
-                </button>
-                <button
-                  type="button"
-                  onClick={handleMagicLinkRegister}
-                  className="w-full mt-2 bg-primaryButton text-primaryButtonText py-2 rounded-md font-medium hover:bg-buttonHover transition"
-                >
-                  Register with Magic Link
-                </button>
-              </>
-            ) : (
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block mb-1 text-secondaryText"
-                >
-                  Password
-                </label>
-                <div className="eyecomp flex items-center border rounded-md overflow-hidden">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    id="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border-none text-secondaryText focus:outline-none"
-                    required
-                  />
-                  <div
-                    className="px-3 flex items-center cursor-pointer bg-gray-200"
-                    onClick={togglePasswordVisibility}
-                  >
-                    {showPassword ? (
-                      <AiFillEyeInvisible className="text-gray-500" />
-                    ) : (
-                      <AiFillEye className="text-gray-500" />
-                    )}
-                  </div>
+                  {showPassword ? (
+                    <AiFillEyeInvisible className="text-gray-500" />
+                  ) : (
+                    <AiFillEye className="text-gray-500" />
+                  )}
                 </div>
-                <div className="h-2 mt-2 w-full rounded-full bg-gray-300">
-                  <div
-                    className={`h-full rounded-full ${getStrengthColor()}`}
-                    style={{ width: `${(passwordStrength / 5) * 100}%` }}
-                  ></div>
-                </div>
-                {formData.password && (
-                  <p className="mt-2 text-sm text-gray-300">{passwordStatus}</p>
-                )}
-                <button
-                  type="submit"
-                  className="mt-4 w-full bg-primaryButton text-primaryButtonText py-2 rounded-md font-medium hover:bg-buttonHover transition"
-                >
-                  Create Account
-                </button>
               </div>
-            )}
-          </form>
-        )}
+              <div className="h-2 mt-2 w-full rounded-full bg-gray-300">
+                <div
+                  className={`h-full rounded-full ${getStrengthColor()}`}
+                  style={{ width: `${(passwordStrength / 5) * 100}%` }}
+                ></div>
+              </div>
+              {formData.password && (
+                <p className="mt-2 text-sm text-gray-300">{passwordStatus}</p>
+              )}
+              <button
+                type="submit"
+                className="mt-4 w-full bg-primaryButton text-primaryButtonText py-2 rounded-md font-medium hover:bg-buttonHover transition"
+              >
+                Create Account
+              </button>
+            </div>
+          )}
+        </form>
 
-        <p className="mt-4 text-center text-secondaryText">
+        <p className="text-sm text-center text-secondaryText">
           Already a member?{" "}
           <Link
             to={`/login?redirect=${encodeURIComponent(redirectPath)}`}
@@ -262,6 +251,25 @@ const Register: React.FC = () => {
           >
             Sign in
           </Link>
+        </p>
+
+        <p className="text-xxs text-center text-gray-500 mt-2">
+          This site is in soft launch mode.
+          <br /> By continuing, you agree to our{" "}
+          <Link
+            to="/terms"
+            className="underline text-blue-400 hover:text-blue-300"
+          >
+            Terms
+          </Link>{" "}
+          and{" "}
+          <Link
+            to="/privacy"
+            className="underline text-blue-400 hover:text-blue-300"
+          >
+            Privacy Policy
+          </Link>
+          .
         </p>
       </div>
     </div>
