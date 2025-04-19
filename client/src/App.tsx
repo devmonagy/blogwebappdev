@@ -19,6 +19,8 @@ import WritePost from "./pages/WritePost";
 import EditPost from "./pages/EditPost";
 import AllUserPosts from "./pages/AllUserPosts";
 import AdminDashboard from "./pages/AdminDashboard";
+import MagicLogin from "./pages/MagicLogin";
+import OAuthSuccess from "./pages/OAuthSuccess";
 import axios from "axios";
 
 interface User {
@@ -26,7 +28,9 @@ interface User {
   username: string;
   email: string;
   firstName: string;
+  lastName: string;
   role: string;
+  profilePicture: string;
 }
 
 interface TokenValidationResponse {
@@ -37,13 +41,7 @@ interface TokenValidationResponse {
 const AppRoutes: React.FC<{
   isAuthenticated: boolean;
   user: User | null;
-  handleLogin: (
-    username: string,
-    email: string,
-    firstName: string,
-    role: string,
-    token: string
-  ) => void;
+  handleLogin: (user: User, token: string) => void;
   handleLogout: () => void;
 }> = ({ isAuthenticated, user, handleLogin, handleLogout }) => {
   const location = useLocation();
@@ -60,13 +58,46 @@ const AppRoutes: React.FC<{
           ) : (
             <Login
               onLogin={(username, email, firstName, role, token) =>
-                handleLogin(username, email, firstName, role, token)
+                handleLogin(
+                  {
+                    _id: "",
+                    username,
+                    email,
+                    firstName,
+                    lastName: "",
+                    role,
+                    profilePicture: "",
+                  },
+                  token
+                )
               }
             />
           )
         }
       />
       <Route path="/register" element={<Register />} />
+      <Route
+        path="/magic-login"
+        element={
+          <MagicLogin
+            onLogin={(username, email, firstName, role, token) =>
+              handleLogin(
+                {
+                  _id: "",
+                  username,
+                  email,
+                  firstName,
+                  lastName: "",
+                  role,
+                  profilePicture: "",
+                },
+                token
+              )
+            }
+          />
+        }
+      />
+      <Route path="/oauth-success" element={<OAuthSuccess />} />
       <Route
         path="/dashboard"
         element={
@@ -149,17 +180,9 @@ const App: React.FC = () => {
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
-  const handleLogin = (
-    username: string,
-    email: string,
-    firstName: string,
-    role: string,
-    token: string
-  ) => {
-    const user = { _id: "", username, email, firstName, role };
+  const handleLogin = (user: User, token: string) => {
     localStorage.setItem("user", JSON.stringify(user));
     localStorage.setItem("token", token);
-
     setIsAuthenticated(true);
     setUser(user);
   };
@@ -167,7 +190,6 @@ const App: React.FC = () => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-
     setIsAuthenticated(false);
     setUser(null);
   };

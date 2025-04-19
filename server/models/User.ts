@@ -3,40 +3,33 @@ import mongoose, { Schema, Document } from "mongoose";
 
 // Interface defining the User document structure
 interface IUser extends Document {
-  username: string;
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
   email: string;
-  password: string;
-  profilePicture: string;
+  password?: string;
+  profilePicture?: string;
   role: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
-// ✅ Set your Cloudinary-hosted default image here
+// ✅ Default profile image (Cloudinary-hosted)
 const getDefaultProfilePictureUrl = (): string => {
   return "https://res.cloudinary.com/dqdix32m5/image/upload/v1744499838/user_v0drnu.png";
-  // You can use the public image link or asset URL — just make sure it's direct-access.
 };
 
 // User schema definition
 const UserSchema: Schema = new Schema(
   {
-    username: {
-      type: String,
-      required: [true, "Username is required"],
-      unique: true,
-      trim: true,
-      lowercase: true,
-    },
     firstName: {
       type: String,
-      required: [true, "First name is required"],
+      required: false,
+      trim: true,
     },
     lastName: {
       type: String,
-      required: [true, "Last name is required"],
+      required: false,
+      trim: true,
     },
     email: {
       type: String,
@@ -46,11 +39,11 @@ const UserSchema: Schema = new Schema(
     },
     password: {
       type: String,
-      required: [true, "Password is required"],
+      required: false, // ❗ magic link / Google users won't have password
     },
     profilePicture: {
       type: String,
-      default: getDefaultProfilePictureUrl, // ✅ Use Cloudinary-hosted default
+      default: getDefaultProfilePictureUrl,
     },
     role: {
       type: String,

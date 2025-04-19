@@ -13,6 +13,7 @@ import commentRoutes from "./routes/commentRoutes";
 import Post from "./models/Post";
 import Comment from "./models/Comment";
 import User from "./models/User";
+import "./config/passport"; // ✅ Initialize Google OAuth strategy
 
 dotenv.config();
 
