@@ -56,7 +56,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       const response = await axios.post<LoginResponse>(
         `${process.env.REACT_APP_BACKEND_URL}/auth/login`,
         {
-          usernameOrEmail: formData.email, // ✅ important fix
+          usernameOrEmail: formData.email,
           password: formData.password,
         }
       );
@@ -92,13 +92,11 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   };
 
   const handleGoogleLogin = () => {
-    const redirect = encodeURIComponent(redirectPath);
-    window.location.href = `${process.env.REACT_APP_BACKEND_URL}/auth/google?redirect=${redirect}`;
+    window.location.href = `${process.env.REACT_APP_BACKEND_URL}/auth/google`;
   };
 
   const handleFacebookLogin = () => {
-    const redirect = encodeURIComponent(redirectPath);
-    window.location.href = `${process.env.REACT_APP_BACKEND_URL}/auth/facebook?redirect=${redirect}`;
+    window.location.href = `${process.env.REACT_APP_BACKEND_URL}/auth/facebook`;
   };
 
   return (
@@ -140,7 +138,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         {showForm && (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block mb-1 text-secondaryText" htmlFor="email">
+              <label htmlFor="email" className="block mb-1 text-secondaryText">
                 Email
               </label>
               <input
@@ -156,8 +154,8 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
             <div>
               <label
-                className="block mb-1 text-secondaryText"
                 htmlFor="password"
+                className="block mb-1 text-secondaryText"
               >
                 Password
               </label>

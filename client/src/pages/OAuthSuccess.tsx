@@ -34,10 +34,22 @@ const OAuthSuccess: React.FC = () => {
             }
           );
 
-          const { user } = res.data;
-          localStorage.setItem("user", JSON.stringify(user));
+          const user = res.data.user;
+          localStorage.setItem(
+            "user",
+            JSON.stringify({
+              _id: user._id,
+              username: user.username || "",
+              email: user.email,
+              firstName: user.firstName || "",
+              lastName: user.lastName || "",
+              role: user.role,
+              profilePicture: user.profilePicture || "",
+            })
+          );
 
-          window.location.href = "/dashboard"; // ✅ force redirect to re-run full auth context
+          // Use replace to avoid "Back" going to OAuthSuccess
+          window.location.replace("/dashboard");
         } catch (err) {
           console.error("Token validation failed:", err);
           navigate("/login");

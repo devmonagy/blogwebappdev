@@ -1,4 +1,3 @@
-// server.ts
 import express, { Request, Response, Application } from "express";
 import http from "http";
 import dotenv from "dotenv";
@@ -20,6 +19,14 @@ dotenv.config();
 const app: Application = express();
 const server = http.createServer(app);
 
+const ALLOWED_ORIGINS = [
+  "http://localhost:3000",
+  "http://192.168.1.204:3000",
+  "http://172.16.109.61:3000",
+  "https://blogwebapp.monagy.com",
+  "https://blogwebapp-dev.onrender.com",
+];
+
 app.use(helmet());
 app.use(helmet.noSniff());
 app.use(helmet.frameguard({ action: "deny" }));
@@ -29,11 +36,7 @@ app.use(
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "https://res.cloudinary.com"],
       imgSrc: ["'self'", "data:", "https://res.cloudinary.com"],
-      connectSrc: [
-        "'self'",
-        "https://blogwebapp.monagy.com",
-        "https://api.cloudinary.com",
-      ],
+      connectSrc: ["'self'", ...ALLOWED_ORIGINS, "https://api.cloudinary.com"],
       objectSrc: ["'none'"],
       baseUri: ["'self'"],
     },
@@ -48,13 +51,7 @@ app.use((req, res, next) => {
 const io = new SocketIoServer(server, {
   transports: ["websocket"],
   cors: {
-    origin: [
-      "http://localhost:3000",
-      "http://192.168.1.204:3000",
-      "http://172.16.109.61:3000",
-      "https://blogwebapp.monagy.com",
-      "https://blogwebapp-dev.onrender.com",
-    ],
+    origin: ALLOWED_ORIGINS,
     credentials: true,
   },
 });
@@ -67,17 +64,8 @@ connectDB()
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (
-        !origin ||
-        [
-          "http://localhost:3000",
-          "http://192.168.1.204:3000",
-          "http://172.16.109.61:3000",
-          "https://blogwebapp.monagy.com",
-          "https://blogwebapp-dev.onrender.com",
-        ].includes(origin)
-      ) {
+    origin: (origin, callback) => {
+      if (!origin || ALLOWED_ORIGINS.includes(origin)) {
         callback(null, true);
       } else {
         callback(new Error("Not allowed by CORS"));

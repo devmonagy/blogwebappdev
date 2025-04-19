@@ -14,17 +14,20 @@ export const sendEmail = async ({ to, link }: MailOptions): Promise<void> => {
 
   const sendSmtpEmail = {
     sender: {
-      email: process.env.EMAIL_FROM!, // ✅ MUST be a verified sender under Brevo's "Senders" tab
+      email: process.env.EMAIL_FROM!, // ✅ Must be verified sender in Brevo
       name: "Blogwebapp",
     },
     to: [{ email: to }],
-    subject: "Your Magic Login Link",
+    subject: "Login to Blogwebapp — Your Magic Link",
     htmlContent: `
       <h2>Sign in to Blogwebapp</h2>
-      <p>Click the link below to log in:</p>
-      <a href="${link}" target="_blank">${link}</a>
-      <p>This link expires in 15 minutes.</p>
+      <p>Click the button below to log in:</p>
+      <a href="${encodeURI(
+        link
+      )}" target="_blank" style="display:inline-block;padding:10px 15px;background-color:#0a2540;color:white;text-decoration:none;border-radius:4px;">Login Now</a>
+      <p>This link will expire in 15 minutes. If you didn't request this, you can ignore this email.</p>
     `,
+    textContent: `Sign in to Blogwebapp by clicking this link: ${link}`,
   };
 
   try {

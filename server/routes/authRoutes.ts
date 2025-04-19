@@ -31,7 +31,7 @@ router.post("/login", loginUser);
 // ========== Magic Link Auth Routes ==========
 router.post("/send-magic-link", sendMagicLink);
 router.get("/magic-login", magicLogin);
-router.post("/magic-register", magicRegister); // ✅ Register + send link
+router.post("/magic-register", magicRegister);
 
 // ========== Protected Routes ==========
 router.put("/update-profile", authenticate, updateProfile);
@@ -60,6 +60,11 @@ router.get(
   passport.authenticate("google", { session: false, failureRedirect: "/" }),
   async (req: Request, res: Response) => {
     const user = req.user as any;
+    if (!user) {
+      return res.redirect(
+        `${process.env.FRONTEND_URL}/login?error=oauth-failed`
+      );
+    }
 
     const token = jwt.sign(
       { userId: user._id, role: user.role },
@@ -67,7 +72,9 @@ router.get(
       { expiresIn: "7d" }
     );
 
-    const redirectUrl = `${process.env.FRONTEND_URL}/oauth-success?token=${token}`;
+    const redirectUrl = `${
+      process.env.FRONTEND_URL
+    }/oauth-success?token=${encodeURIComponent(token)}`;
     res.redirect(redirectUrl);
   }
 );
@@ -75,7 +82,7 @@ router.get(
 // ========== Facebook OAuth ==========
 router.get(
   "/facebook",
-  passport.authenticate("facebook", { scope: ["email"] }) // ✅ Request email explicitly
+  passport.authenticate("facebook", { scope: ["email"] })
 );
 
 router.get(
@@ -83,6 +90,11 @@ router.get(
   passport.authenticate("facebook", { session: false, failureRedirect: "/" }),
   async (req: Request, res: Response) => {
     const user = req.user as any;
+    if (!user) {
+      return res.redirect(
+        `${process.env.FRONTEND_URL}/login?error=oauth-failed`
+      );
+    }
 
     const token = jwt.sign(
       { userId: user._id, role: user.role },
@@ -90,7 +102,9 @@ router.get(
       { expiresIn: "7d" }
     );
 
-    const redirectUrl = `${process.env.FRONTEND_URL}/oauth-success?token=${token}`;
+    const redirectUrl = `${
+      process.env.FRONTEND_URL
+    }/oauth-success?token=${encodeURIComponent(token)}`;
     res.redirect(redirectUrl);
   }
 );

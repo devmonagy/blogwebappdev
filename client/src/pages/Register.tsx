@@ -9,11 +9,7 @@ interface RegisterResponse {
 }
 
 const Register: React.FC = () => {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [showForm, setShowForm] = useState(false);
   const [showPasswordField, setShowPasswordField] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
@@ -52,27 +48,14 @@ const Register: React.FC = () => {
     if (/[^A-Za-z0-9]/.test(password)) strength++;
 
     setPasswordStrength(strength);
-    switch (strength) {
-      case 1:
-        setPasswordStatus("Strength: Weak");
-        break;
-      case 2:
-        setPasswordStatus("Strength: Fair");
-        break;
-      case 3:
-        setPasswordStatus("Strength: Good");
-        break;
-      case 4:
-        setPasswordStatus("Strength: Strong");
-        break;
-      default:
-        setPasswordStatus("Strength: Very Strong");
-    }
+    setPasswordStatus(
+      ["Strength: Very Weak", "Weak", "Fair", "Good", "Strong", "Very Strong"][
+        strength
+      ] || ""
+    );
   };
 
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
+  const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,11 +68,11 @@ const Register: React.FC = () => {
     }
 
     try {
-      const response = await axios.post<RegisterResponse>(
+      const res = await axios.post<RegisterResponse>(
         `${process.env.REACT_APP_BACKEND_URL}/auth/register`,
         formData
       );
-      setSuccess(response.data.message);
+      setSuccess(res.data.message);
       setFormData({ email: "", password: "" });
       setPasswordStrength(0);
       setPasswordStatus("");
@@ -108,11 +91,11 @@ const Register: React.FC = () => {
     }
 
     try {
-      const response = await axios.post<RegisterResponse>(
+      const res = await axios.post<RegisterResponse>(
         `${process.env.REACT_APP_BACKEND_URL}/auth/magic-register`,
         { email: formData.email }
       );
-      setSuccess(response.data.message || "Magic link sent! Check your email.");
+      setSuccess(res.data.message || "Magic link sent! Check your email.");
       setFormData({ email: "", password: "" });
     } catch (err: any) {
       setError(err.response?.data?.error || "Failed to send magic link.");
@@ -120,30 +103,24 @@ const Register: React.FC = () => {
   };
 
   const getStrengthColor = () => {
-    switch (passwordStrength) {
-      case 1:
-        return "bg-red-500";
-      case 2:
-        return "bg-orange-500";
-      case 3:
-        return "bg-yellow-500";
-      case 4:
-        return "bg-green-500";
-      case 5:
-        return "bg-green-700";
-      default:
-        return "bg-gray-300";
-    }
+    return (
+      [
+        "bg-gray-300",
+        "bg-red-500",
+        "bg-orange-500",
+        "bg-yellow-500",
+        "bg-green-500",
+        "bg-green-700",
+      ][passwordStrength] || "bg-gray-300"
+    );
   };
 
   const handleGoogleRegister = () => {
-    const redirect = encodeURIComponent(redirectPath);
-    window.location.href = `${process.env.REACT_APP_BACKEND_URL}/auth/google?redirect=${redirect}`;
+    window.location.href = `${process.env.REACT_APP_BACKEND_URL}/auth/google`;
   };
 
   const handleFacebookRegister = () => {
-    const redirect = encodeURIComponent(redirectPath);
-    window.location.href = `${process.env.REACT_APP_BACKEND_URL}/auth/facebook?redirect=${redirect}`;
+    window.location.href = `${process.env.REACT_APP_BACKEND_URL}/auth/facebook`;
   };
 
   return (
@@ -152,7 +129,6 @@ const Register: React.FC = () => {
         <h2 className="text-xl font-bold text-center text-primaryText">
           Join Blogwebapp
         </h2>
-
         {error && <p className="text-red-500 text-center">{error}</p>}
         {success && <p className="text-green-500 text-center">{success}</p>}
 
@@ -255,9 +231,7 @@ const Register: React.FC = () => {
                 <div className="h-2 mt-2 w-full rounded-full bg-gray-300">
                   <div
                     className={`h-full rounded-full ${getStrengthColor()}`}
-                    style={{
-                      width: `${(passwordStrength / 5) * 100}%`,
-                    }}
+                    style={{ width: `${(passwordStrength / 5) * 100}%` }}
                   ></div>
                 </div>
                 {formData.password && (
