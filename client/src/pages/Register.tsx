@@ -254,7 +254,7 @@ const Register: React.FC = () => {
         </p>
 
         <p className="text-xxs text-center text-gray-500 mt-2">
-          This site is in soft launch mode.
+          This site is in soft launch mode 🚀.
           <br /> By continuing, you agree to our{" "}
           <Link
             to="/terms"
