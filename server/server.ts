@@ -12,7 +12,7 @@ import commentRoutes from "./routes/commentRoutes";
 import Post from "./models/Post";
 import Comment from "./models/Comment";
 import User from "./models/User";
-import "./config/passport"; // ✅ Initialize Google OAuth strategy
+import "./config/passport"; // ✅ Initialize Google & Facebook OAuth strategies
 
 dotenv.config();
 
@@ -76,7 +76,7 @@ app.use(
 );
 
 app.use(express.json());
-app.options("/socket.io/*", cors());
+app.options("*", cors()); // ✅ Allow preflight requests for all routes
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello, MongoDB is connected!");
@@ -87,11 +87,12 @@ app.get("/ping", (req: Request, res: Response) => {
   res.status(200).send("pong");
 });
 
-// ✅ Add this route to return the current server time
+// ✅ Server time route for time-drift logic
 app.get("/server-time", (req: Request, res: Response) => {
   res.json({ serverTime: new Date().toISOString() });
 });
 
+// ✅ Socket.IO events
 io.on("connection", (socket) => {
   console.log("⚡ New client connected:", socket.id);
 
@@ -134,7 +135,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  // ✅ Real-time comment/reply with populated author
   socket.on(
     "newComment",
     async ({ postId, content, parentComment, userId }) => {
@@ -165,10 +165,16 @@ io.on("connection", (socket) => {
   });
 });
 
+// ✅ All Routes
 app.use("/auth", authRoutes);
 app.use("/posts", postRoutes);
 app.use("/admin", adminRoutes);
 app.use("/comments", commentRoutes);
+
+// ✅ Fallback error for unknown routes
+app.use((req, res) => {
+  res.status(404).json({ error: "Route not found" });
+});
 
 server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
