@@ -3,6 +3,7 @@ import mongoose, { Schema, Document } from "mongoose";
 
 // Interface defining the User document structure
 interface IUser extends Document {
+  username?: string;
   firstName?: string;
   lastName?: string;
   email: string;
@@ -21,6 +22,13 @@ const getDefaultProfilePictureUrl = (): string => {
 // User schema definition
 const UserSchema: Schema = new Schema(
   {
+    username: {
+      type: String,
+      required: false,
+      trim: true,
+      unique: true,
+      sparse: true, // ✅ Allows multiple null usernames
+    },
     firstName: {
       type: String,
       required: false,
@@ -39,7 +47,7 @@ const UserSchema: Schema = new Schema(
     },
     password: {
       type: String,
-      required: false, // ❗ magic link / Google users won't have password
+      required: false, // ❗ magic link / social logins won't have passwords
     },
     profilePicture: {
       type: String,
