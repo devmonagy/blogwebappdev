@@ -206,7 +206,7 @@ const Home: React.FC = () => {
               href="/privacy"
               className="text-cyan-400 underline hover:text-cyan-300"
             >
-              Privacy
+              Privacy Policy
             </a>
             .
           </span>
