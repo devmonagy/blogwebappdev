@@ -120,6 +120,14 @@ const Register: React.FC = () => {
     );
   };
 
+  // ⚠️ Social login buttons – currently commented out but ready to use
+  // const handleGoogleRegister = () => {
+  //   window.location.href = `${process.env.REACT_APP_BACKEND_URL}/auth/google`;
+  // };
+  // const handleFacebookRegister = () => {
+  //   window.location.href = `${process.env.REACT_APP_BACKEND_URL}/auth/facebook`;
+  // };
+
   return (
     <div className="bg-background min-h-screen px-8 pt-20 pb-12">
       <div className="bg-background p-6 rounded-lg shadow-xl max-w-md w-full mx-auto space-y-6">
@@ -129,6 +137,24 @@ const Register: React.FC = () => {
 
         {error && <p className="text-red-500 text-center">{error}</p>}
         {success && <p className="text-green-500 text-center">{success}</p>}
+
+        {/* ⚠️ Social login buttons – hidden for now */}
+        {/* <div className="space-y-4">
+          <button
+            className="w-full border border-gray-500 rounded-full py-2 flex items-center justify-center text-secondaryText hover:bg-gray-800 hover:text-white transition"
+            onClick={handleGoogleRegister}
+          >
+            <FaGoogle className="mr-3" />
+            Continue with Google
+          </button>
+          <button
+            className="w-full border border-gray-500 rounded-full py-2 flex items-center justify-center text-secondaryText hover:bg-gray-800 hover:text-white transition"
+            onClick={handleFacebookRegister}
+          >
+            <FaFacebookF className="mr-3" />
+            Continue with Facebook
+          </button>
+        </div> */}
 
         <form
           onSubmit={
