@@ -192,15 +192,23 @@ const Home: React.FC = () => {
           }`}
         >
           <span className="info-text text-xs sm:text-sm md:text-base lg:text-lg">
-            Production v1.2.0 — under active development 🚀. Feedback and bug
-            reports{" "}
+            This app is in soft launch mode 🚀
+            <br />
+            By using it, you accept our{" "}
             <a
-              href="/about"
+              href="/terms"
               className="text-cyan-400 underline hover:text-cyan-300"
             >
-              are always welcome!
+              Terms
             </a>{" "}
-            🙌.
+            and{" "}
+            <a
+              href="/privacy"
+              className="text-cyan-400 underline hover:text-cyan-300"
+            >
+              Privacy
+            </a>
+            .
           </span>
 
           <button
