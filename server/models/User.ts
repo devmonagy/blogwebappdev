@@ -1,4 +1,3 @@
-// server/models/User.ts
 import mongoose, { Schema, Document } from "mongoose";
 
 // Interface defining the User document structure
@@ -9,6 +8,7 @@ interface IUser extends Document {
   email: string;
   password?: string;
   profilePicture?: string;
+  bio?: string;
   role: string;
   createdAt: Date;
   updatedAt: Date;
@@ -52,6 +52,11 @@ const UserSchema: Schema = new Schema(
     profilePicture: {
       type: String,
       default: getDefaultProfilePictureUrl,
+    },
+    bio: {
+      type: String,
+      maxlength: 160,
+      default: "",
     },
     role: {
       type: String,

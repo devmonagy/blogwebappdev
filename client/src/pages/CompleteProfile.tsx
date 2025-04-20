@@ -6,11 +6,14 @@ interface ProfileData {
   email: string;
   firstName?: string;
   lastName?: string;
+  bio?: string;
 }
 
 interface CompleteProfileProps {
   onProfileUpdate: (updatedUser: ProfileData) => void;
 }
+
+const MAX_BIO_LENGTH = 160;
 
 const CompleteProfile: React.FC<CompleteProfileProps> = ({
   onProfileUpdate,
@@ -23,6 +26,7 @@ const CompleteProfile: React.FC<CompleteProfileProps> = ({
     email: "",
     firstName: "",
     lastName: "",
+    bio: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -46,12 +50,13 @@ const CompleteProfile: React.FC<CompleteProfileProps> = ({
           }
         );
 
-        const { email, firstName, lastName } = res.data as ProfileData;
+        const { email, firstName, lastName, bio } = res.data as ProfileData;
 
         setFormData({
           email,
           firstName: firstName || "",
           lastName: lastName || "",
+          bio: bio || "",
         });
       } catch (err: any) {
         console.error(err);
@@ -62,8 +67,14 @@ const CompleteProfile: React.FC<CompleteProfileProps> = ({
     fetchProfile();
   }, [navigate]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+
+    if (name === "bio" && value.length > MAX_BIO_LENGTH) return;
+
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -80,17 +91,18 @@ const CompleteProfile: React.FC<CompleteProfileProps> = ({
         {
           firstName: formData.firstName,
           lastName: formData.lastName,
+          bio: formData.bio,
         },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
 
-      // ✅ update local user state in App.tsx
       onProfileUpdate({
         email: formData.email,
         firstName: formData.firstName,
         lastName: formData.lastName,
+        bio: formData.bio,
       });
 
       setSuccess("Profile updated successfully!");
@@ -150,6 +162,23 @@ const CompleteProfile: React.FC<CompleteProfileProps> = ({
               required
               className="w-full px-3 py-2 border rounded-md text-secondaryText"
             />
+          </div>
+
+          <div>
+            <label className="block mb-1 text-secondaryText">
+              Bio <span className="text-gray-400">(optional)</span>
+            </label>
+            <textarea
+              name="bio"
+              value={formData.bio}
+              onChange={handleChange}
+              rows={3}
+              className="w-full px-3 py-2 border rounded-md text-secondaryText resize-none"
+              placeholder="A short bio about you..."
+            />
+            <p className="text-xs text-right text-gray-400">
+              {formData.bio.length}/{MAX_BIO_LENGTH}
+            </p>
           </div>
 
           <button

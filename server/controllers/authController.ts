@@ -236,7 +236,7 @@ export const updateProfile = async (
   req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
-  const { firstName, lastName, email, newPassword } = req.body;
+  const { firstName, lastName, email, newPassword, bio } = req.body;
   const profilePicture = req.file?.path;
   const userId = req.userId;
 
@@ -256,6 +256,7 @@ export const updateProfile = async (
     if (lastName) user.lastName = lastName;
     if (email) user.email = email;
     if (profilePicture) user.profilePicture = profilePicture;
+    if (bio !== undefined) user.bio = bio; // ✅ Add bio support
 
     if (newPassword) {
       if (!user.password) {
@@ -270,6 +271,7 @@ export const updateProfile = async (
         res.status(400).json({ error: "Password can't be your current one!" });
         return;
       }
+
       user.password = await bcrypt.hash(newPassword, 10);
     }
 
