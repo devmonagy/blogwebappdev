@@ -1,3 +1,4 @@
+// server/routes/authRoutes.ts
 import { Router, Request, Response } from "express";
 import passport from "passport";
 import jwt from "jsonwebtoken";
@@ -37,6 +38,7 @@ router.post("/magic-register", magicRegister);
 router.put("/update-profile", authenticate, updateProfile);
 router.post("/check-password", authenticate, checkPassword);
 router.get("/user-profile", authenticate, getUserProfile);
+router.get("/profile", authenticate, getUserProfile); // ✅ alias for legacy or alternate fetches
 
 // ========== Profile Picture Upload ==========
 router.post(

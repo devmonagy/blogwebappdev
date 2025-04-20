@@ -20,41 +20,38 @@ const OAuthSuccess: React.FC = () => {
     const token = params.get("token");
 
     const completeLogin = async () => {
-      if (token) {
-        try {
-          localStorage.setItem("token", token);
+      if (!token) {
+        navigate("/login");
+        return;
+      }
 
-          const res = await axios.post<{ valid: boolean; user: User }>(
-            `${process.env.REACT_APP_BACKEND_URL}/auth/validate-token`,
-            {},
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
+      try {
+        localStorage.setItem("token", token);
 
-          const user = res.data.user;
-          localStorage.setItem(
-            "user",
-            JSON.stringify({
-              _id: user._id,
-              username: user.username || "",
-              email: user.email,
-              firstName: user.firstName || "",
-              lastName: user.lastName || "",
-              role: user.role,
-              profilePicture: user.profilePicture || "",
-            })
-          );
+        const res = await axios.post<{ valid: boolean; user: User }>(
+          `${process.env.REACT_APP_BACKEND_URL}/auth/validate-token`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-          // Use replace to avoid "Back" going to OAuthSuccess
-          window.location.replace("/dashboard");
-        } catch (err) {
-          console.error("Token validation failed:", err);
-          navigate("/login");
-        }
-      } else {
+        const user = res.data.user;
+
+        // Save full user object
+        localStorage.setItem("user", JSON.stringify(user));
+
+        // Redirect based on profile completeness
+        const profileIncomplete =
+          !user.firstName?.trim() || !user.lastName?.trim();
+
+        window.location.replace(
+          profileIncomplete ? "/complete-profile" : "/dashboard"
+        );
+      } catch (err) {
+        console.error("Token validation failed:", err);
         navigate("/login");
       }
     };

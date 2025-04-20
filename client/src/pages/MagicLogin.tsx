@@ -2,27 +2,23 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
+interface User {
+  _id: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  username?: string;
+  profilePicture?: string;
+  role: string;
+}
+
 interface MagicLoginResponse {
   token: string;
-  user: {
-    _id: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    username?: string;
-    profilePicture?: string;
-    role: string;
-  };
+  user: User;
 }
 
 interface LoginProps {
-  onLogin: (
-    username: string,
-    email: string,
-    firstName: string,
-    role: string,
-    token: string
-  ) => void;
+  onLogin: (user: User, token: string) => void;
 }
 
 const MagicLogin: React.FC<LoginProps> = ({ onLogin }) => {
@@ -47,30 +43,27 @@ const MagicLogin: React.FC<LoginProps> = ({ onLogin }) => {
 
         const { token: authToken, user } = res.data;
 
-        // Store token and user info in localStorage
+        // Save full user and token in localStorage
         localStorage.setItem("token", authToken);
-        localStorage.setItem("firstName", user.firstName || "User");
-        localStorage.setItem("email", user.email);
-        localStorage.setItem("role", user.role);
-        localStorage.setItem("profilePicture", user.profilePicture || "");
+        localStorage.setItem("user", JSON.stringify(user));
 
-        // Notify parent login handler
-        onLogin(
-          user.username || "",
-          user.email,
-          user.firstName || "",
-          user.role,
-          authToken
-        );
+        // Trigger global onLogin
+        onLogin(user, authToken);
 
         setStatus("Login successful! Redirecting...");
-        setTimeout(() => navigate("/dashboard"), 500);
+
+        const profileIncomplete =
+          !user.firstName?.trim() || !user.lastName?.trim();
+
+        setTimeout(() => {
+          navigate(profileIncomplete ? "/complete-profile" : "/dashboard");
+        }, 500);
       } catch (err: any) {
         console.error("Magic link login failed:", err);
         const fallbackError =
           err.response?.data?.error || "Invalid or expired magic link.";
         setStatus(fallbackError);
-        setTimeout(() => navigate("/login"), 3000); // Optional: fallback redirect
+        setTimeout(() => navigate("/login"), 3000);
       }
     };
 

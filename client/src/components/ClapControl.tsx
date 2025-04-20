@@ -40,12 +40,24 @@ const ClapControl: React.FC<ClapControlProps> = ({
   const [clapIncrement, setClapIncrement] = useState(0);
 
   const navigate = useNavigate();
-  const location = useLocation(); // ✅ grab current route
+  const location = useLocation();
 
   const handleClap = () => {
     if (!userId) {
-      navigate("/login", { state: { from: location } }); // ✅ deep redirect
-    } else if (!isAuthor && userClaps < 50) {
+      navigate("/login", { state: { from: location } });
+      return;
+    }
+
+    // 🔒 Check if user completed first and last name
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    const isProfileIncomplete = !user.firstName || !user.lastName;
+
+    if (isProfileIncomplete) {
+      navigate("/complete-profile", { state: { from: location } });
+      return;
+    }
+
+    if (!isAuthor && userClaps < 50) {
       const newIncrement = userClaps + 1;
       socket.emit("sendClap", { postId, userId, increment: 1 });
       setUserClaps(newIncrement);

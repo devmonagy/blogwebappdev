@@ -23,16 +23,18 @@ import MagicLogin from "./pages/MagicLogin";
 import OAuthSuccess from "./pages/OAuthSuccess";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
+import CompleteProfile from "./pages/CompleteProfile";
 import axios from "axios";
 
+// 👇 fix: username can be optional to match backend response
 interface User {
   _id: string;
-  username: string;
+  username?: string;
   email: string;
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
   role: string;
-  profilePicture: string;
+  profilePicture?: string;
 }
 
 interface TokenValidationResponse {
@@ -45,119 +47,142 @@ const AppRoutes: React.FC<{
   user: User | null;
   handleLogin: (user: User, token: string) => void;
   handleLogout: () => void;
-}> = ({ isAuthenticated, user, handleLogin, handleLogout }) => {
+  handleProfileUpdate: (updated: Partial<User>) => void;
+}> = ({
+  isAuthenticated,
+  user,
+  handleLogin,
+  handleLogout,
+  handleProfileUpdate,
+}) => {
   const location = useLocation();
+  const profileIncomplete =
+    isAuthenticated && (!user?.firstName?.trim() || !user?.lastName?.trim());
 
   return (
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/about" element={<About />} />
+
       <Route
         path="/login"
         element={
           isAuthenticated ? (
             <Navigate to="/dashboard" />
           ) : (
-            <Login
-              onLogin={(username, email, firstName, role, token) =>
-                handleLogin(
-                  {
-                    _id: "",
-                    username,
-                    email,
-                    firstName,
-                    lastName: "",
-                    role,
-                    profilePicture: "",
-                  },
-                  token
-                )
-              }
-            />
+            <Login onLogin={handleLogin} />
           )
         }
       />
+
       <Route path="/register" element={<Register />} />
+
       <Route
         path="/magic-login"
-        element={
-          <MagicLogin
-            onLogin={(username, email, firstName, role, token) =>
-              handleLogin(
-                {
-                  _id: "",
-                  username,
-                  email,
-                  firstName,
-                  lastName: "",
-                  role,
-                  profilePicture: "",
-                },
-                token
-              )
-            }
-          />
-        }
+        element={<MagicLogin onLogin={handleLogin} />}
       />
+
       <Route path="/oauth-success" element={<OAuthSuccess />} />
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/terms" element={<Terms />} />
+
+      <Route
+        path="/complete-profile"
+        element={
+          isAuthenticated ? (
+            <CompleteProfile onProfileUpdate={handleProfileUpdate} />
+          ) : (
+            <Navigate to="/login" state={{ from: location }} replace />
+          )
+        }
+      />
+
       <Route
         path="/dashboard"
         element={
           isAuthenticated ? (
-            <Dashboard onLogout={handleLogout} />
+            profileIncomplete ? (
+              <Navigate to="/complete-profile" replace />
+            ) : (
+              <Dashboard onLogout={handleLogout} />
+            )
           ) : (
             <Navigate to="/login" state={{ from: location }} replace />
           )
         }
       />
+
       <Route
         path="/edit-profile"
         element={
           isAuthenticated ? (
-            <EditProfile />
+            profileIncomplete ? (
+              <Navigate to="/complete-profile" replace />
+            ) : (
+              <EditProfile />
+            )
           ) : (
             <Navigate to="/login" state={{ from: location }} replace />
           )
         }
       />
+
       <Route
         path="/write-post"
         element={
           isAuthenticated ? (
-            <WritePost />
+            profileIncomplete ? (
+              <Navigate to="/complete-profile" replace />
+            ) : (
+              <WritePost />
+            )
           ) : (
             <Navigate to="/login" state={{ from: location }} replace />
           )
         }
       />
+
       <Route
         path="/edit-post/:id"
         element={
           isAuthenticated ? (
-            <EditPost />
+            profileIncomplete ? (
+              <Navigate to="/complete-profile" replace />
+            ) : (
+              <EditPost />
+            )
           ) : (
             <Navigate to="/login" state={{ from: location }} replace />
           )
         }
       />
+
       <Route
         path="/all-user-posts"
         element={
           isAuthenticated ? (
-            <AllUserPosts />
+            profileIncomplete ? (
+              <Navigate to="/complete-profile" replace />
+            ) : (
+              <AllUserPosts />
+            )
           ) : (
             <Navigate to="/login" state={{ from: location }} replace />
           )
         }
       />
+
       <Route path="/post/:id" element={<SinglePost />} />
+
       <Route
         path="/admin-dashboard"
         element={
           isAuthenticated && user?.role === "admin" ? (
-            <AdminDashboard />
+            profileIncomplete ? (
+              <Navigate to="/complete-profile" replace />
+            ) : (
+              <AdminDashboard />
+            )
           ) : (
             <Navigate
               to={isAuthenticated ? "/dashboard" : "/login"}
@@ -167,6 +192,7 @@ const AppRoutes: React.FC<{
           )
         }
       />
+
       <Route
         path="*"
         element={<div>404 - Page not found. Please check your URL.</div>}
@@ -179,10 +205,13 @@ const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
     return !!localStorage.getItem("token");
   });
+
   const [user, setUser] = useState<User | null>(() => {
     const storedUser = localStorage.getItem("user");
     return storedUser ? JSON.parse(storedUser) : null;
   });
+
+  const [loadingUser, setLoadingUser] = useState(true);
 
   const handleLogin = (user: User, token: string) => {
     localStorage.setItem("user", JSON.stringify(user));
@@ -198,6 +227,57 @@ const App: React.FC = () => {
     setUser(null);
   };
 
+  const handleProfileUpdate = (updated: Partial<User>) => {
+    if (user) {
+      const newUser = { ...user, ...updated };
+      localStorage.setItem("user", JSON.stringify(newUser));
+      setUser(newUser);
+    }
+  };
+
+  useEffect(() => {
+    const validateUser = async () => {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setLoadingUser(false);
+        return;
+      }
+
+      try {
+        const res = await axios.post<TokenValidationResponse>(
+          `${process.env.REACT_APP_BACKEND_URL}/auth/validate-token`,
+          {},
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        if (res.data.valid) {
+          setUser(res.data.user);
+          setIsAuthenticated(true);
+          localStorage.setItem("user", JSON.stringify(res.data.user));
+        } else {
+          handleLogout();
+        }
+      } catch {
+        handleLogout();
+      } finally {
+        setLoadingUser(false);
+      }
+    };
+
+    validateUser();
+  }, []);
+
+  if (loadingUser) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-background text-white text-xl">
+        Loading...
+      </div>
+    );
+  }
+
   return (
     <Router>
       <div className="bg-background min-h-screen text-primaryText flex flex-col">
@@ -208,6 +288,7 @@ const App: React.FC = () => {
             user={user}
             handleLogin={handleLogin}
             handleLogout={handleLogout}
+            handleProfileUpdate={handleProfileUpdate}
           />
         </main>
         <Footer />

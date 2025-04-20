@@ -63,11 +63,21 @@ const CommentInput: React.FC<Props> = ({
   const handleSubmit = async () => {
     try {
       const token = localStorage.getItem("token");
+
+      // 🔒 Check for incomplete profile
+      const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+      const isProfileIncomplete = !storedUser.firstName || !storedUser.lastName;
+
+      if (isProfileIncomplete) {
+        navigate("/complete-profile");
+        return;
+      }
+
       const endpoint = editingComment
         ? `${process.env.REACT_APP_BACKEND_URL}/comments/${editingComment._id}`
         : `${process.env.REACT_APP_BACKEND_URL}/comments`;
-      const method = editingComment ? "PUT" : "POST";
 
+      const method = editingComment ? "PUT" : "POST";
       const body = editingComment ? { content } : { postId, content };
 
       const response = await fetch(endpoint, {
@@ -134,11 +144,16 @@ const CommentInput: React.FC<Props> = ({
           )}
         </div>
       </div>
-
       {!isExpanded ? (
         <div
           className="bg-gray-100 rounded-md px-4 py-3 text-gray-400 text-sm cursor-pointer"
-          onClick={() => setIsExpanded(true)}
+          onClick={() => {
+            if (!user?.firstName || !user?.lastName) {
+              navigate("/complete-profile");
+            } else {
+              setIsExpanded(true);
+            }
+          }}
         >
           What are your thoughts?
         </div>

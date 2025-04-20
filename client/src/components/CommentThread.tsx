@@ -111,6 +111,24 @@ const CommentThread: React.FC<Props> = ({
     }
   }, [activeReply, comment._id, wasActive]);
 
+  const handleReplyClick = () => {
+    if (!isAuthenticated) {
+      window.location.href = "/login";
+    } else {
+      const storedUser = localStorage.getItem("user");
+      const parsed = storedUser ? JSON.parse(storedUser) : null;
+      const hasNames =
+        parsed?.firstName?.trim()?.length > 0 &&
+        parsed?.lastName?.trim()?.length > 0;
+
+      if (!hasNames) {
+        window.location.href = "/complete-profile";
+      } else {
+        setActiveReply(comment._id);
+      }
+    }
+  };
+
   return (
     <div className="mb-4 ml-0 sm:ml-6 relative">
       <div className="flex items-center justify-between mb-1">
@@ -180,16 +198,7 @@ const CommentThread: React.FC<Props> = ({
           </button>
         )}
 
-        <button
-          onClick={() => {
-            if (isAuthenticated) {
-              setActiveReply(comment._id);
-            } else {
-              window.location.href = "/login";
-            }
-          }}
-          className="hover:text-black"
-        >
+        <button onClick={handleReplyClick} className="hover:text-black">
           Reply
         </button>
       </div>

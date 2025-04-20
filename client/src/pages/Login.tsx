@@ -4,23 +4,22 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 import { FaGoogle, FaFacebookF, FaEnvelope } from "react-icons/fa";
 
+interface User {
+  _id: string;
+  username?: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  role: string;
+  profilePicture?: string;
+}
+
 interface LoginProps {
-  onLogin: (
-    username: string,
-    email: string,
-    firstName: string,
-    role: string,
-    token: string
-  ) => void;
+  onLogin: (user: User, token: string) => void;
 }
 
 interface LoginResponse {
-  user: {
-    username: string;
-    email: string;
-    firstName: string;
-    role: string;
-  };
+  user: User;
   token: string;
 }
 
@@ -61,11 +60,21 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         }
       );
 
-      const { username, email, firstName, role } = response.data.user;
-      const { token } = response.data;
+      const { user, token } = response.data;
 
-      onLogin(username, email, firstName, role, token);
-      navigate(redirectPath, { replace: true });
+      // Store in localStorage
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("token", token);
+
+      // Notify parent
+      onLogin(user, token);
+
+      // Redirect based on profile completeness
+      if (!user.firstName || !user.lastName) {
+        navigate("/complete-profile", { replace: true });
+      } else {
+        navigate(redirectPath, { replace: true });
+      }
     } catch (err: any) {
       setError(err.response?.data?.error || "Login failed. Please try again.");
     }

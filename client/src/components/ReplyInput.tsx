@@ -20,6 +20,17 @@ const ReplyInput: React.FC<Props> = ({
 }) => {
   const navigate = useNavigate();
 
+  const handleProtectedSubmit = () => {
+    const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+    const profileIncomplete = !storedUser.firstName || !storedUser.lastName;
+
+    if (profileIncomplete) {
+      navigate("/complete-profile");
+    } else {
+      onSubmit();
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <div
@@ -54,7 +65,7 @@ const ReplyInput: React.FC<Props> = ({
               ? "bg-black text-white hover:bg-gray-800"
               : "bg-gray-300 text-gray-500 cursor-not-allowed"
           }`}
-          onClick={onSubmit}
+          onClick={handleProtectedSubmit}
           disabled={!replyText.trim()}
         >
           Reply

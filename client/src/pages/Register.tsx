@@ -24,8 +24,17 @@ const Register: React.FC = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token) {
-      navigate("/dashboard");
+    const userData = localStorage.getItem("user");
+
+    if (token && userData) {
+      const user = JSON.parse(userData);
+      const { firstName, lastName, username } = user;
+
+      if (!firstName || !lastName || !username) {
+        navigate("/complete-profile");
+      } else {
+        navigate("/dashboard");
+      }
     }
   }, [navigate]);
 

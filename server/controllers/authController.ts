@@ -13,7 +13,7 @@ export const registerUser = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const { username, firstName, lastName, email, password } = req.body;
+  const { firstName, lastName, email, password } = req.body;
 
   try {
     const existingEmail = await User.findOne({ email });
@@ -27,7 +27,6 @@ export const registerUser = async (
       : undefined;
 
     const newUser = new User({
-      ...(username && { username }),
       firstName,
       lastName,
       email,
@@ -42,7 +41,7 @@ export const registerUser = async (
   }
 };
 
-// MAGIC REGISTER (register + send magic link if not found)
+// MAGIC REGISTER
 export const magicRegister = async (
   req: Request,
   res: Response
@@ -60,9 +59,8 @@ export const magicRegister = async (
     if (!user) {
       user = new User({
         email,
-        firstName: "New",
-        lastName: "User",
-        username: `user_${Date.now()}`, // ✅ fallback username
+        firstName: "",
+        lastName: "",
         role: "user",
         profilePicture:
           "https://res.cloudinary.com/dqdix32m5/image/upload/v1744499838/user_v0drnu.png",
@@ -99,7 +97,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
 
   try {
     const user = await User.findOne({
-      $or: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
+      $or: [{ email: usernameOrEmail }],
     });
 
     if (!user) {
@@ -130,7 +128,6 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
       token,
       user: {
         _id: user._id,
-        username: user.get("username") || null,
         email: user.email,
         firstName: user.firstName || "",
         lastName: user.lastName || "",
@@ -187,7 +184,7 @@ export const sendMagicLink = async (
   }
 };
 
-// MAGIC LOGIN (verify token)
+// MAGIC LOGIN
 export const magicLogin = async (
   req: Request,
   res: Response
@@ -221,7 +218,6 @@ export const magicLogin = async (
       token: authToken,
       user: {
         _id: user._id,
-        username: user.get("username") || null,
         email: user.email,
         firstName: user.firstName || "",
         lastName: user.lastName || "",
@@ -336,7 +332,7 @@ export const validateToken = async (
     };
 
     const user = await User.findById(decoded.userId).select(
-      "username email firstName lastName profilePicture role"
+      "email firstName lastName profilePicture role"
     );
 
     if (!user) {
@@ -348,7 +344,6 @@ export const validateToken = async (
       valid: true,
       user: {
         _id: user._id,
-        username: user.get("username") || null,
         email: user.email,
         firstName: user.firstName || "",
         lastName: user.lastName || "",
