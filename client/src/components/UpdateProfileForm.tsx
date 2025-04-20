@@ -7,11 +7,14 @@ interface UpdateProfileFormProps {
   initialFirstName: string;
   initialLastName: string;
   initialProfilePicture: string | null;
+  initialBio?: string;
   onUpdate: (
     email: string,
     firstName: string,
     lastName: string,
-    profilePicture: string
+    profilePicture: string,
+    bio: string,
+    newPassword?: string
   ) => void;
 }
 
@@ -23,17 +26,21 @@ interface PasswordCheckResponse {
   isSame: boolean;
 }
 
+const MAX_BIO_LENGTH = 160;
+
 const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
   initialEmail,
   initialFirstName,
   initialLastName,
   initialProfilePicture,
+  initialBio = "",
   onUpdate,
 }) => {
   const [newEmail, setNewEmail] = useState(initialEmail);
   const [firstName, setFirstName] = useState(initialFirstName);
   const [lastName, setLastName] = useState(initialLastName);
   const [newPassword, setNewPassword] = useState("");
+  const [bio, setBio] = useState(initialBio);
   const [profilePicture, setProfilePicture] = useState<string | null>(
     initialProfilePicture
   );
@@ -103,10 +110,17 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
           }
         );
 
-        if (response.data && response.data.profilePicture) {
+        if (response.data?.profilePicture) {
           const updatedProfilePicture = response.data.profilePicture;
           setProfilePicture(updatedProfilePicture);
-          onUpdate(newEmail, firstName, lastName, updatedProfilePicture);
+          onUpdate(
+            newEmail,
+            firstName,
+            lastName,
+            updatedProfilePicture,
+            bio,
+            newPassword
+          );
           setMessage("Profile picture updated successfully!");
         } else {
           setMessage("Failed to update profile picture.");
@@ -127,28 +141,7 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
     const trimmedFirstName = firstName.trim();
     const trimmedLastName = lastName.trim();
     const trimmedNewPassword = newPassword.trim();
-
-    if (
-      trimmedEmail === "" &&
-      trimmedFirstName === "" &&
-      trimmedLastName === "" &&
-      trimmedNewPassword === ""
-    ) {
-      setMessage("No changes were made.");
-      return;
-    }
-
-    if (
-      trimmedEmail === initialEmail &&
-      trimmedFirstName === initialFirstName &&
-      trimmedLastName === initialLastName &&
-      trimmedNewPassword === "" &&
-      !newPassword &&
-      profilePicture === initialProfilePicture
-    ) {
-      setMessage("No changes were made.");
-      return;
-    }
+    const trimmedBio = bio.trim();
 
     try {
       const token = localStorage.getItem("token");
@@ -158,59 +151,66 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
       }
 
       if (trimmedNewPassword) {
-        const passwordResponse = await axios.post<PasswordCheckResponse>(
-          `${process.env.REACT_APP_BACKEND_URL}/auth/check-password`,
-          { password: trimmedNewPassword },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        try {
+          const passwordResponse = await axios.post<PasswordCheckResponse>(
+            `${process.env.REACT_APP_BACKEND_URL}/auth/check-password`,
+            { currentPassword: trimmedNewPassword },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
 
-        if (passwordResponse.data.isSame) {
-          setMessage("Password can't be your current one!");
-          return;
+          if (passwordResponse.data.isSame) {
+            setMessage("Password can't be your current one!");
+            return;
+          }
+        } catch (error: any) {
+          const backendError = error.response?.data?.error;
+
+          // ✅ gracefully handle the case where no password is set yet
+          if (backendError === "No password set for this account.") {
+            // This means the user is setting a password for the first time — allow it
+          } else {
+            setMessage(backendError || "Failed to verify password.");
+            return;
+          }
         }
       }
 
-      await axios
-        .put(
-          `${process.env.REACT_APP_BACKEND_URL}/auth/update-profile`,
-          {
-            email: trimmedEmail,
-            firstName: trimmedFirstName,
-            lastName: trimmedLastName,
-            newPassword: trimmedNewPassword,
-            profilePicture,
+      await axios.put(
+        `${process.env.REACT_APP_BACKEND_URL}/auth/update-profile`,
+        {
+          email: trimmedEmail,
+          firstName: trimmedFirstName,
+          lastName: trimmedLastName,
+          newPassword: trimmedNewPassword,
+          profilePicture,
+          bio: trimmedBio,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        )
-        .then(() => {
-          onUpdate(
-            trimmedEmail,
-            trimmedFirstName,
-            trimmedLastName,
-            profilePicture || ""
-          );
-          setMessage("Profile updated successfully!");
-        })
-        .catch((error) => {
-          if (
-            error.response &&
-            error.response.status === 400 &&
-            error.response.data.error
-          ) {
-            setMessage(error.response.data.error);
-          } else {
-            setMessage("Failed to update profile.");
-          }
-        });
+        }
+      );
+
+      onUpdate(
+        trimmedEmail,
+        trimmedFirstName,
+        trimmedLastName,
+        profilePicture || "",
+        trimmedBio,
+        trimmedNewPassword
+      );
+      setMessage("Profile updated successfully!");
     } catch (error: any) {
+      console.error(
+        "Update profile failed:",
+        error.response?.data || error.message
+      );
       setMessage("An unexpected error occurred.");
     }
   };
@@ -284,7 +284,7 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
             htmlFor="newPassword"
             className="block mb-1 text-primaryText text-sm"
           >
-            New Password:
+            Set or update password:
           </label>
           <div className="eyecomp flex items-center border rounded-md overflow-hidden">
             <input
@@ -308,6 +308,9 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
               )}
             </div>
           </div>
+          <p className="text-xxs mt-1 text-secondaryText italic">
+            Optional: Add a password to log in without Magic Link.
+          </p>
           <div className="h-2 mt-2 w-full rounded-full bg-gray-300">
             <div
               className={`h-full rounded-full ${
@@ -316,8 +319,25 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
               style={{ width: `${(passwordStrength / 5) * 100}%` }}
             ></div>
           </div>
-          <p className="mt-2 text-sm text-secondaryText text-sm">
-            {passwordStatus}
+          <p className="mt-2 text-sm text-secondaryText">{passwordStatus}</p>
+        </div>
+        <div>
+          <label className="block mb-1 text-primaryText text-sm">
+            Bio (optional)
+          </label>
+          <textarea
+            value={bio}
+            onChange={(e) => {
+              if (e.target.value.length <= MAX_BIO_LENGTH) {
+                setBio(e.target.value);
+              }
+            }}
+            rows={3}
+            className="w-full px-3 py-2 border rounded-md text-sm text-gray-700 resize-none"
+            placeholder="Tell us a little about yourself..."
+          />
+          <p className="text-xs text-right text-gray-400">
+            {bio.length}/{MAX_BIO_LENGTH}
           </p>
         </div>
         <button
@@ -326,12 +346,12 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
         >
           Update Profile
         </button>
+        {message && (
+          <p className="mt-4 text-left text-secondaryText text-sm font-black">
+            {message}
+          </p>
+        )}
       </form>
-      {message && (
-        <p className="mt-4 text-left text-secondaryText text-sm font-black">
-          {message}
-        </p>
-      )}
     </div>
   );
 };

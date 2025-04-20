@@ -10,6 +10,7 @@ interface UserInfoData {
   lastName: string;
   profilePicture: string | null;
   memberSince: string;
+  bio?: string;
 }
 
 const EditProfile: React.FC = () => {
@@ -30,6 +31,7 @@ const EditProfile: React.FC = () => {
         lastName: string;
         profilePicture: string;
         createdAt: string;
+        bio?: string;
       }>(`${process.env.REACT_APP_BACKEND_URL}/auth/user-profile`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -43,6 +45,7 @@ const EditProfile: React.FC = () => {
         lastName,
         profilePicture,
         createdAt,
+        bio,
       } = response.data;
 
       let fullProfilePictureUrl: string | null = null;
@@ -66,6 +69,7 @@ const EditProfile: React.FC = () => {
         lastName,
         profilePicture: fullProfilePictureUrl,
         memberSince,
+        bio: bio?.trim() || "",
       });
     } catch (error) {
       console.error("Error fetching user data:", error);
@@ -80,7 +84,9 @@ const EditProfile: React.FC = () => {
     email: string,
     firstName: string,
     lastName: string,
-    profilePicture: string
+    profilePicture: string,
+    bio: string,
+    newPassword?: string
   ) => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -91,11 +97,31 @@ const EditProfile: React.FC = () => {
     axios
       .put(
         `${process.env.REACT_APP_BACKEND_URL}/auth/update-profile`,
-        { email, firstName, lastName, profilePicture },
-        { headers: { Authorization: `Bearer ${token}` } }
+        {
+          email,
+          firstName,
+          lastName,
+          profilePicture,
+          bio,
+          ...(newPassword && { newPassword }),
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       )
       .then(() => {
-        fetchUserData(); // Re-fetch user data to ensure it's up-to-date
+        setUserInfo((prev) =>
+          prev
+            ? {
+                ...prev,
+                email: email.trim() || prev.email,
+                firstName: firstName.trim() || prev.firstName,
+                lastName: lastName.trim() || prev.lastName,
+                profilePicture: profilePicture || prev.profilePicture,
+                bio: bio.trim() !== "" ? bio.trim() : prev.bio,
+              }
+            : null
+        );
       })
       .catch((error) => {
         console.error("Error updating profile:", error);
@@ -103,7 +129,7 @@ const EditProfile: React.FC = () => {
   };
 
   return (
-    <div className="container lg:max-w-screen-md p-7 flex flex-col items-center justify-center py-10 bg-background text-white ">
+    <div className="container lg:max-w-screen-md p-7 flex flex-col items-center justify-center py-10 bg-background text-white">
       <h2 className="text-3xl font-semibold mb-8 text-primaryText text-center">
         Edit Your Profile
       </h2>
@@ -117,6 +143,7 @@ const EditProfile: React.FC = () => {
                 initialFirstName={userInfo?.firstName || ""}
                 initialLastName={userInfo?.lastName || ""}
                 initialProfilePicture={userInfo?.profilePicture || ""}
+                initialBio={userInfo?.bio || ""}
                 onUpdate={handleUpdate}
               />
             </div>
@@ -126,10 +153,10 @@ const EditProfile: React.FC = () => {
           <div className="w-full md:w-1/2">
             <div className="bg-cardInner p-6 rounded-xl shadow-sm">
               <UserInfo
-                username={userInfo?.username || "N/A"}
                 email={userInfo?.email || "N/A"}
                 firstName={userInfo?.firstName || "N/A"}
                 lastName={userInfo?.lastName || "N/A"}
+                bio={userInfo?.bio || ""}
                 memberSince={userInfo?.memberSince || "N/A"}
               />
             </div>

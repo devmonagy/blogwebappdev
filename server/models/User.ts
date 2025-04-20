@@ -9,7 +9,7 @@ interface IUser extends Document {
   password?: string;
   profilePicture?: string;
   bio?: string;
-  role: string;
+  role: "user" | "admin";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -20,7 +20,7 @@ const getDefaultProfilePictureUrl = (): string => {
 };
 
 // User schema definition
-const UserSchema: Schema = new Schema(
+const UserSchema: Schema = new Schema<IUser>(
   {
     username: {
       type: String,
@@ -57,6 +57,7 @@ const UserSchema: Schema = new Schema(
       type: String,
       maxlength: 160,
       default: "",
+      trim: true,
     },
     role: {
       type: String,

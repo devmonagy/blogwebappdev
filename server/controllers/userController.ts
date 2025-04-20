@@ -1,3 +1,5 @@
+// server/controllers/userController.ts
+
 import { Request, Response } from "express";
 import User from "../models/User";
 import { AuthenticatedRequest } from "../middleware/authenticate";
@@ -39,6 +41,7 @@ export const getUserProfile = async (
       profilePicture: user.profilePicture || "",
       role: user.role,
       createdAt: user.createdAt,
+      bio: typeof user.bio === "string" ? user.bio : "", // ✅ Safely return string
     });
   } catch (error) {
     console.error("Error fetching user profile:", error);

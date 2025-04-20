@@ -252,24 +252,23 @@ export const updateProfile = async (
       return;
     }
 
-    if (firstName) user.firstName = firstName;
-    if (lastName) user.lastName = lastName;
-    if (email) user.email = email;
+    if (firstName?.trim()) user.firstName = firstName.trim();
+    if (lastName?.trim()) user.lastName = lastName.trim();
+    if (email?.trim()) user.email = email.trim();
     if (profilePicture) user.profilePicture = profilePicture;
-    if (bio !== undefined) user.bio = bio; // ✅ Add bio support
+    if (typeof bio === "string" && bio.trim() !== "") {
+      user.bio = bio.trim();
+    }
 
     if (newPassword) {
-      if (!user.password) {
-        res
-          .status(400)
-          .json({ error: "No existing password found for this user." });
-        return;
-      }
-
-      const isSamePassword = await bcrypt.compare(newPassword, user.password);
-      if (isSamePassword) {
-        res.status(400).json({ error: "Password can't be your current one!" });
-        return;
+      if (user.password) {
+        const isSamePassword = await bcrypt.compare(newPassword, user.password);
+        if (isSamePassword) {
+          res
+            .status(400)
+            .json({ error: "Password can't be your current one!" });
+          return;
+        }
       }
 
       user.password = await bcrypt.hash(newPassword, 10);
@@ -288,7 +287,7 @@ export const checkPassword = async (
   req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
-  const { password } = req.body;
+  const { currentPassword } = req.body;
   const userId = req.userId;
 
   if (!userId) {
@@ -308,7 +307,7 @@ export const checkPassword = async (
       return;
     }
 
-    const isSame = await bcrypt.compare(password, user.password);
+    const isSame = await bcrypt.compare(currentPassword, user.password);
     res.status(200).json({ isSame });
   } catch (error) {
     console.error("Error checking password:", error);
@@ -355,5 +354,42 @@ export const validateToken = async (
     });
   } catch (error) {
     res.status(401).json({ valid: false, error: "Invalid token" });
+  }
+};
+
+// GET USER PROFILE
+export const getUserProfile = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
+  const userId = req.userId;
+
+  if (!userId) {
+    res.status(401).json({ error: "User not authenticated" });
+    return;
+  }
+
+  try {
+    const user = await User.findById(userId).select(
+      "username email firstName lastName profilePicture createdAt bio"
+    );
+
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    res.status(200).json({
+      username: user.username || "",
+      email: user.email,
+      firstName: user.firstName || "",
+      lastName: user.lastName || "",
+      profilePicture: user.profilePicture || "",
+      createdAt: user.createdAt,
+      bio: user.bio || "",
+    });
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    res.status(500).json({ error: "Server error fetching profile" });
   }
 };
