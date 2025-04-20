@@ -97,20 +97,9 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     }
   };
 
-  // ⚠️ Commented out Google/Facebook login buttons
-  // const handleGoogleLogin = () => {
-  //   const redirect = encodeURIComponent(redirectPath);
-  //   window.location.href = `${process.env.REACT_APP_BACKEND_URL}/auth/google?redirect=${redirect}`;
-  // };
-
-  // const handleFacebookLogin = () => {
-  //   const redirect = encodeURIComponent(redirectPath);
-  //   window.location.href = `${process.env.REACT_APP_BACKEND_URL}/auth/facebook?redirect=${redirect}`;
-  // };
-
   return (
-    <div className="container px-4 pt-10 pb-8 flex items-center justify-center bg-background min-h-screen">
-      <div className="bg-background p-6 rounded-lg shadow-xl max-w-md w-full space-y-6">
+    <div className="bg-background min-h-screen px-8 pt-20 pb-8">
+      <div className="bg-background p-6 rounded-lg shadow-xl max-w-md w-full mx-auto space-y-6">
         <h2 className="text-xl font-bold text-center text-primaryText">
           Welcome Back
         </h2>
@@ -141,18 +130,17 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
           {!showPasswordField ? (
             <>
-              {" "}
-              <span className="text-sm text-secondaryText">
+              <span className="text-xs sm:text-sm text-secondaryText">
                 Want to sign in with your password?{" "}
               </span>
               <button
                 type="button"
                 onClick={() => setShowPasswordField(true)}
-                className="text-blue-400 text-sm hover:underline"
+                className="text-blue-400  hover:underline text-xs sm:text-sm"
               >
                 Click here
               </button>
-              <span className="text-sm text-secondaryText">.</span>
+              <span className="text-xs sm:text-sm text-secondaryText">.</span>
               <button
                 type="button"
                 onClick={handleMagicLinkLogin}

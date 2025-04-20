@@ -120,42 +120,15 @@ const Register: React.FC = () => {
     );
   };
 
-  // ⚠️ Commented out social buttons temporarily
-  // const handleGoogleRegister = () => {
-  //   window.location.href = `${process.env.REACT_APP_BACKEND_URL}/auth/google`;
-  // };
-
-  // const handleFacebookRegister = () => {
-  //   window.location.href = `${process.env.REACT_APP_BACKEND_URL}/auth/facebook`;
-  // };
-
   return (
-    <div className="container px-4 pt-10 pb-8 flex items-center justify-center bg-background min-h-screen">
-      <div className="bg-background p-6 rounded-lg shadow-xl max-w-md w-full space-y-6">
+    <div className="bg-background min-h-screen px-8 pt-20 pb-12">
+      <div className="bg-background p-6 rounded-lg shadow-xl max-w-md w-full mx-auto space-y-6">
         <h2 className="text-xl font-bold text-center text-primaryText">
           Join Blogwebapp
         </h2>
 
         {error && <p className="text-red-500 text-center">{error}</p>}
         {success && <p className="text-green-500 text-center">{success}</p>}
-
-        {/* ⚠️ Commented out social login buttons for now */}
-        {/* <div className="space-y-4">
-          <button
-            className="w-full border border-gray-500 rounded-full py-2 flex items-center justify-center text-secondaryText hover:bg-gray-800 hover:text-white transition"
-            onClick={handleGoogleRegister}
-          >
-            <FaGoogle className="mr-3" />
-            Continue with Google
-          </button>
-          <button
-            className="w-full border border-gray-500 rounded-full py-2 flex items-center justify-center text-secondaryText hover:bg-gray-800 hover:text-white transition"
-            onClick={handleFacebookRegister}
-          >
-            <FaFacebookF className="mr-3" />
-            Continue with Facebook
-          </button>
-        </div> */}
 
         <form
           onSubmit={
@@ -180,17 +153,17 @@ const Register: React.FC = () => {
 
           {!showPasswordField ? (
             <>
-              <span className="text-sm text-secondaryText">
+              <span className="text-xs sm:text-sm text-secondaryText">
                 Want to set a password now?{" "}
               </span>
               <button
                 type="button"
                 onClick={() => setShowPasswordField(true)}
-                className="text-blue-400 text-sm hover:underline"
+                className="text-blue-400 hover:underline text-xs sm:text-sm"
               >
                 Click here
               </button>
-              <span className="text-sm text-secondaryText">.</span>
+              <span className="text-xs sm:text-sm text-secondaryText">.</span>
               <button
                 type="button"
                 onClick={handleMagicLinkRegister}
