@@ -230,7 +230,7 @@ const Register: React.FC = () => {
           </Link>
         </p>
 
-        <p className="text-xxs text-center text-gray-500 mt-2">
+        <p className="text-[10px] sm:text-xxs text-center text-gray-500 mt-2">
           This site is in soft launch mode 🚀
           <br /> By continuing, you agree to our{" "}
           <Link
