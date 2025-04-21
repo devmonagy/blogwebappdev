@@ -10,7 +10,7 @@ const WritePost: React.FC = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert("User not authenticated");
+        // You could toast this here if you want to stay on the same page
         return;
       }
 
@@ -25,11 +25,16 @@ const WritePost: React.FC = () => {
         }
       );
 
-      alert("Post created successfully");
-      navigate("/");
+      // Pass toast message to homepage via router state
+      navigate("/", {
+        state: { toastMessage: "Post created successfully!" },
+      });
     } catch (error: any) {
       console.error("Error submitting post:", error?.response?.data || error);
-      alert("Failed to create post");
+      // Show toast immediately if post creation fails
+      import("react-toastify").then(({ toast }) =>
+        toast.error("Failed to create post")
+      );
     }
   };
 

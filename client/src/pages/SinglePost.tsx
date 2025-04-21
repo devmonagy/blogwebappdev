@@ -9,6 +9,8 @@ import CommentInput from "../components/CommentInput";
 import CommentList from "../components/CommentList";
 import CommentThread from "../components/CommentThread";
 import socket from "../socket";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export interface Author {
   _id: string;
@@ -75,9 +77,7 @@ const SinglePost: React.FC = () => {
         .post(
           `${process.env.REACT_APP_BACKEND_URL}/auth/validate-token`,
           {},
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         )
         .then((res: any) => {
           const user = res.data.user;
@@ -170,14 +170,10 @@ const SinglePost: React.FC = () => {
             };
           });
 
-        if (parentId) {
-          return insertReply([...prev]);
-        }
+        if (parentId) return insertReply([...prev]);
 
         const exists = prev.some((c) => c._id === adjustedComment._id);
-        if (!exists) {
-          return [...prev, { ...adjustedComment, replies: [] }];
-        }
+        if (!exists) return [...prev, { ...adjustedComment, replies: [] }];
 
         return prev;
       });
@@ -274,10 +270,12 @@ const SinglePost: React.FC = () => {
       await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/posts/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      alert("Post deleted successfully.");
-      navigate("/");
+
+      navigate("/", {
+        state: { toastMessage: "Post deleted successfully." },
+      });
     } catch (err) {
-      alert("Failed to delete the post.");
+      toast.error("Failed to delete the post.");
     }
   };
 
@@ -336,6 +334,7 @@ const SinglePost: React.FC = () => {
 
   return (
     <div className="container p-7 bg-background min-h-screen py-8 lg:max-w-screen-md">
+      <ToastContainer />
       <div className="mx-auto p-3 text-primaryText shadow-lg rounded-lg bg-white animate-fade-in">
         <PostHeader post={post} />
         <PostActions
@@ -353,7 +352,6 @@ const SinglePost: React.FC = () => {
         {renderContent()}
       </div>
 
-      {/* ✅ Preview comment section */}
       <div className="mx-auto mt-10 p-4 bg-white shadow-sm rounded-lg text-primaryText">
         <h2 className="text-lg font-semibold mb-4">
           Responses {totalComments > 0 && <span>({totalComments})</span>}

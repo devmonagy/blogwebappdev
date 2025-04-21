@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { format } from "timeago.js";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import clapSolidImage from "../assets/clapSolid.png";
 import commentSolidImage from "../assets/commentsSolid.png";
 import "../styles/quill-custom.css";
@@ -31,6 +33,7 @@ const Home: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [infoBarVisible, setInfoBarVisible] = useState<boolean>(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const fetchPosts = async () => {
     setLoading(true);
@@ -57,6 +60,14 @@ const Home: React.FC = () => {
     const timer = setTimeout(() => setInfoBarVisible(true), 100);
     return () => clearTimeout(timer);
   }, []);
+
+  // ✅ Show toast once and clear state to prevent re-showing
+  useEffect(() => {
+    if (location.state?.toastMessage) {
+      toast.success(location.state.toastMessage);
+      navigate(location.pathname, { replace: true }); // Clear state
+    }
+  }, [location.state, navigate, location.pathname]);
 
   const truncateContent = (content: string, maxLength: number) => {
     const parser = new DOMParser();
@@ -219,6 +230,18 @@ const Home: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar
+        newestOnTop
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 };
