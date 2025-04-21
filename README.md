@@ -1,26 +1,61 @@
-I'm excited to officially launch Version 1.0.0 of my full-stack MERN blog web application! (Deployed April 4, 2025)
+💡 This project is not just a portfolio piece — it’s a production-ready, scalable web app that demonstrates my ability to:
+🧱 Architect full-stack applications from scratch
+🔐 Implement secure, flexible authentication flows
+📱 Optimize user experience across mobile and desktop
+⚡ Build real-time features using WebSockets
 
-This marks the first production-ready release of the app, now deployed and live using:
+🛠️ Tech Stack & Tools
 
-Frontend: React (with TypeScript), hosted on Vercel
-Backend: Node.js + Express + MongoDB, deployed on Render
+Frontend
+
+React
+TypeScript
+Tailwind CSS
+React Router
+Axios
+DOMPurify
+
+Backend
+
+Node.js
+Express
+MongoDB (via Mongoose)
+Authentication
+Magic Link (passwordless login via email)
+Google OAuth 2.0
+Facebook OAuth
+JWT (secure, HTTP-only cookies)
+Media & Storage
+Cloudinary for profile and post image uploads
+Real-Time
+WebSockets for claps and comment updates
+
+Security
+
+Content Security Policy
+Secure HTTP-only tokens
+Input sanitization with DOMPurify
+
+Deployment
+
+Frontend: Vercel
+Backend: Render
 Database: MongoDB Atlas
 
-🛠️ Key Features in v1.0.0:
-🧑‍💻 User Registration & Login (with JWT authentication)
-🔐 Passwords securely hashed using bcryptjs
-📝 Create and manage blog posts (with optional image upload)
-📦 REST API for user and post management
-🎨 Responsive frontend styled with Tailwind CSS
-🛡️ CORS-enabled backend to support secure frontend/backend communication
+📈 Version 1.3.0 Milestones
 
-⚠️ Note:
-This is an early production release. More features and refinements are actively being worked on — including:
+📝 Rich text editor for blog posts (Quill.js) with image support
+👥 Full comment system with nested replies and real-time updates
+👏 Medium-style clap system (up to 50 claps per user, per post)
+✉️ Magic Link authentication (email-only registration/login)
+🔐 Google & Facebook login integrations (OAuth setup complete, verification in progress)
+🧠 Profile onboarding step for new social login users
+🖼️ Dynamic profile pictures using Cloudinary (Google defaults or custom uploads)
+📱 Responsive design across devices
+🎨 Polished UI/UX with smooth animations and accessibility in mind
 
-Post editing
-User profile customization
-Improved editor experience with formatting options
-Social interactions
+📌 Project Status
+Blogwebapp is currently at version 1.3.0 and continues to receive regular updates with new features, UI enhancements, and performance improvements.
 
 Thanks for checking it out! Feel free to visit the live app at:
 
