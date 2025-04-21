@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import PostForm from "../components/PostForm"; // Assuming PostForm is reusable
+import PostForm from "../components/PostForm";
 
 const WritePost: React.FC = () => {
   const navigate = useNavigate();
@@ -34,13 +34,15 @@ const WritePost: React.FC = () => {
   };
 
   return (
-    <div className="container lg:max-w-screen-md p-7 flex flex-col items-center justify-center min-h-full py-10 bg-background text-white w-full ">
-      <h2 className="text-3xl font-bold mb-6 text-primaryText">
-        Start Your Post
-      </h2>
-      <div className="w-full  bg-cardBackground rounded-lg shadow-lg p-6">
+    <div className="bg-white text-black min-h-screen px-6 py-12 flex flex-col items-center">
+      <div className="w-full max-w-3xl">
         <PostForm
-          initialData={{ title: "", category: "", content: "", image: null }}
+          initialData={{
+            title: "",
+            category: "",
+            content: "",
+            image: null,
+          }}
           onSubmit={handlePostSubmit}
         />
       </div>

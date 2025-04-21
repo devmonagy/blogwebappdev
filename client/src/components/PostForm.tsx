@@ -20,15 +20,10 @@ interface PostFormProps {
 
 const toolbarOptions = [
   [{ font: [] }],
-  [{ header: [1, 2, 3, 4, 5, 6, false] }],
+  [{ header: [1, 2, 3, false] }],
   ["bold", "italic", "underline", "strike"],
-  [{ color: [] }, { background: [] }],
-  [{ script: "sub" }, { script: "super" }],
-  ["blockquote", "code-block"],
   [{ list: "ordered" }, { list: "bullet" }],
-  [{ indent: "-1" }, { indent: "+1" }],
-  [{ direction: "rtl" }],
-  [{ align: [] }],
+  ["blockquote", "code-block"],
   ["link", "image", "video"],
   ["clean"],
 ];
@@ -66,69 +61,86 @@ const PostForm: React.FC<PostFormProps> = ({ initialData, onSubmit }) => {
     formData.append("category", postData.category);
     formData.append("content", postData.content);
     if (postData.image) {
-      formData.append("image", postData.image); // ← correct way to pass File
+      formData.append("image", postData.image);
     }
     onSubmit(formData);
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="w-full space-y-6 bg-background text-black rounded-lg"
-    >
+    <form onSubmit={handleSubmit} className="w-full space-y-8">
       <input
         type="text"
         name="title"
-        placeholder="Post Title"
-        onChange={handleChange}
+        placeholder="Title"
         value={postData.title}
+        onChange={handleChange}
         required
-        className="w-full px-4 py-3 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="w-full text-4xl font-serif text-gray-700 placeholder-gray-400 focus:outline-none"
       />
 
       <input
         type="text"
         name="category"
         placeholder="Category"
-        onChange={handleChange}
         value={postData.category}
+        onChange={handleChange}
         required
-        className="w-full px-4 py-3 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="w-full text-lg font-sans text-gray-600 placeholder-gray-400 focus:outline-none"
       />
 
       {isQuillLoaded && ReactQuill ? (
-        <ReactQuill
-          theme="snow"
-          value={postData.content}
-          onChange={handleContentChange}
-          modules={{ toolbar: toolbarOptions }}
-          className="w-full bg-white rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+        <div
+          className="relative group rounded-lg border border-gray-300 hover:border-gray-400 transition"
+          onClick={() => {
+            const quill = document.querySelector(".ql-editor") as HTMLElement;
+            if (quill) quill.focus();
+          }}
+        >
+          <ReactQuill
+            theme="snow"
+            value={postData.content}
+            onChange={handleContentChange}
+            modules={{ toolbar: toolbarOptions }}
+            className="custom-quill-editor text-lg text-gray-800"
+          />
+        </div>
       ) : (
-        <p className="text-center">Loading editor...</p>
+        <p className="text-center text-gray-500">Loading editor...</p>
       )}
 
-      <div className="flex flex-col">
+      <div className="pt-6">
         <label
-          htmlFor="image"
-          className="text-lg font-semibold text-primaryText"
+          htmlFor="imageUpload"
+          className="block w-full border-2 border-dashed border-gray-300 rounded-lg p-6 text-center text-sm text-gray-500 cursor-pointer hover:border-gray-500 transition"
         >
-          Upload Image
+          {postData.image ? (
+            <span>{postData.image.name}</span>
+          ) : (
+            <>
+              <span className="block font-medium text-gray-700">
+                Click to upload image
+              </span>
+              <span className="text-xs text-gray-400">
+                PNG, JPG, JPEG up to 5MB
+              </span>
+            </>
+          )}
+          <input
+            id="imageUpload"
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="hidden"
+          />
         </label>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-          className="w-full mt-2 border border-gray-300 rounded-lg text-black"
-        />
       </div>
 
-      <div className="flex justify-center">
+      <div className="pt-6 flex justify-end">
         <button
           type="submit"
-          className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md"
+          className="bg-black text-white px-6 py-3 rounded-full hover:bg-gray-800 transition"
         >
-          {postData._id ? "Update Post" : "Submit Post"}
+          {postData._id ? "Update Post" : "Publish"}
         </button>
       </div>
     </form>

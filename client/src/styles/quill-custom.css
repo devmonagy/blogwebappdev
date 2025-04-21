@@ -1,6 +1,10 @@
+/* Text styling */
 .ql-editor {
-  /* Ensure text-align is respected */
   text-align: left !important;
+  font-family: Georgia, serif;
+  font-size: 1.125rem;
+  line-height: 1.8;
+  cursor: text;
 }
 
 .ql-editor h1,
@@ -17,6 +21,7 @@
   text-decoration: underline !important;
 }
 
+/* Alignment classes */
 .ql-editor .ql-align-left {
   text-align: left !important;
 }
@@ -30,9 +35,10 @@
 }
 
 .ql-editor .ql-align-justify {
-  text-align: justify !important; /* Updated to ensure justify alignment */
+  text-align: justify !important;
 }
 
+/* Inline formatting */
 .ql-editor .ql-bold {
   font-weight: bold !important;
 }
@@ -46,20 +52,56 @@
 }
 
 .ql-editor .ql-color {
-  color: inherit !important; /* Ensure color is applied */
+  color: inherit !important;
 }
 
 .ql-editor .ql-background {
-  background-color: inherit !important; /* Ensure background color is applied */
+  background-color: inherit !important;
 }
 
+/* Code block */
 .ql-editor .ql-code-block {
   background-color: #f5f5f5 !important;
   padding: 10px !important;
   border-radius: 4px !important;
 }
 
-/* Add this to your quill-custom.css or an appropriate CSS file */
+/* Lists */
+.ql-editor ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin: 0.5rem 0 1rem;
+}
+
+.ql-editor ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  margin: 0.5rem 0 1rem;
+}
+
+.ql-editor li {
+  margin-bottom: 0.5rem;
+}
+
+/* Quill container */
+.ql-toolbar.ql-snow {
+  border: none !important;
+  padding-bottom: 0.5rem;
+}
+
+.ql-container.ql-snow {
+  border: none !important;
+  padding: 1rem 0;
+  min-height: 300px;
+}
+
+/* Custom wrapper */
+.custom-quill-editor {
+  margin-top: 1rem;
+  min-height: 300px;
+}
+
+/* Other app-wide styles */
 .fade-out-overlay {
   position: relative;
   overflow: hidden;
@@ -74,33 +116,16 @@
   height: 250px;
   background: linear-gradient(to bottom, transparent, white 95%);
 }
+
 .light-icon {
-  color: rgb(0, 0, 0); /* Set to a light color */
-  opacity: 0.7; /* Make it semi-transparent to appear lighter */
+  color: #000;
+  opacity: 0.7;
 }
 
 .light-icon:hover {
-  color: rgb(0, 0, 0); /* Set to a light color */
-  opacity: 1; /* Make it semi-transparent to appear lighter */
+  opacity: 1;
 }
 
 .clapImg {
   opacity: 0.75;
-}
-.ql-editor ul {
-  list-style-type: disc;
-  padding-left: 0rem;
-  margin-bottom: 1rem;
-  margin-top: 0.5rem;
-}
-
-.ql-editor ol {
-  list-style-type: decimal;
-  padding-left: 0rem;
-  margin-bottom: 1rem;
-  margin-top: 0.5rem;
-}
-
-.ql-editor li {
-  margin-bottom: 0.5rem;
 }
