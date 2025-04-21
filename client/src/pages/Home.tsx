@@ -205,21 +205,14 @@ const Home: React.FC = () => {
           <span className="info-text text-xs sm:text-sm md:text-base lg:text-lg">
             This app is in soft launch mode 🚀
             <br />
-            By using it, you accept our{" "}
+            Feedback and bug reports{" "}
             <a
-              href="/terms"
+              href="/about"
               className="text-cyan-400 underline hover:text-cyan-300"
             >
-              Terms
+              are always welcome
             </a>{" "}
-            and{" "}
-            <a
-              href="/privacy"
-              className="text-cyan-400 underline hover:text-cyan-300"
-            >
-              Privacy Policy
-            </a>
-            .
+            🙌
           </span>
 
           <button
