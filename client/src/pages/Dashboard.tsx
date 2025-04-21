@@ -80,17 +80,22 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
   };
 
   const handleProfilePicture = (path: string) => {
-    if (path) {
-      const url = path.startsWith("http")
-        ? path
-        : `${process.env.REACT_APP_BACKEND_URL}/uploads/${path.replace(
-            /^\/+|uploads\/+/g,
-            ""
-          )}`;
-      setProfilePicture(url);
-    } else {
-      setProfilePicture(null);
+    if (!path) {
+      setProfilePicture(
+        "https://res.cloudinary.com/dqdix32m5/image/upload/v1744499838/user_v0drnu.png"
+      );
+      return;
     }
+
+    const isFullUrl = path.startsWith("http://") || path.startsWith("https://");
+
+    const cleanedPath = path.replace(/^\/+/, "").replace(/^uploads\/+/, "");
+
+    const url = isFullUrl
+      ? path
+      : `${process.env.REACT_APP_BACKEND_URL}/uploads/${cleanedPath}`;
+
+    setProfilePicture(url);
   };
 
   useEffect(() => {
