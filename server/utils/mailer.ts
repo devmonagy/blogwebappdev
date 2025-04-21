@@ -49,9 +49,10 @@ export const sendEmail = async ({ to, link }: MailOptions): Promise<void> => {
             <div style="text-align:left;">
               <h2 style="font-size:16px;color:#111827;margin-bottom:10px;">Tips to get started</h2>
               <ul style="padding-left:20px;color:#4B5563;font-size:14px;">
-                <li>📖 <strong>Explore posts</strong> from other creators</li>
-                <li>📝 <strong>Create your first story</strong> from your dashboard</li>
                 <li>💡 <strong>Discover unique perspectives</strong> and connect with like-minded readers</li>
+                <li>🧩 <strong>Complete your profile</strong> — you're one step away!</li>
+                <li>📝 <strong>Create your first story</strong> from your dashboard</li>
+                
               </ul>
             </div>
           </div>
