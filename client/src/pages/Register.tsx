@@ -130,7 +130,8 @@ const Register: React.FC = () => {
   };
 
   const handleGoogleRegister = () => {
-    window.location.href = `${process.env.REACT_APP_BACKEND_URL}/auth/google`;
+    const redirect = encodeURIComponent(redirectPath);
+    window.location.href = `${process.env.REACT_APP_BACKEND_URL}/auth/google?redirect=${redirect}&prompt=select_account+consent`;
   };
 
   return (

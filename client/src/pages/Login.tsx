@@ -104,7 +104,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
   const handleGoogleLogin = () => {
     const redirect = encodeURIComponent(redirectPath);
-    window.location.href = `${process.env.REACT_APP_BACKEND_URL}/auth/google?redirect=${redirect}`;
+    window.location.href = `${process.env.REACT_APP_BACKEND_URL}/auth/google?redirect=${redirect}&prompt=select_account+consent`;
   };
 
   return (
