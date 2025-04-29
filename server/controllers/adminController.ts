@@ -59,3 +59,30 @@ export const updateUserRole = async (
     res.status(500).json({ message: "Server error." });
   }
 };
+
+// ✅ Delete user (admin only)
+export const deleteUser = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
+  if (req.userRole !== "admin") {
+    res.status(403).json({ message: "Access denied." });
+    return;
+  }
+
+  try {
+    const userId = req.params.id;
+
+    const deletedUser = await User.findByIdAndDelete(userId);
+
+    if (!deletedUser) {
+      res.status(404).json({ message: "User not found." });
+      return;
+    }
+
+    res.json({ message: "User deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({ message: "Server error." });
+  }
+};
