@@ -1,6 +1,8 @@
 import React, { useRef, useState, useEffect } from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
-import { format } from "timeago.js";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
 import ReplyInput from "./ReplyInput";
 import commentIcon from "../assets/commentsLight.png";
 
@@ -73,11 +75,11 @@ const CommentThread: React.FC<Props> = ({
   const canEditDelete = userId === comment.author._id || userRole === "admin";
 
   const displayTime = () => {
-    const createdTime = new Date(comment.createdAt).getTime() + timeDrift;
-    const currentTime = Date.now() + timeDrift;
+    const createdTime = dayjs(comment.createdAt).add(timeDrift, "millisecond");
+    const currentTime = dayjs().add(timeDrift, "millisecond");
 
-    if (Math.abs(currentTime - createdTime) < 10000) return "Just now";
-    return format(createdTime);
+    if (Math.abs(currentTime.diff(createdTime)) < 10000) return "Just now";
+    return createdTime.from(currentTime);
   };
 
   useEffect(() => {

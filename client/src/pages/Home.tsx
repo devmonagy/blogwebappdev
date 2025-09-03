@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { format } from "timeago.js";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import clapSolidImage from "../assets/clapSolid.png";
@@ -155,7 +157,7 @@ const Home: React.FC = () => {
 
                   {/* DATE + CLAPS + COMMENTS */}
                   <div className="flex items-center gap-4 text-xs text-secondaryText">
-                    <span>{format(post.createdAt)}</span>
+                    <span>{dayjs(post.createdAt).fromNow()}</span>
                     <div className="flex items-center gap-4">
                       {hasClaps && (
                         <div className="flex items-center gap-1">
