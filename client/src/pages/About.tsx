@@ -18,7 +18,7 @@ const About: React.FC = () => {
       <h1 className="text-3xl font-bold mb-4">🚀 App Release Information!</h1>
       <p className="mb-4">
         I'm excited to officially launch <strong>Version 1.0.0</strong> of my
-        full-stack <strong>MERN blog web applications</strong>! 🎉
+        full-stack <strong>MERN blog web application</strong>! 🎉
         <em> (Deployed April 4, 2025).</em>
       </p>
 
