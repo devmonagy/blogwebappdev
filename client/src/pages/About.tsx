@@ -19,7 +19,7 @@ const About: React.FC = () => {
         🚀 App Release Information! OMAR PUSHING
       </h1>
       <p className="mb-4">
-        I'm excited to officially launch <strong>Version 1.0.0</strong> of my
+        I'm excitedd to officially launch <strong>Version 1.0.0</strong> of my
         full-stack <strong>MERN blog web application</strong>! 🎉
         <em> (Deployed April 4, 2025).</em>
       </p>
